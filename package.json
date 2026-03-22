@@ -28,6 +28,8 @@
     "csv-parser": "^3.2.0",
     "express": "^5.2.1",
     "formik": "^2.4.9",
+    "json-2-csv": "^5.5.10",
+    "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.3",
     "jwt-decode": "^4.0.0",
     "multer": "^2.0.2",

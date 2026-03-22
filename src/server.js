@@ -23,7 +23,8 @@ app.use((req, res, next) => {
 });
 
 // ✅ Middleware first
-app.use(cors()); // Allow cross-origin requests
+app.use(cors(({origin: 'http://localhost:3000/'}))); // Allow cross-origin requests
+
 app.use(express.json()); // Parse JSON request bodies
 
 // 🔑 Debug line to check JWT_SECRET
@@ -78,7 +79,7 @@ app.post("/login", async (req, res) => {
     // Generate JWT token
     const token = jwt.sign(
       { id: user.id, role: user.role, driverId: user.driver_id },
-      process.env.JWT_SECRET || "mysecret",
+      process.env.JWT_SECRET ,
       { expiresIn: "1h" }
     );
 
