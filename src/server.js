@@ -624,6 +624,16 @@ app.get("/admin/drivers/:id", authorizeRole("admin"), async (req, res) => {
 
 
 // Serve React build 
-app.use(express.static(path.join(__dirname, "build")));
+app.use(express.static(path.join(__dirname, "../build")));
+
+// Catch-all handler: send back index.html for any non-API routes (for React Router)
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/support') && !req.path.startsWith('/admin') && !req.path.startsWith('/finance') && !req.path.startsWith('/audit-logs') && !req.path.startsWith('/driver-statement')) {
+    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+  } else {
+    next();
+  }
+});
+
 // Start server once
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
