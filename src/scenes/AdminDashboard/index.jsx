@@ -20,41 +20,37 @@ import { useState } from "react";
 import { getDriverColor } from "../../utils/colorUtils";
 import { useNavigate } from "react-router-dom";
 
+const username = localStorage.getItem("username") || "Admin";
 
 const Dashboard = () => { 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
    const navigate = useNavigate();
-/*
-   //Hard auth check
-   useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    navigate("/", { replace: true });
-  }
-}, [navigate]);
-
-*/
-
-   // ✅ Logout handler
- /* const handleLogout = () => {
-    console.log("Logout clicked");
-    localStorage.removeItem("token"); // clear JWT
-    navigate("/", { replace: true }); // redirect to login page
-  };
-*/
 
   // State for backend data
-  const [dbData, setDbData] = useState([]);
-    const fetchData = async () => {
-      try {    
-        const res = await axios.get("http://localhost:3001/dashboard-data");
-        setDbData(res.data);
-        console.log("Fetched DB data:", res.data);
-      } catch (err) {
-        console.error("Failed to fetch dashboard data:", err);
-      }
-    };
+  const API_URL = process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev"; 
+
+const [dbData, setDbData] = useState([]);
+
+const fetchData = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const res = await axios.get(`${API_URL}/dashboard-data`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // ✅ send JWT
+      },
+    });
+
+    if (Array.isArray(res.data)) {
+      setDbData(res.data);
+      console.log("Fetched DB data:", res.data);
+    } else {
+      console.error("Unexpected response:", res.data);
+    }
+  } catch (err) {
+    console.error("Failed to fetch dashboard data:", err);
+  }
+};
      useEffect(() => {
     fetchData();
   }, []);
@@ -98,8 +94,9 @@ const totalGross = dbData.length
   : 0;
 
   //TOTAL NET EARNINGS
- const totalNet = dbData.reduce((sum, row) => 
-  sum + Number(row.net || 0), 0);
+const totalNet = Array.isArray(dbData)
+  ? dbData.reduce((sum, row) => sum + Number(row.net || 0), 0)
+  : 0;
 
  //TOTAL DRIVERS
 const totalDrivers = dbData.length
@@ -205,14 +202,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
     <Box m="20px">
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
-
-        
-        
-
-         
-
-
+        <Header title="ADMIN DASHBOARD" subtitle={`Welcome, ${username}`} />
 
         <Box display="flex" gap="10px">
           <Button
@@ -352,7 +342,9 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
             </Box>
           </Box>
           <Box height="250px" m="-20px 0 0 0">
-            <LineChart isDashboard={true} data={lineData} />
+            <LineChart isDashboard={true} 
+            data={lineData && lineData.length > 0 ? lineData : []}
+            />
           </Box>
         </Box>
         <Box
@@ -429,7 +421,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
           
          <PieChart
               isDashboard={true}
-              data={pieData}
+              data={pieData && pieData.length > 0 ? pieData : []}
               colors={({ id }) => getDriverColor(id)} // driver ID or name
             />
 
@@ -476,14 +468,11 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
             
             <BarChart
               isDashboard={true}
-              data={barData}
+               data={barData && barData.length > 0 ? barData : []}
               colors={({ indexValue }) => getDriverColor(indexValue)} // driver ID or name
             />
-
-
           </Box>
         </Box>
-
       </Box>
     </Box>
   )

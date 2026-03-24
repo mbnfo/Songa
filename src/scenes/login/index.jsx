@@ -16,19 +16,26 @@ const LoginPage = () => {
   const [driverId, setDriverId] = useState("");
   const [isRegister, setIsRegister] = useState(false);
 
-  // ✅ Alert state
-  const [showSessionExpired, setShowSessionExpired] = useState(false);
+  // Alert state
+  const [showSessionExpired, setShowSessionExpired, showLoggedOut, setShowLoggedOut] = useState(false);
+  
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ Clear token on startup and check if redirected with sessionExpired flag
+  //  Clear token on startup and check if redirected with sessionExpired flag
   useEffect(() => {
     localStorage.removeItem("token"); // always start clean
-    if (location.state?.sessionExpired) {
-      setShowSessionExpired(true); // show alert if redirected
+    if (location.state?.sessionExpired) {    
+      setShowSessionExpired(true); // show alert if redirected   
+      navigate("/", { replace: true, state: {} });//  Clear state so it doesn’t repeat
     }
-  }, [location.state]);
+     if (location.state?.loggedOut) {
+    setShowSessionExpired(false); // hide expired alert if showing
+    setShowLoggedOut(true);       // new state for logout alert
+    navigate("/", { replace: true, state: {} });
+  }
+ }, [location.state]);
 
 
   // ✅ Login handler
@@ -52,10 +59,6 @@ const LoginPage = () => {
       localStorage.setItem("role", decoded.role);
       localStorage.setItem("username", decoded.username || username);
 
-    // Decode JWT decoded to extract role
-   /* const decoded = JSON.parse(atob(token.split(".")[1]));
-    console.log("Decoded JWT decoded:", decoded);
-    */
 
     // Save role in localStorage
     if (decoded.role) {
@@ -64,19 +67,18 @@ const LoginPage = () => {
     }
 
     // Redirect based on role
-    if (decoded.role === "admin") {
-      console.log("User is admin, navigating to /admin");
+    if (decoded.role === "owner") {
+      navigate("/owner");
+    } else if (decoded.role === "admin") {
       navigate("/admin");
     } else if (decoded.role === "driver") {
-      console.log("User is driver, navigating to /driver");
       navigate("/driver");
-    } else if (decoded.role === "support") {
-      navigate("/support");
     } else if (decoded.role === "finance") {
       navigate("/finance");
-    } else {
-      alert("Login failed: role missing in token");
+    } else if (decoded.role === "support") {
+      navigate("/support");
     }
+
   } catch (err) {
     console.error("Login error:", err.response?.data || err.message);
     alert("Login failed");
@@ -119,9 +121,8 @@ const LoginPage = () => {
               variant="h4" 
              // mb={2} 
               color="#e0e0e0"
-              sx={{ mb: 2 }} // Adjust text height, move it further up
-              
-        >
+              sx={{ mb: 1 }} // Adjust text height, move it further up
+          >
               Songa
         </Typography>
 
@@ -129,8 +130,7 @@ const LoginPage = () => {
               variant="h4" 
               mb={1} 
               color="#e0e0e0"
-              sx={{ lineHeight: 2 }} // Adjust text height, move it further up
-              
+              sx={{ lineHeight: 2 }} // Adjust text height, move it further up         
         >
                Fleet Management {isRegister ? "Register" : "Login"}
         </Typography>
@@ -150,6 +150,23 @@ const LoginPage = () => {
           )}
         </Box>
       </Fade>
+   
+       <Fade in={showLoggedOut} timeout={{ enter: 600, exit: 600 }}>
+            <Box>
+              {showLoggedOut && (
+                <Alert
+                  severity="success"
+                  sx={{ mb: 2, width: "300px" }}
+                  onClose={() => setShowLoggedOut(false)}
+                >
+                  You have been logged out successfully.
+                </Alert>
+              )}
+            </Box>
+       </Fade>
+
+
+
 
       {/* ✅ Login/Register form */}
       <TextField label="Username" value={username} onChange={(e) => setUsername(e.target.value)} sx={{ mb: 2, width: "300px" }} />

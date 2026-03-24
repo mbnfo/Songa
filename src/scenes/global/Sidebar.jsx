@@ -4,7 +4,6 @@ import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { tokens } from "../../theme";
 
-
 // MUI Icons
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
@@ -79,7 +78,7 @@ const AppSidebar = () => {
         >
           {!isCollapsed && (
             <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="h3">ADMINS</Typography>
+              <Typography variant="h3">Owners</Typography>
               <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                 <MenuOutlinedIcon />
               </IconButton>
@@ -109,11 +108,30 @@ const AppSidebar = () => {
         )}
 
         {/* Navigation */}
-        <Item title="Dashboard" to="/admin" icon={<HomeOutlinedIcon />} selected={location.pathname} />
-        <Item title="Manage Drivers" to="/admin/team" icon={<PeopleOutlinedIcon />} selected={location.pathname} />
-        <Item title="Contacts" to="/admin/contacts" icon={<ContactsOutlinedIcon />} selected={location.pathname} />
-        <Item title="Invoices" to="/admin/invoices" icon={<ReceiptOutlinedIcon />} selected={location.pathname} />
-        <Item title="New Driver Form" to="/admin/form" icon={<PersonOutlinedIcon />} selected={location.pathname} />
+
+        {/* Navigation */}
+          <Item
+            title="Dashboard"
+            to={`/${userRole}`} // ✅ dynamic role-based dashboard
+            icon={<HomeOutlinedIcon />}
+            selected={location.pathname}
+          />
+
+          {/* ✅ Show Manage Users only for owners */}
+            {userRole === "owner" && (
+              <Item
+                title="Manage Users"
+                to="/owner/manage-users"
+                icon={<PeopleOutlinedIcon />}
+                selected={location.pathname}
+              />
+            )}
+
+
+        {/*<Item title="Invoices" to="/owner/invoices" icon={<ReceiptOutlinedIcon />} selected={location.pathname} />*/}
+        {/* <Item title="Contacts" to="/owner/contacts" icon={<ContactsOutlinedIcon />} selected={location.pathname} />*/}
+        {/*<Item title="Manage Drivers" to="/owner/manage-drivers" icon={<PeopleOutlinedIcon />} selected={location.pathname} />*/}
+        {/*<Item title="New Driver Form" to="/owner/form" icon={<PersonOutlinedIcon />} selected={location.pathname} />*/}
     
 
         {/* ✅ Show Support Dashboard only if role === 'support' */}
@@ -136,11 +154,11 @@ const AppSidebar = () => {
           />
         )}
 
-        {/* ✅ Show Audit Logs only if role === 'admin' */}
-        {userRole === "admin" && (
+        {/* ✅ Show Audit Logs only if role === 'owner' */}
+        {userRole === "owner" && (
           <Item
             title="Audit Logs"
-            to="/admin/audit-logs"
+            to="/owner/audit-logs"
             icon={<ReceiptOutlinedIcon />}
             selected={location.pathname}
           />

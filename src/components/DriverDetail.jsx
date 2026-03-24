@@ -2,15 +2,20 @@ import { Box, Typography, Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import LineChart from "../../components/LineChart";
+import LineChart from "../../components/LineChart"; // ✅ Reuse your existing chart component
 
 const DriverDetail = () => {
-  const { id } = useParams(); // driverId from route
-  const API_URL = process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev";
+  // ✅ Get driver ID from route params
+  const { id } = useParams();
+  const API_URL =
+    process.env.REACT_APP_API_URL ||
+    "https://biasedly-abjective-brenden.ngrok-free.dev";
 
+  // ✅ State for driver profile and earnings
   const [driver, setDriver] = useState(null);
   const [earnings, setEarnings] = useState([]);
 
+  // ✅ Fetch driver details + earnings on mount
   useEffect(() => {
     const fetchDriver = async () => {
       try {
@@ -22,9 +27,9 @@ const DriverDetail = () => {
       }
     };
     fetchDriver();
-  }, [id]);
+  }, [id, API_URL]);
 
-  // ✅ Line chart data
+  // ✅ Prepare data for line chart
   const lineData = [
     {
       id: "Net Earnings",
@@ -33,30 +38,31 @@ const DriverDetail = () => {
     },
   ];
 
-  if (!driver) return <Typography>Loading...</Typography>;
+  // ✅ Show loading state until driver data is ready
+  if (!driver) return <Typography>Loading driver details...</Typography>;
 
   return (
     <Box m="20px">
       <Typography variant="h4">Driver Detail</Typography>
 
-      {/* Driver Profile */}
+      {/* ✅ Driver Profile Section */}
       <Box mt="20px">
-        <Typography>Name: {driver.first_name} {driver.last_name}</Typography>
-        <Typography>Vehicle ID: {driver.vehicle_id}</Typography>
-        <Typography>City: {driver.city}</Typography>
-        <Typography>Email: {driver.email}</Typography>
-        <Typography>Cell: {driver.cell_number}</Typography>
+        <Typography><strong>Name:</strong> {driver.first_name} {driver.last_name}</Typography>
+        <Typography><strong>Vehicle ID:</strong> {driver.vehicle_id}</Typography>
+        <Typography><strong>Email:</strong> {driver.email}</Typography>
+        <Typography><strong>Cell:</strong> {driver.cell_number}</Typography>
+        <Typography><strong>Status:</strong> {driver.status}</Typography>
       </Box>
 
-      {/* Earnings Chart */}
-      <Box mt="40px" backgroundColor="#1f2a40" p="20px">
+      {/* ✅ Earnings Chart Section */}
+      <Box mt="40px" backgroundColor="#1f2a40" p="20px" borderRadius="8px">
         <Typography variant="h5">Weekly Net Earnings</Typography>
         <Box height="250px">
           <LineChart isDashboard={true} data={lineData} />
         </Box>
       </Box>
 
-      {/* PDF Statement Download */}
+      {/* ✅ PDF Statement Download */}
       <Box mt="20px">
         <Button
           variant="contained"
