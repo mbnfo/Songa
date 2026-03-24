@@ -77,6 +77,14 @@ const LoginPage = () => {
       navigate("/finance");
     } else if (decoded.role === "support") {
       navigate("/support");
+    } else if (decoded.role === "owner") {
+      console.log("User is owner, navigating to /admin");
+      navigate("/admin");
+    } else if (decoded.role === "user") {
+      console.log("User is user, navigating to /dashboard");
+      navigate("/dashboard");
+    } else {
+      alert("Login failed: unknown role in token");
     }
 
   } catch (err) {

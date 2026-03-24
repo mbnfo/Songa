@@ -84,6 +84,31 @@ app.use((req, res, next) => {
 
 // ✅ Middleware first
 app.use(cors()); // Allow cross-origin requests
+/*<<<<<<< HEAD
+
+=======
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://songa.onrender.com'
+];
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS policy disallows origin ${origin}`));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
+app.options('', cors(corsOptions));
+
+>>>>>>> e861629ce4bc9fb77cd820f5a57c68296ee811fe
+*/
 app.use(express.json()); // Parse JSON request bodies
 
 // 🔑 Debug line to check JWT_SECRET
@@ -874,8 +899,18 @@ app.get("/users", authenticateToken, (req, res) => {
 app.use(express.static(path.join(__dirname, "../build")));
 
 
+
 // Mount router for finance and audit logs
 app.use("/", router);
-
+/*
+// Catch-all handler: send back index.html for any non-API routes (for React Router)
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/support') && !req.path.startsWith('/admin') && !req.path.startsWith('/finance') && !req.path.startsWith('/audit-logs') && !req.path.startsWith('/driver-statement')) {
+    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+  } else {
+    next();
+  }
+});
+*/
 // Start server once
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
