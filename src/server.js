@@ -23,7 +23,24 @@ app.use((req, res, next) => {
 });
 
 // ✅ Middleware first
-app.use(cors(({origin: 'http://localhost:3000/'}))); // Allow cross-origin requests
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+];
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS policy disallows origin ${origin}`));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
+app.options('', cors(corsOptions));
 
 app.use(express.json()); // Parse JSON request bodies
 
