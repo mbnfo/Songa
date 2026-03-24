@@ -280,7 +280,7 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
     doc.pipe(res);
 
     // ✅ Add company logo 
-    const logoPath = path.join(__dirname, "assets", "songa_logo.png");
+    const logoPath = path.join(__dirname, "assets", "New_Songa_Logo.png");
     try {
       doc.image(logoPath, 50, 40, { width: 80 }); // left corner
     } catch (err) {

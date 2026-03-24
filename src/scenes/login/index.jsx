@@ -169,7 +169,7 @@ const LoginPage = () => {
               src={logo}
               alt="Songa Logo"
               className="logo-animated"
-              style={{ width: "280px", height: "150", marginBottom: "50px" }}
+              style={{ width: "380px", height: "250", marginBottom: "10px" }}
               sx={{
                 width: {
                   xs: "80px",   // small screens (mobile)
@@ -184,7 +184,7 @@ const LoginPage = () => {
       </Box>
 
 
-          {/*FLEET MANAGEMENT TEXT */}
+          {/*FLEET MANAGEMENT TEXT 
 
           <Typography 
               variant="h4" 
@@ -202,7 +202,7 @@ const LoginPage = () => {
         >
                Fleet Management {isRegister ? "Register" : "Login"}
         </Typography>
-
+   */}
 
       {/* ✅ Fade-in + Fade-out + Dismissible session expired alert */}
       <Fade in={showSessionExpired} timeout={{ enter: 600, exit: 600 }}>
