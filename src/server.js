@@ -279,7 +279,7 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
     const doc = new PDFDocument({ margin: 50 });
     doc.pipe(res);
 
-    // ✅ Add company logo (make sure logo.png exists in your project folder)
+    // ✅ Add company logo 
     const logoPath = path.join(__dirname, "assets", "songa_logo.png");
     try {
       doc.image(logoPath, 50, 40, { width: 80 }); // left corner
