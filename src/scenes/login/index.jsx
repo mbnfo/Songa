@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 // ✅ Import your logo
-import logo from "../../assets/songa_logo.png";
+import logo from "../../assets/New_Songa_Logo.png";
 
 
 
