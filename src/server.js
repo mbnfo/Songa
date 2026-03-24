@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
-  'https://songa.onrender.com/'
+  'https://songa.onrender.com'
 ];
 const corsOptions = {
   origin: (origin, callback) => {
