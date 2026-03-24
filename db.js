@@ -3,8 +3,7 @@ const fs = require("fs"); // <-- you must import fs to use readFileSync
 //require("dotenv").config();
 const path = require("path");
 // Always load .env from the project root
-require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
-
+require("dotenv").config({ path: path.resolve(__dirname, ".env") });
 
 
 
@@ -12,11 +11,11 @@ require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
 
 const pool = mysql.createPool({
-  host: "mysql-2668dfd7-songa.j.aivencloud.com",
-  user: "avnadmin",
-  password:  process.env.DB_PASSWORD,
-  database: "fleet_management",
-  port: 15433,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,
   
 
   ssl: {
@@ -24,6 +23,9 @@ const pool = mysql.createPool({
     rejectUnauthorized: true,
     ca: fs.readFileSync(path.join(__dirname, "ca.pem")) },
 });
+console.log("Loaded from:", path.resolve(__dirname, "../.env"));
+console.log("DB_USER:", process.env.DB_USER);
+console.log("DB_PASSWORD:", process.env.DB_PASSWORD ? "*****" : "MISSING");
 console.log("DB_USER:", process.env.DB_USER);
 console.log("DB_PASSWORD:", process.env.DB_PASSWORD ? "*****" : "MISSING");
 
