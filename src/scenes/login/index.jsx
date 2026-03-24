@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 // ✅ Import your logo
-import logo from "../assets/songa_logo.png"; 
+import logo from "../../assets/songa_logo.png";
 
 
 
@@ -98,7 +98,7 @@ const LoginPage = () => {
   }
 };
     {/*
-  //  Register handler
+    Register handler
   const handleRegister = async () => {
       const API_URL = process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev";
 
@@ -159,14 +159,17 @@ const LoginPage = () => {
             </style>
 
 
-          {/* ✅ Responsive Logo */}
+          {/* ✅ Responsive Logo
+          
+          
+          */}
      <Box display="flex" justifyContent="center" mb={2}>
         <Fade in={true} timeout={1200}>
             <img
               src={logo}
               alt="Songa Logo"
               className="logo-animated"
-              style={{ marginBottom: "16px" }}
+              style={{ width: "280px", height: "150", marginBottom: "50px" }}
               sx={{
                 width: {
                   xs: "80px",   // small screens (mobile)
@@ -233,7 +236,7 @@ const LoginPage = () => {
 
 
 
-      {/*  Login/Register form 
+      {/*  Login/Register form */}
       <TextField label="Username" value={username} onChange={(e) => setUsername(e.target.value)} sx={{ mb: 2, width: "300px" }} />
       <TextField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} sx={{ mb: 2, width: "300px" }} />
 
@@ -254,12 +257,12 @@ const LoginPage = () => {
           )}
         </>
       )}
-        */}
+        
                      {/*ACTUAL LOGIN BUTTON */}
           <Button
                 variant="contained"
                 color="primary"
-                onClick={isRegister ? handleRegister : handleLogin}
+                onClick={ handleLogin}
                 sx={{
                   border: "2px solid #fff", // white border
                   borderRadius: "8px",      // Rounded corners
@@ -268,11 +271,11 @@ const LoginPage = () => {
                 {isRegister ? "Register" : "Login"}
         </Button>
 
-    {/* REGISTER BUTTON 
+    {/* REGISTER BUTTON */}
       <Button sx={{ mt: 2 }} onClick={() => setIsRegister(!isRegister)}>
         {isRegister ? "Already have an account? Login" : "Create an account"}
       </Button>
-    */}
+    
     </Box>
   );
 };

@@ -163,7 +163,10 @@ useEffect(() => {
       setRoleToCreate(null);
       setFormData({ username: "", password: "", firstName: "", lastName: "", cellNumber: "", email: "", address: "", id_passport: "", vehicle_id: "" });
 
-      const updated = await fetch(`${API_URL}/owner/users`).then((r) => r.json());
+      const updated = await fetch(`${API_URL}/users`, {
+                  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                }).then((r) => r.json());
+
       setRows(updated);
 
       setSnackbar({ open: true, message: "User created successfully!", severity: "success" });
