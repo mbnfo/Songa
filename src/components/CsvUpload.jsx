@@ -17,7 +17,7 @@ const CsvUpload = ({ onUploadSuccess }) => {
   const [selectedFileName, setSelectedFileName] = useState("");
   const [uploaded, setUploaded] = useState(false);
 
-  // ✅ Handle file selection
+  // Handle file selection
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
     if (!selected) return;
@@ -26,7 +26,7 @@ const CsvUpload = ({ onUploadSuccess }) => {
     setUploaded(false); // reset upload state
   };
 
-  // ✅ Handle upload to backend
+  //  Handle upload to backend
   const handleUpload = async () => {
     if (!file) {
       toast.error("Please select a CSV file first.");
@@ -37,22 +37,26 @@ const CsvUpload = ({ onUploadSuccess }) => {
     formData.append("file", file);
 
     try {
-      const res = await axios.post("http://localhost:3001/upload-csv", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+        const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-      console.log("Upload success:", res.data);
-      toast.success("CSV uploaded successfully!");
+        // ✅ Store the response in a variable
+        const res = await axios.post(`${API_URL}/upload-csv`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
 
-      // ✅ Reset states so file name disappears
-      setUploaded(true);
-      setSelectedFileName("");
-      setFile(null);
+        console.log("Upload success:", res.data);
+        toast.success("CSV uploaded successfully!");
 
-      // ✅ Trigger dashboard refresh
-      if (onUploadSuccess) {
-        onUploadSuccess();
-      }
+
+        // ✅ Reset states so file name disappears
+        setUploaded(true);
+        setSelectedFileName("");
+        setFile(null);
+
+        // ✅ Trigger dashboard refresh
+        if (onUploadSuccess) {
+          onUploadSuccess();
+        }
     } catch (error) {
       console.error("Upload failed:", error);
       toast.error("CSV upload failed. Please try again.");

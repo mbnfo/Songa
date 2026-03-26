@@ -4,15 +4,75 @@
 // Handles user creation and authentication
 // -----------------------------
 
+
 const cors = require("cors");
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const db = require("../db"); // MySQL pool
+const db = require("../db"); // import your MySQL pool
 const app = express();
 const PORT = process.env.PORT || 3001;
 const path = require("path");
+const logAction = require("./utils/logAction");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
+const fs = require("fs");
+const Papa = require("papaparse");
 require("dotenv").config();
+
+
+// -----------------------------
+// CSV PARSING
+// -----------------------------
+app.post("/upload-csv", upload.single("file"), async (req, res) => {
+  try {
+    const filePath = req.file.path;
+    const fileContent = fs.readFileSync(filePath, "utf8");
+
+    // Parse CSV
+    const parsed = Papa.parse(fileContent, { header: true });
+    const rows = parsed.data;
+
+    for (const row of rows) {
+        if (!row.driver_id) continue; // skip empty rows
+        await db.query(
+          "INSERT INTO earnings (driver_id, week, gross, commission, net, payout_status) VALUES (?, ?, ?, ?, ?, ?)",
+          [row.driver_id, row.week, row.gross, row.commission, row.net, row.payout_status]
+        );
+      }
+
+    res.json({ success: true, message: "CSV uploaded successfully!" });
+  } catch (err) {
+    console.error("CSV upload error:", err);
+    res.status(500).json({ error: "CSV upload failed" });
+  }
+});
+
+
+
+// authMiddleware.js
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+   // 🔐 Debug line: see what token is coming in
+  console.log("🔐 Incoming token:", token);
+
+
+  if (!token) {
+    return res.status(401).json({ error: "Token missing" });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET || "mysecret", (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ error: "Invalid token" });
+    }
+    req.user = decoded; // attach decoded payload (id, role, driverId)
+    next();
+  });
+} 
+  //module.exports = authenticateToken;
+
 
 
 
@@ -23,6 +83,10 @@ app.use((req, res, next) => {
 });
 
 // ✅ Middleware first
+app.use(cors()); // Allow cross-origin requests
+/*<<<<<<< HEAD
+
+=======
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
@@ -43,6 +107,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options('', cors(corsOptions));
 
+>>>>>>> e861629ce4bc9fb77cd820f5a57c68296ee811fe
+*/
 app.use(express.json()); // Parse JSON request bodies
 
 // 🔑 Debug line to check JWT_SECRET
@@ -59,7 +125,7 @@ if (process.env.JWT_SECRET) {
 // User Registration Route
 // -----------------------------
 app.post("/register", async (req, res) => {
-  const { username, password, role, driverId, firstName, lastName, cellNumber, email, id_passport, address } = req.body;
+  const { username, password, role, driverId, firstName, lastName, cellNumber, email, id_passport, address, vehicle_id} = req.body;
   if (!username || !password || !role || !firstName || !lastName || !cellNumber || !email ||!id_passport|| !address) {
     return res.status(400).json({ error: "Missing required fields" });
   }
@@ -67,17 +133,35 @@ app.post("/register", async (req, res) => {
     // Hash the password before saving
     const password_hash = await bcrypt.hash(password, 10);
 
-     // Insert user into database
-    await db.query(
-      "INSERT INTO users (username, password_hash, role, driver_id, first_name, last_name, cell_number, email,id_passport,address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [username, password_hash, role, role === "driver" ? driverId : null, firstName, lastName, cellNumber, email,id_passport,address]
+     // Insert into users
+    const [result] = await db.query(
+      "INSERT INTO users (username, password_hash, role, driver_id, first_name, last_name, cell_number, email,id_passport,address, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [username, password_hash, role, role === "driver" ? driverId : null, firstName, lastName, cellNumber, email,id_passport,address,  "Active"]
     );
+          //Log user creation
+        await db.query(
+      "INSERT INTO audit_logs (user, role, action, details, timestamp) VALUES (?, ?, ?, ?, NOW())",
+      [username, role, "Register", `New ${role} user ${username} registered`]
+    );
+
+    const userId = result.insertId;
+
+    // If driver, also insert into drivers table
+    if (role === "driver") {
+      await db.query(
+        "INSERT INTO drivers (user_id, vehicle_id) VALUES (?, ?)",
+        [userId, vehicle_id || driverId]
+      );
+    }
+
     res.json({ message: "✅User registered successfully!" });
   } catch (err) {
     console.error("Registration error:", err);
     res.status(500).json({ error: "❌Failed to register user." });
   }
 });
+
+
 
 // -----------------------------
 // Login Route
@@ -93,13 +177,24 @@ app.post("/login", async (req, res) => {
     // Compare password with stored hash
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) return res.status(401).json({ error: "❌Invalid password" });
+    //Token defensive
+    if (!user.role) {
+        return res.status(500).json({ error: "User role missing in database" });
+      }
 
     // Generate JWT token
     const token = jwt.sign(
       { id: user.id, role: user.role, driverId: user.driver_id },
-      process.env.JWT_SECRET ,
+      process.env.JWT_SECRET || "mysecret",
       { expiresIn: "1h" }
     );
+
+    // Log the login event into audit_logs
+    await db.query(
+      "INSERT INTO audit_logs (user, role, action, details, timestamp) VALUES (?, ?, ?, ?, NOW())",
+      [user.username, user.role, "Login", `User ${user.username} logged in`]
+    );
+
 
     res.json({ token });
   } catch (err) {
@@ -116,19 +211,20 @@ app.get("/dashboard-data", async (req, res) => {
     // Pull earnings joined with drivers for richer info
     const [rows] = await db.query(`
       SELECT 
-        e.id,
-        e.driver_id,
-        d.name AS driver_name,
-        e.week,
-        e.gross,
-        e.commission,
-        e.net,
-        e.payout_status
-      FROM earnings e
-      LEFT JOIN drivers d ON e.driver_id = d.id
-      ORDER BY e.week ASC
+              e.id,
+              e.driver_id,
+              CONCAT(d.first_name, ' ', d.last_name) AS driver_name,
+              e.week,
+              e.gross,
+              e.commission,
+              e.net,
+              e.payout_status
+            FROM earnings e
+            LEFT JOIN drivers d ON e.driver_id = d.id
+            ORDER BY e.week ASC
     `);
-
+    
+    console.log(" Dashboard rows:", rows);
     // Always return JSON
     res.json(rows);
   } catch (err) {
@@ -140,11 +236,11 @@ app.get("/dashboard-data", async (req, res) => {
 // -----------------------------
 // Driver Statement PDF Route
 // -----------------------------
-const PDFDocument = require("pdfkit"); // ✅ PDF generation library
-const crypto = require("crypto");      // ✅ For generating unique statement IDs
+const PDFDocument = require("pdfkit"); // PDF generation library
+const crypto = require("crypto");      // For generating unique statement IDs
 //const path = require("path");
 
-app.get("/driver-statement/:driverId", async (req, res) => {
+app.get("/driver-statement/:driverId",   async (req, res) => {
   const { driverId } = req.params;
 
   try {
@@ -183,8 +279,8 @@ app.get("/driver-statement/:driverId", async (req, res) => {
     const doc = new PDFDocument({ margin: 50 });
     doc.pipe(res);
 
-    // ✅ Add company logo (make sure logo.png exists in your project folder)
-    const logoPath = path.join(__dirname, "assets", "logo.png");
+    // ✅ Add company logo 
+    const logoPath = path.join(__dirname, "assets", "New_Songa_Logo.png");
     try {
       doc.image(logoPath, 50, 40, { width: 80 }); // left corner
     } catch (err) {
@@ -275,11 +371,15 @@ const router = express.Router();
 const { Parser } = require("json2csv"); // ✅ for CSV export
 
 // ✅ Export pending payouts as CSV
-router.get("/finance/export-payouts", async (req, res) => {
+router.get("/finance/export-payouts", authorizeRole("finance"), async (req, res) => {
   try {
     const [rows] = await db.query(
       "SELECT driver_id, week, net, payout_status FROM earnings WHERE payout_status = 'Pending'"
     );
+
+     // 🔒 Log action
+    await logAction(req.user.username, req.user.role, "Exported Payouts", "Finance exported pending payouts as CSV");
+
 
     const fields = ["driver_id", "week", "net", "payout_status"];
     const parser = new Parser({ fields });
@@ -295,13 +395,17 @@ router.get("/finance/export-payouts", async (req, res) => {
 });
 
 // ✅ Mark payout as paid
-router.post("/finance/mark-paid", async (req, res) => {
+router.post("/finance/mark-paid",  authorizeRole("finance"), async (req, res) => {
   const { driverId, week } = req.body;
   try {
     await db.query(
       "UPDATE earnings SET payout_status = 'Paid' WHERE driver_id = ? AND week = ?",
       [driverId, week]
     );
+
+     // 🔒 Log action
+    await logAction(req.user.username, req.user.role, "Payout Marked Paid", `Driver ${driverId}, Week ${week}`);
+
     res.json({ success: true, message: "Payout marked as paid" });
   } catch (err) {
     console.error("Error marking payout:", err);
@@ -348,32 +452,29 @@ function authorizeRole(requiredRole) {
 // -----------------------------
 // Audit Logging Helper
 // -----------------------------
-async function logAction(username, role, action, details) {
-  try {
-    await db.query(
-      "INSERT INTO audit_logs (user, role, action, details) VALUES (?, ?, ?, ?)",
-      [username, role, action, details]
-    );
-  } catch (err) {
-    console.error("Failed to log action:", err);
-  }
-}
 
-// ✅ Audit log route with pagination + filters
-router.get("/audit-logs", authorizeRole("admin"), async (req, res) => {
+// Audit log route with pagination + filters
+router.get(
+  "/audit-logs",
+  authenticateToken,          //  first check JWT
+  authorizeRole("owner"),     // then check role
+  async (req, res) => {
+
   const { user, role, startDate, endDate, page = 1, limit = 20 } = req.query;
 
   let query = "SELECT * FROM audit_logs WHERE 1=1";
   const params = [];
 
-  if (user) {
-    query += " AND user = ?";
-    params.push(user);
+  if (user && user !== "All") {
+  query += " AND user = ?";
+  params.push(user);  
+  }  
+
+  if (role && role !== "All") {
+  query += " AND role = ?";
+  params.push(role);
   }
-  if (role) {
-    query += " AND role = ?";
-    params.push(role);
-  }
+
   if (startDate) {
     query += " AND timestamp >= ?";
     params.push(startDate);
@@ -389,8 +490,7 @@ router.get("/audit-logs", authorizeRole("admin"), async (req, res) => {
 
   try {
     const [rows] = await db.query(query, params);
-
-    // ✅ Get total count for pagination
+    //  Get total count for pagination
     const [countRows] = await db.query("SELECT COUNT(*) as total FROM audit_logs");
     const total = countRows[0].total;
 
@@ -410,10 +510,10 @@ router.get("/audit-logs", authorizeRole("admin"), async (req, res) => {
 
 
 // Export filtered audit logs as CSV
-//const { Parser } = require("json2csv");
 
 
-router.get("/audit-logs/export", authorizeRole("admin"), async (req, res) => {
+
+router.get("/audit-logs/export",  authenticateToken, authorizeRole("owner"), async (req, res) => {
   const { user, role, startDate, endDate, page = 1, limit = 20  } = req.query;
 
   let query = "SELECT * FROM audit_logs WHERE 1=1";
@@ -425,7 +525,7 @@ router.get("/audit-logs/export", authorizeRole("admin"), async (req, res) => {
   if (startDate) { query += " AND timestamp >= ?"; params.push(startDate); }
   if (endDate) { query += " AND timestamp <= ?"; params.push(endDate); }
 
-// ✅ Pagination
+//  Pagination
   query += " ORDER BY timestamp DESC LIMIT ? OFFSET ?";
   params.push(Number(limit));
   params.push((Number(page) - 1) * Number(limit));
@@ -458,7 +558,7 @@ router.get("/audit-logs/export", authorizeRole("admin"), async (req, res) => {
 });
 
 // ✅ Support audit logs with pagination
-app.get("/support/audit-logs", authorizeRole("support"), async (req, res) => {
+app.get("/support/audit-logs",  authenticateToken, authorizeRole("support"), async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
 
   let query = "SELECT * FROM audit_logs WHERE role = 'support' ORDER BY timestamp DESC LIMIT ? OFFSET ?";
@@ -483,8 +583,8 @@ app.get("/support/audit-logs", authorizeRole("support"), async (req, res) => {
   }
 });
 
-// ✅ Export support audit logs as CSV
-app.get("/support/audit-logs/export", authorizeRole("support"), async (req, res) => {
+//  Export support audit logs as CSV
+app.get("/support/audit-logs/export",  authenticateToken, authorizeRole("support"), async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM audit_logs WHERE role = 'support' ORDER BY timestamp DESC");
 
@@ -525,7 +625,7 @@ app.post("/support/issues", async (req, res) => {
 });
 
 // ✅ View all issues (support staff)
-app.get("/support/issues", authorizeRole("support"), async (req, res) => {
+app.get("/support/issues",  authenticateToken, authorizeRole("support"), async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM support_issues ORDER BY created_at DESC");
 
@@ -540,7 +640,7 @@ app.get("/support/issues", authorizeRole("support"), async (req, res) => {
 });
 
 // ✅ Resolve issue
-app.post("/support/issues/:id/resolve", authorizeRole("support"), async (req, res) => {
+app.post("/support/issues/:id/resolve",  authenticateToken, authorizeRole("support"), async (req, res) => {
   const { id } = req.params;
   const { resolutionNotes } = req.body;
   try {
@@ -560,7 +660,7 @@ app.post("/support/issues/:id/resolve", authorizeRole("support"), async (req, re
 });
 
 // ✅ Escalate issue
-app.post("/support/issues/:id/escalate", authorizeRole("support"), async (req, res) => {
+app.post("/support/issues/:id/escalate",  authenticateToken, authorizeRole("support"), async (req, res) => {
   const { id } = req.params;
   try {
     await db.query("UPDATE support_issues SET status = 'Escalated' WHERE id = ?", [id]);
@@ -576,8 +676,9 @@ app.post("/support/issues/:id/escalate", authorizeRole("support"), async (req, r
 });
 
 
-// ✅ Get all drivers
-app.get("/admin/drivers", authorizeRole("admin"), async (req, res) => {
+
+// OWNER -  Get all drivers
+app.get("/owner/drivers",  authenticateToken, authorizeRole("owner"), async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM drivers ORDER BY created_at DESC");
     res.json(rows);
@@ -589,8 +690,10 @@ app.get("/admin/drivers", authorizeRole("admin"), async (req, res) => {
 
 
 
-//  Update driver
-app.put("/admin/drivers/:id", authorizeRole("admin"), async (req, res) => {
+
+
+//  OWNER - Update driver
+app.put("/owner/drivers/:id",  authenticateToken, authorizeRole("owner"), async (req, res) => {
   const { id } = req.params;
   const { firstName, lastName, email, cellNumber, vehicle_id, city } = req.body;
   try {
@@ -606,8 +709,8 @@ app.put("/admin/drivers/:id", authorizeRole("admin"), async (req, res) => {
   }
 });
 
-// Delete driver
-app.delete("/admin/drivers/:id", authorizeRole("admin"), async (req, res) => {
+// OWNER -  Delete driver
+app.delete("/owner/drivers/:id",  authenticateToken, authorizeRole("owner"), async (req, res) => {
   const { id } = req.params;
   try {
     await db.query("DELETE FROM drivers WHERE id=?", [id]);
@@ -619,8 +722,9 @@ app.delete("/admin/drivers/:id", authorizeRole("admin"), async (req, res) => {
   }
 });
 
-// ✅ Get driver details + earnings
-app.get("/admin/drivers/:id", authorizeRole("admin"), async (req, res) => {
+
+//  ADMIN - Get driver details + earnings
+app.get("/admin/drivers/:id",  authenticateToken, authorizeRole("admin"), async (req, res) => {
   const { id } = req.params;
   try {
     const [driverRows] = await db.query("SELECT * FROM drivers WHERE id = ?", [id]);
@@ -638,12 +742,167 @@ app.get("/admin/drivers/:id", authorizeRole("admin"), async (req, res) => {
   }
 });
 
+app.put("/admin/drivers/:id", authenticateToken, authorizeRole("admin"), async (req, res) => {
+  const { id } = req.params;
+  const { firstName, lastName, email, cellNumber, vehicle_id, city, status } = req.body;
+  try {
+    await db.query(
+      "UPDATE drivers SET first_name=?, last_name=?, email=?, cell_number=?, vehicle_id=?, city=?, status=? WHERE id=?",
+      [firstName, lastName, email, cellNumber, vehicle_id, city, status, id]
+    );
+    await logAction(req.user.username, req.user.role, "Driver Updated", `Driver ${id} updated`);
+    res.json({ success: true, message: "Driver updated successfully" });
+  } catch (err) {
+    console.error("Error updating driver:", err);
+    res.status(500).json({ error: "Failed to update driver" });
+  }
+});
+
+// OWNER - Get driver details + earnings
+app.get("/owner/drivers/:id",  authenticateToken, authorizeRole("owner"), async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [driverRows] = await db.query("SELECT * FROM drivers WHERE id = ?", [id]);
+    const driver = driverRows[0];
+
+    const [earningsRows] = await db.query(
+      "SELECT week, gross, commission, net, payout_status FROM earnings WHERE driver_id = ? ORDER BY week ASC",
+      [id]
+    );
+
+    res.json({ driver, earnings: earningsRows });
+  } catch (err) {
+    console.error("Error fetching driver details:", err);
+    res.status(500).json({ error: "Failed to fetch driver details" });
+  }
+});
+
+app.put("/owner/drivers/:id",  authenticateToken, authorizeRole("owner"), async (req, res) => {
+  const { id } = req.params;
+  const { firstName, lastName, email, cellNumber, vehicle_id, city, status } = req.body;
+  try {
+    await db.query(
+      "UPDATE drivers SET first_name=?, last_name=?, email=?, cell_number=?, vehicle_id=?, city=?, status=? WHERE id=?",
+      [firstName, lastName, email, cellNumber, vehicle_id, city, status, id]
+    );
+    await logAction(req.user.username, req.user.role, "Driver Updated", `Driver ${id} updated`);
+    res.json({ success: true, message: "Driver updated successfully" });
+  } catch (err) {
+    console.error("Error updating driver:", err);
+    res.status(500).json({ error: "Failed to update driver" });
+  }
+});
+
+
+
+
+//  Download My Data (Driver GDPR)
+app.get("/driver/data/:driverId",  authenticateToken, authorizeRole("driver"), async (req, res) => {
+  const { driverId } = req.params;
+  try {
+    // Fetch driver profile
+    const [driverRows] = await db.query("SELECT * FROM drivers WHERE id = ?", [driverId]);
+    const driver = driverRows[0];
+
+    // Fetch driver earnings
+    const [earningsRows] = await db.query(
+      "SELECT week, gross, commission, net, payout_status FROM earnings WHERE driver_id = ? ORDER BY week ASC",
+      [driverId]
+    );
+
+    if (!driver) {
+      return res.status(404).json({ error: "Driver not found" });
+    }
+
+    // 🔒 Log action
+    await logAction(req.user.username, req.user.role, "Downloaded Data", `Driver ${driverId} downloaded their data`);
+
+    res.json({ driver, earnings: earningsRows });
+  } catch (err) {
+    console.error("Error fetching driver data:", err);
+    res.status(500).json({ error: "Failed to fetch driver data" });
+  }
+});
+
+// ✅ Delete My Account (Driver GDPR)
+app.delete("/driver/delete/:driverId",  authenticateToken, authorizeRole("driver"), async (req, res) => {
+  const { driverId } = req.params;
+  try {
+    // Delete driver record
+    await db.query("DELETE FROM drivers WHERE id = ?", [driverId]);
+    await db.query("DELETE FROM earnings WHERE driver_id = ?", [driverId]);
+
+    // 🔒 Log action
+    await logAction(req.user.username, req.user.role, "Account Deleted", `Driver ${driverId} requested account deletion`);
+
+    res.json({ success: true, message: "Driver account deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting driver account:", err);
+    res.status(500).json({ error: "Failed to delete driver account" });
+  }
+});
+
+
+// OWNER - Update user status
+app.put("/owner/users/:id/status", authenticateToken, authorizeRole("owner"), async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  try {
+    await db.query("UPDATE users SET status=? WHERE id=?", [status, id]);
+    //Log user status update
+    await db.query(
+      "INSERT INTO audit_logs (user, role, action, details, timestamp) VALUES (?, ?, ?, ?, NOW())",
+      [req.user.id, req.user.role, "Status Update", `Changed status of user ${id} to ${status}`]
+    );
+    res.json({ success: true, message: "Status updated" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update status" });
+  }});
+    
+
+// ONWER - Delete user
+app.delete("/owner/users/:id", authenticateToken, authorizeRole("owner"), async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db.query("DELETE FROM users WHERE id=?", [id]);
+
+    //Log user deletion
+      await db.query(
+        "INSERT INTO audit_logs (user, role, action, details, timestamp) VALUES (?, ?, ?, ?, NOW())",
+        [req.user.id, req.user.role, "Delete User", `Deleted user ${id}`]
+      );
+
+    res.json({ success: true, message: "User deleted" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+       
+
+
+// Get all users
+app.get("/users", authenticateToken, (req, res) => {
+  //  Only allow owner or admin roles
+  if (req.user.role !== "owner" && req.user.role !== "admin") {
+    return res.status(403).json({ error: "Access denied" });
+  }
+
+  //  Fetch all users
+  db.query("SELECT id, username, role, first_name, last_name, cell_number, email, address, id_passport, status FROM users")
+    .then(([rows]) => res.json(rows))
+    .catch(err => res.status(500).json({ error: "Failed to fetch users" }));
+});
 
 
 
 // Serve React build 
 app.use(express.static(path.join(__dirname, "../build")));
 
+
+
+// Mount router for finance and audit logs
+app.use("/", router);
+/*
 // Catch-all handler: send back index.html for any non-API routes (for React Router)
 app.use((req, res, next) => {
   if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/support') && !req.path.startsWith('/admin') && !req.path.startsWith('/finance') && !req.path.startsWith('/audit-logs') && !req.path.startsWith('/driver-statement')) {
@@ -652,6 +911,6 @@ app.use((req, res, next) => {
     next();
   }
 });
-
+*/
 // Start server once
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

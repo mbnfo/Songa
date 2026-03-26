@@ -4,6 +4,11 @@ import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
+// ✅ Import your logo
+import logo from "../../assets/New_Songa_Logo.png";
+
+
+
 const LoginPage = () => {
   // ✅ Form state
   const [firstName, setFirstName] = useState("");
@@ -16,19 +21,26 @@ const LoginPage = () => {
   const [driverId, setDriverId] = useState("");
   const [isRegister, setIsRegister] = useState(false);
 
-  // ✅ Alert state
-  const [showSessionExpired, setShowSessionExpired] = useState(false);
+  // Alert state
+  const [showSessionExpired, setShowSessionExpired, showLoggedOut, setShowLoggedOut] = useState(false);
+  
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ Clear token on startup and check if redirected with sessionExpired flag
+  //  Clear token on startup and check if redirected with sessionExpired flag
   useEffect(() => {
     localStorage.removeItem("token"); // always start clean
-    if (location.state?.sessionExpired) {
-      setShowSessionExpired(true); // show alert if redirected
+    if (location.state?.sessionExpired) {    
+      setShowSessionExpired(true); // show alert if redirected   
+      navigate("/", { replace: true, state: {} });//  Clear state so it doesn’t repeat
     }
-  }, [location.state]);
+     if (location.state?.loggedOut) {
+    setShowSessionExpired(false); // hide expired alert if showing
+    setShowLoggedOut(true);       // new state for logout alert
+    navigate("/", { replace: true, state: {} });
+  }
+ }, [location.state]);
 
 
   // ✅ Login handler
@@ -52,10 +64,6 @@ const LoginPage = () => {
       localStorage.setItem("role", decoded.role);
       localStorage.setItem("username", decoded.username || username);
 
-    // Decode JWT decoded to extract role
-   /* const decoded = JSON.parse(atob(token.split(".")[1]));
-    console.log("Decoded JWT decoded:", decoded);
-    */
 
     // Save role in localStorage
     if (decoded.role) {
@@ -64,16 +72,16 @@ const LoginPage = () => {
     }
 
     // Redirect based on role
-    if (decoded.role === "admin") {
-      console.log("User is admin, navigating to /admin");
+    if (decoded.role === "owner") {
+      navigate("/owner");
+    } else if (decoded.role === "admin") {
       navigate("/admin");
     } else if (decoded.role === "driver") {
-      console.log("User is driver, navigating to /driver");
       navigate("/driver");
-    } else if (decoded.role === "support") {
-      navigate("/support");
     } else if (decoded.role === "finance") {
       navigate("/finance");
+    } else if (decoded.role === "support") {
+      navigate("/support");
     } else if (decoded.role === "owner") {
       console.log("User is owner, navigating to /admin");
       navigate("/admin");
@@ -83,13 +91,14 @@ const LoginPage = () => {
     } else {
       alert("Login failed: unknown role in token");
     }
+
   } catch (err) {
     console.error("Login error:", err.response?.data || err.message);
     alert("Login failed");
   }
 };
-
-  // ✅ Register handler
+    {/*
+    Register handler
   const handleRegister = async () => {
       const API_URL = process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev";
 
@@ -111,7 +120,7 @@ const LoginPage = () => {
       alert("Registration failed");
     }
   };
-
+*/}
   return (
     <Box display="flex" 
         flexDirection="column" 
@@ -119,15 +128,69 @@ const LoginPage = () => {
         justifyContent="center"
         height="100vh">
 
-          {/*FLEET MANAGEMENT TEXT */}
+           {/*  Style block for logo animations */}
+        <style>
+              {`
+                @keyframes bounceFade {
+                  0% {
+                    opacity: 0;
+                    transform: scale(0.8) translateY(-20px);
+                  }
+                  50% {
+                    opacity: 1;
+                    transform: scale(1.05) translateY(0);
+                  }
+                  100% {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                  }
+                }
+
+                @keyframes pulse {
+                  0% { transform: scale(1); }
+                  50% { transform: scale(1.03); }
+                  100% { transform: scale(1); }
+                }
+
+                .logo-animated {
+                  animation: bounceFade 1.2s ease forwards, pulse 3s ease-in-out infinite;
+                }
+              `}
+            </style>
+
+
+          {/* ✅ Responsive Logo
+          
+          
+          */}
+     <Box display="flex" justifyContent="center" mb={2}>
+        <Fade in={true} timeout={1200}>
+            <img
+              src={logo}
+              alt="Songa Logo"
+              className="logo-animated"
+              style={{ width: "380px", height: "250", marginBottom: "10px" }}
+              sx={{
+                width: {
+                  xs: "80px",   // small screens (mobile)
+                  sm: "100px",  // tablets
+                  md: "120px",  // desktops
+                  lg: "150px",  // large desktops
+                },
+                height: "auto", // keep aspect ratio
+              }}
+            />
+         </Fade>
+      </Box>
+
+
+          {/*FLEET MANAGEMENT TEXT 
 
           <Typography 
               variant="h4" 
-             // mb={2} 
               color="#e0e0e0"
-              sx={{ mb: 2 }} // Adjust text height, move it further up
-              
-        >
+              sx={{ mb: 1 , lineHeight: 1 }} // Adjust text height, move it further up
+          >
               Songa
         </Typography>
 
@@ -135,12 +198,11 @@ const LoginPage = () => {
               variant="h4" 
               mb={1} 
               color="#e0e0e0"
-              sx={{ lineHeight: 2 }} // Adjust text height, move it further up
-              
+              sx={{ lineHeight: 2 }} // Adjust text height, move it further up         
         >
                Fleet Management {isRegister ? "Register" : "Login"}
         </Typography>
-
+   */}
 
       {/* ✅ Fade-in + Fade-out + Dismissible session expired alert */}
       <Fade in={showSessionExpired} timeout={{ enter: 600, exit: 600 }}>
@@ -156,8 +218,25 @@ const LoginPage = () => {
           )}
         </Box>
       </Fade>
+   
+       <Fade in={showLoggedOut} timeout={{ enter: 600, exit: 600 }}>
+            <Box>
+              {showLoggedOut && (
+                <Alert
+                  severity="success"
+                  sx={{ mb: 2, width: "300px" }}
+                  onClose={() => setShowLoggedOut(false)}
+                >
+                  You have been logged out successfully.
+                </Alert>
+              )}
+            </Box>
+       </Fade>
 
-      {/* ✅ Login/Register form */}
+
+
+
+      {/*  Login/Register form */}
       <TextField label="Username" value={username} onChange={(e) => setUsername(e.target.value)} sx={{ mb: 2, width: "300px" }} />
       <TextField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} sx={{ mb: 2, width: "300px" }} />
 
@@ -178,21 +257,25 @@ const LoginPage = () => {
           )}
         </>
       )}
+        
                      {/*ACTUAL LOGIN BUTTON */}
-      <Button
-            variant="contained"
-            color="primary"
-            onClick={isRegister ? handleRegister : handleLogin}
-            sx={{
-              border: "2px solid #fff", // white border
-              borderRadius: "8px",      // Rounded corners
-            }}
-          >
-            {isRegister ? "Register" : "Login"}
-    </Button>
+          <Button
+                variant="contained"
+                color="primary"
+                onClick={ handleLogin}
+                sx={{
+                  border: "2px solid #fff", // white border
+                  borderRadius: "8px",      // Rounded corners
+                }}
+              >
+                {isRegister ? "Register" : "Login"}
+        </Button>
+
+    {/* REGISTER BUTTON */}
       <Button sx={{ mt: 2 }} onClick={() => setIsRegister(!isRegister)}>
         {isRegister ? "Already have an account? Login" : "Create an account"}
       </Button>
+    
     </Box>
   );
 };

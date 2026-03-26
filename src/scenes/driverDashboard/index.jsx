@@ -1,4 +1,4 @@
-import { Box, Typography, useTheme, Button  } from "@mui/material";
+import { Box, Typography, useTheme, Button } from "@mui/material";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
@@ -9,7 +9,7 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-  const DriverDashboard = ({ driverId }) => {
+const DriverDashboard = ({ driverId }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const username = localStorage.getItem("username") || "Driver";
@@ -18,14 +18,13 @@ import axios from "axios";
 
   // ✅ Fetch only this driver’s data
   useEffect(() => {
-    const API_URL = process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev"; 
+    const API_URL =
+      process.env.REACT_APP_API_URL ||
+      "https://biasedly-abjective-brenden.ngrok-free.dev";
 
     const fetchDriverData = async () => {
       try {
-        
-    const res = await axios.get(`${API_URL}/driver-dashboard/${driverId}`);
-    setDriverData(res.data || []);
-
+        const res = await axios.get(`${API_URL}/driver-dashboard/${driverId}`);
         setDriverData(res.data || []);
       } catch (err) {
         console.error("Failed to fetch driver data:", err);
@@ -80,12 +79,46 @@ import axios from "axios";
     value: values.net,
   }));
 
+  const API_URL =
+    process.env.REACT_APP_API_URL ||
+    "https://biasedly-abjective-brenden.ngrok-free.dev";
+
+  // ✅ GDPR: Download My Data
+  const handleDownloadData = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/driver/data/${driverId}`);
+      const blob = new Blob([JSON.stringify(res.data, null, 2)], {
+        type: "application/json",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `driver_${driverId}_data.json`;
+      link.click();
+    } catch (err) {
+      console.error("Failed to download driver data:", err);
+    }
+  };
+
+  // ✅ GDPR: Delete My Account
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("Are you sure you want to delete your account? This cannot be undone.")) {
+      return;
+    }
+    try {
+      await axios.delete(`${API_URL}/driver/delete/${driverId}`);
+      alert("Your account has been deleted. You will be logged out.");
+      localStorage.clear();
+      window.location.href = "/";
+    } catch (err) {
+      console.error("Failed to delete account:", err);
+      alert("Failed to delete account.");
+    }
+  };
+
   return (
     <Box m="20px">
-      <Header
-        title="Driver Dashboard"
-        subtitle={`Welcome, ${username}`}
-      />
+      <Header title="Driver Dashboard" subtitle={`Welcome, ${username}`} />
 
       {/* Stat Boxes */}
       <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap="20px">
@@ -152,20 +185,27 @@ import axios from "axios";
           <PieChart isDashboard={true} data={pieData} />
         </Box>
       </Box>
-          {/* ✅ PDF Download Button */}
+
+      {/* PDF Download */}
       <Box mt="20px">
         <Button
           variant="contained"
           color="secondary"
           onClick={() => {
-            const API_URL =
-              process.env.REACT_APP_API_URL ||
-              "https://biasedly-abjective-brenden.ngrok-free.dev";
-            // ✅ Opens PDF in new tab for download
             window.open(`${API_URL}/driver-statement/${driverId}`, "_blank");
           }}
         >
           Download PDF Statement
+        </Button>
+      </Box>
+
+      {/* GDPR Buttons */}
+      <Box mt="20px" display="flex" gap="10px">
+        <Button variant="outlined" color="primary" onClick={handleDownloadData}>
+          Download My Data (JSON)
+        </Button>
+        <Button variant="outlined" color="error" onClick={handleDeleteAccount}>
+          Delete My Account
         </Button>
       </Box>
     </Box>
