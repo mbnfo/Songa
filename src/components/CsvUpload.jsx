@@ -2,63 +2,70 @@
 import React, { useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
 import { useTheme } from "@mui/material";
-import { tokens } from "../theme"; // adjust path if needed
+import { tokens } from "../theme"; // ✅ adjust path if needed
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const CsvUpload = ({ onUploadSuccess }) => {
-  // ✅ Access theme colors
+  // ✅ Access theme colors for styling
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  // ✅ Local state
-  const [file, setFile] = useState(null);
-  const [selectedFileName, setSelectedFileName] = useState("");
-  const [uploaded, setUploaded] = useState(false);
+  // ✅ Local state for file handling
+  const [file, setFile] = useState(null);              // stores selected file
+  const [selectedFileName, setSelectedFileName] = useState(""); // shows filename
+  const [uploaded, setUploaded] = useState(false);     // tracks upload status
 
-  // Handle file selection
+  // ✅ Handle file selection
   const handleFileChange = (e) => {
-    const selected = e.target.files[0];
+    const selected = e.target.files[0]; // get first selected file
     if (!selected) return;
-    setFile(selected);
-    setSelectedFileName(selected.name);
-    setUploaded(false); // reset upload state
+    setFile(selected);                  // store file in state
+    setSelectedFileName(selected.name); // show filename
+    setUploaded(false);                 // reset upload state
   };
 
-  //  Handle upload to backend
+  // ✅ Handle upload to backend
   const handleUpload = async () => {
     if (!file) {
       toast.error("Please select a CSV file first.");
       return;
     }
 
+    // Create FormData object for multipart upload
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-        const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+      // ✅ API URL (ngrok or localhost fallback)
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+      // ✅ Get JWT token from localStorage
+      const token = localStorage.getItem("token");
 
-        // ✅ Store the response in a variable
-        const res = await axios.post(`${API_URL}/upload-csv`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+      // ✅ Send POST request with JWT + multipart/form-data
+      const res = await axios.post(`${API_URL}/upload-csv`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`, // 🔒 send JWT for authentication
+        },
+      });
 
-        console.log("Upload success:", res.data);
-        toast.success("CSV uploaded successfully!");
+      console.log("Upload success:", res.data);
+      toast.success("CSV uploaded successfully!");
 
+      // ✅ Reset states so filename disappears
+      setUploaded(true);
+      setSelectedFileName("");
+      setFile(null);
 
-        // ✅ Reset states so file name disappears
-        setUploaded(true);
-        setSelectedFileName("");
-        setFile(null);
-
-        // ✅ Trigger dashboard refresh
-        if (onUploadSuccess) {
-          onUploadSuccess();
-        }
+      // ✅ Trigger dashboard refresh if callback provided
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
     } catch (error) {
-      console.error("Upload failed:", error);
+      // ✅ Log backend error if available
+      console.error("Upload failed:", error.response?.data || error.message);
       toast.error("CSV upload failed. Please try again.");
     }
   };
@@ -78,6 +85,7 @@ const CsvUpload = ({ onUploadSuccess }) => {
         }}
       >
         Select CSV
+        {/* Hidden file input */}
         <input type="file" accept=".csv" hidden onChange={handleFileChange} />
       </Button>
 

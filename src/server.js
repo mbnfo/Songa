@@ -4,7 +4,7 @@
 // Handles user creation and authentication
 // -----------------------------
 
-
+require("dotenv").config();
 const cors = require("cors");
 const express = require("express");
 const jwt = require("jsonwebtoken");
@@ -18,13 +18,15 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const fs = require("fs");
 const Papa = require("papaparse");
-require("dotenv").config();
+const router = express.Router();
+const { Parser } = require("json2csv"); //  for CSV export
+
 
 
 // -----------------------------
 // CSV PARSING
 // -----------------------------
-app.post("/upload-csv", upload.single("file"), async (req, res) => {
+app.post("/upload-csv", authenticateToken, upload.single("file"), async (req, res) => {
   try {
     const filePath = req.file.path;
     const fileContent = fs.readFileSync(filePath, "utf8");
@@ -84,31 +86,33 @@ app.use((req, res, next) => {
 
 // ✅ Middleware first
 app.use(cors()); // Allow cross-origin requests
-/*<<<<<<< HEAD
 
-=======
 const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'https://songa.onrender.com'
+  'http://localhost:3001/upload-csv',
+  'http://localhost:3000', // local React dev server
+  'http://localhost:3001', // local backend
+  'https://songa.onrender.com', // deployed frontend
+  'https://biasedly-abjective-brenden.ngrok-free.dev', // ngrok tunnel
+  'https://songa.com.pl', // Songa domain home
 ];
 const corsOptions = {
   origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error(`CORS policy disallows origin ${origin}`));
+      callback(new Error(`CORS policy disallows origin: ${origin}`));
     }
   },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, //  allow cookies/authorization headers
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], //  allowed HTTP methods
+  allowedHeaders: ["Content-Type", "Authorization"], //  headers your frontend sends
 };
 app.use(cors(corsOptions));
 app.options('', cors(corsOptions));
 
->>>>>>> e861629ce4bc9fb77cd820f5a57c68296ee811fe
-*/
+
+
 app.use(express.json()); // Parse JSON request bodies
 
 // 🔑 Debug line to check JWT_SECRET
@@ -367,8 +371,7 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
 // -----------------------------
 
 //const express = require("express");
-const router = express.Router();
-const { Parser } = require("json2csv"); // ✅ for CSV export
+
 
 // ✅ Export pending payouts as CSV
 router.get("/finance/export-payouts", authorizeRole("finance"), async (req, res) => {
@@ -900,9 +903,10 @@ app.use(express.static(path.join(__dirname, "../build")));
 
 
 
-// Mount router for finance and audit logs
-app.use("/", router);
-/*
+// Mount router for finance and audit logs   
+ app.use("/", router);
+
+
 // Catch-all handler: send back index.html for any non-API routes (for React Router)
 app.use((req, res, next) => {
   if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/support') && !req.path.startsWith('/admin') && !req.path.startsWith('/finance') && !req.path.startsWith('/audit-logs') && !req.path.startsWith('/driver-statement')) {
@@ -911,6 +915,6 @@ app.use((req, res, next) => {
     next();
   }
 });
-*/
+
 // Start server once
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
