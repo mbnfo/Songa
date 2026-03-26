@@ -41,11 +41,12 @@ const AppSidebar = () => {
   // ✅ Get username from localStorage (saved at login)
   const username = localStorage.getItem("username");
   const userRole = localStorage.getItem("role"); 
+  const firstName = localStorage.getItem("first_name"); 
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
-    localStorage.removeItem("username"); // ✅ clear username on logout
+    localStorage.removeItem("username"); // clear username on logout
     navigate("/", { replace: true });
   };
 
@@ -78,7 +79,7 @@ const AppSidebar = () => {
         >
           {!isCollapsed && (
             <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="h3">Owners</Typography>
+              <Typography variant="h3">{firstName}</Typography>
               <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                 <MenuOutlinedIcon />
               </IconButton>
@@ -97,7 +98,7 @@ const AppSidebar = () => {
               style={{ cursor: "pointer", borderRadius: "50%" }}
             />
             <Typography variant="h2" fontWeight="bold" sx={{ mt: "10px" }}>
-              {username} {/* ✅ dynamic username */}
+              {username} {/* dynamic username */}
             </Typography>
 
 
