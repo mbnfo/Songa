@@ -20,9 +20,30 @@ const fs = require("fs");
 const Papa = require("papaparse");
 require("dotenv").config();
 
+// ✅ Middleware first - CORS must be before routes
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://songa.onrender.com'
+];
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS policy disallows origin ${origin}`));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
+
+app.use(express.json()); // Parse JSON request bodies
 
 // -----------------------------
-// CSV PARSING
+// CSV UPLOAD ROUTE
 // -----------------------------
 app.post("/upload-csv", upload.single("file"), async (req, res) => {
   try {
@@ -47,8 +68,6 @@ app.post("/upload-csv", upload.single("file"), async (req, res) => {
     res.status(500).json({ error: "CSV upload failed" });
   }
 });
-
-
 
 // authMiddleware.js
 function authenticateToken(req, res, next) {
@@ -81,35 +100,6 @@ app.use((req, res, next) => {
   res.setHeader("ngrok-skip-browser-warning", "true");
   next();
 });
-
-// ✅ Middleware first
-app.use(cors()); // Allow cross-origin requests
-/*<<<<<<< HEAD
-
-=======
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'https://songa.onrender.com'
-];
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS policy disallows origin ${origin}`));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-};
-app.use(cors(corsOptions));
-app.options('', cors(corsOptions));
-
->>>>>>> e861629ce4bc9fb77cd820f5a57c68296ee811fe
-*/
-app.use(express.json()); // Parse JSON request bodies
 
 // 🔑 Debug line to check JWT_SECRET
 if (process.env.JWT_SECRET) {

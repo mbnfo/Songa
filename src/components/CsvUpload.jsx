@@ -22,6 +22,7 @@ const CsvUpload = ({ onUploadSuccess }) => {
     const selected = e.target.files[0];
     if (!selected) return;
     setFile(selected);
+    console.log("file name: ", selected.name);
     setSelectedFileName(selected.name);
     setUploaded(false); // reset upload state
   };
@@ -37,7 +38,7 @@ const CsvUpload = ({ onUploadSuccess }) => {
     formData.append("file", file);
 
     try {
-        const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+        const API_URL = process.env.REACT_APP_API_URL;
 
         // ✅ Store the response in a variable
         const res = await axios.post(`${API_URL}/upload-csv`, formData, {
