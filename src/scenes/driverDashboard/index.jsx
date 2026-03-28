@@ -33,25 +33,30 @@ const DriverDashboard = ({ driverId }) => {
     fetchDriverData();
   }, [driverId]);
 
+  
+
   // ✅ Compute stats
-  const totalGross = driverData.reduce(
-    (sum, row) => sum + Number(row.gross || 0),
-    0
-  );
-  const totalNet = driverData.reduce(
-    (sum, row) => sum + Number(row.net || 0),
-    0
-  );
+const safeData = Array.isArray(driverData) ? driverData : [];
+
+const totalGross = safeData.reduce(
+  (sum, row) => sum + Number(row.gross || 0),
+  0
+);
+
+const totalNet = safeData.reduce(
+  (sum, row) => sum + Number(row.net || 0),
+  0
+);
 
   // ✅ Weekly totals for line chart
-  const weeklyTotals = driverData.reduce((acc, row) => {
-    const week = row.week || row.Week;
-    if (!week) return acc;
-    if (!acc[week]) acc[week] = { gross: 0, net: 0 };
-    acc[week].gross += Number(row.gross || 0);
-    acc[week].net += Number(row.net || 0);
-    return acc;
-  }, {});
+  const weeklyTotals = safeData.reduce((acc, row) => {
+  const week = row.week || row.Week;
+  if (!week) return acc;
+  if (!acc[week]) acc[week] = { gross: 0, net: 0 };
+  acc[week].gross += Number(row.gross || 0);
+  acc[week].net += Number(row.net || 0);
+  return acc;
+}, {});
 
   const lineData = [
     {

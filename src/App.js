@@ -25,9 +25,9 @@ const OwnerLayout = () => (
       <Routes>
         <Route path="" element={<Dashboard />} />
         <Route path="manage-users" element={< ManageUsers />} />
-        <Route path="invoices" element={<Invoices />} />  
-
-        {/* ✅ Protect Audit Logs */}
+        
+{/*  <Route path="finance" element={<FinanceDashboard />} />      */}
+        {/*  Protect Audit Logs */}
         <Route
           path="audit-logs"
           element={
@@ -36,6 +36,8 @@ const OwnerLayout = () => (
             </ProtectedRoute>
           }
         />
+
+
       </Routes>
     </div>
   </div>
@@ -73,14 +75,14 @@ const DriverLayout = () => {
       <Sidebar />
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <Topbar />
-        {/* ✅ Pass driverId into dashboard */}
+        {/*  Pass driverId into dashboard */}
         <DriverDashboard driverId={driverId} />
       </div>
     </div>
   );
 };
 
-// ✅ Finance Layout
+//  Finance Layout
 const FinanceLayout = () => (
   <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
     <Sidebar />
@@ -138,7 +140,7 @@ function App() {
               <Route
                 path="/finance"
                 element={
-                  <ProtectedRoute role="finance">
+                  <ProtectedRoute role={["finance", "owner"]}>
                     <FinanceLayout />
                   </ProtectedRoute>
                 }
@@ -147,7 +149,6 @@ function App() {
             
             {/* Toast notifications */}
           <ToastContainer position="top-right" autoClose={3000} />
-
         </GlobalErrorBoundary>
       </ThemeProvider>
     </ColorModeContext.Provider>

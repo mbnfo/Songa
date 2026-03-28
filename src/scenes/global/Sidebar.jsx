@@ -127,12 +127,6 @@ const AppSidebar = () => {
                 selected={location.pathname}
               />
             )}
-
-
-        {/*<Item title="Invoices" to="/owner/invoices" icon={<ReceiptOutlinedIcon />} selected={location.pathname} />*/}
-        {/* <Item title="Contacts" to="/owner/contacts" icon={<ContactsOutlinedIcon />} selected={location.pathname} />*/}
-        {/*<Item title="Manage Drivers" to="/owner/manage-drivers" icon={<PeopleOutlinedIcon />} selected={location.pathname} />*/}
-        {/*<Item title="New Driver Form" to="/owner/form" icon={<PersonOutlinedIcon />} selected={location.pathname} />*/}
     
 
         {/* ✅ Show Support Dashboard only if role === 'support' */}
@@ -145,15 +139,16 @@ const AppSidebar = () => {
           />
         )}
 
-        {/* ✅ Show Finance Dashboard only if role === 'finance' */}
-        {userRole === "finance" && (
-          <Item
-            title="Finance Dashboard"
-            to="/finance"
-            icon={<AttachMoneyIcon />}
-            selected={location.pathname}
-          />
-        )}
+        {/*  Show Finance Dashboard only if role is finance or owner*/}
+        {(userRole === "finance" || userRole === "owner") && (
+            <Item
+              title="Finance Dashboard"
+              to="/finance"
+              icon={<AttachMoneyIcon />}
+              selected={location.pathname}
+            />
+          )}
+
 
         {/* ✅ Show Audit Logs only if role === 'owner' */}
         {userRole === "owner" && (

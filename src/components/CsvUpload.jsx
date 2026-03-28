@@ -39,7 +39,7 @@ const CsvUpload = ({ onUploadSuccess }) => {
 
     try {
       // ✅ API URL (ngrok or localhost fallback)
-      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+      const API_URL = process.env.REACT_APP_API_URL ||"https://biasedly-abjective-brenden.ngrok-free.dev";
       // ✅ Get JWT token from localStorage
       const token = localStorage.getItem("token");
 

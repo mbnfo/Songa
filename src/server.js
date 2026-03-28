@@ -23,32 +23,7 @@ const { Parser } = require("json2csv"); //  for CSV export
 
 
 
-// -----------------------------
-// CSV PARSING
-// -----------------------------
-app.post("/upload-csv", authenticateToken, upload.single("file"), async (req, res) => {
-  try {
-    const filePath = req.file.path;
-    const fileContent = fs.readFileSync(filePath, "utf8");
 
-    // Parse CSV
-    const parsed = Papa.parse(fileContent, { header: true });
-    const rows = parsed.data;
-
-    for (const row of rows) {
-        if (!row.driver_id) continue; // skip empty rows
-        await db.query(
-          "INSERT INTO earnings (driver_id, week, gross, commission, net, payout_status) VALUES (?, ?, ?, ?, ?, ?)",
-          [row.driver_id, row.week, row.gross, row.commission, row.net, row.payout_status]
-        );
-      }
-
-    res.json({ success: true, message: "CSV uploaded successfully!" });
-  } catch (err) {
-    console.error("CSV upload error:", err);
-    res.status(500).json({ error: "CSV upload failed" });
-  }
-});
 
 
 
@@ -88,7 +63,6 @@ app.use((req, res, next) => {
 app.use(cors()); // Allow cross-origin requests
 
 const allowedOrigins = [
-  'http://localhost:3001/upload-csv',
   'http://localhost:3000', // local React dev server
   'http://localhost:3001', // local backend
   'https://songa.onrender.com', // deployed frontend
@@ -367,14 +341,42 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
 });
 
 // -----------------------------
-// Finance Module Routes
+// Finance & Owner Role-Based Access Middleware (supports single OR multiple roles)
 // -----------------------------
+function authorizeRole(requiredRoles) {
+  return (req, res, next) => {
+    try {
+      // Extract role from JWT payload (set earlier in authenticateToken middleware)
+      const userRole = req.user.role?.toLowerCase();
+
+      // Normalize requiredRoles into an array of lowercase strings
+      const allowedRoles = Array.isArray(requiredRoles)
+        ? requiredRoles.map(r => r.toLowerCase())
+        : [requiredRoles.toLowerCase()];
+
+      // Check if the user's role is in the allowed list
+      if (!allowedRoles.includes(userRole)) {
+        return res.status(403).json({ error: "Access denied: insufficient role" });
+      }
+
+      // If role is allowed, continue to the next middleware/route
+      next();
+    } catch (err) {
+      console.error("Authorization error:", err);
+      res.status(401).json({ error: "Unauthorized" });
+    }
+  };
+}
+
+// -----------------------------
+// Finance Module Routes
+// --------------------------ssss---
 
 //const express = require("express");
 
 
-// ✅ Export pending payouts as CSV
-router.get("/finance/export-payouts", authorizeRole("finance"), async (req, res) => {
+// Export pending payouts as CSV
+router.get("/finance/export-payouts", authorizeRole(["finance", "owner"]), async (req, res) => {
   try {
     const [rows] = await db.query(
       "SELECT driver_id, week, net, payout_status FROM earnings WHERE payout_status = 'Pending'"
@@ -397,8 +399,8 @@ router.get("/finance/export-payouts", authorizeRole("finance"), async (req, res)
   }
 });
 
-// ✅ Mark payout as paid
-router.post("/finance/mark-paid",  authorizeRole("finance"), async (req, res) => {
+//  Mark payout as paid
+router.post("/finance/mark-paid",  authorizeRole(["finance", "owner"]), async (req, res) => {
   const { driverId, week } = req.body;
   try {
     await db.query(
@@ -416,8 +418,8 @@ router.post("/finance/mark-paid",  authorizeRole("finance"), async (req, res) =>
   }
 });
 
-// ✅ View payout history
-router.get("/finance/payout-history", async (req, res) => {
+// View payout history
+router.get("/finance/payout-history",  authorizeRole(["finance", "owner"]), async (req, res) => {
   try {
     const [rows] = await db.query(
       "SELECT driver_id, week, net, payout_status FROM earnings ORDER BY week DESC"
@@ -431,26 +433,36 @@ router.get("/finance/payout-history", async (req, res) => {
 
 module.exports = router;
 
-// -----------------------------
-// Finance Role-Based Access Middleware
-// -----------------------------
-function authorizeRole(requiredRole) {
-  return (req, res, next) => {
-    try {
-      // ✅ Extract role from JWT (decoded earlier in auth middleware)
-      const userRole = req.user.role; // assumes you set req.user in auth middleware
 
-      if (userRole !== requiredRole) {
-        return res.status(403).json({ error: "Access denied: insufficient role" });
+
+// -----------------------------
+// CSV PARSING
+// -----------------------------
+app.post("/upload-csv", authenticateToken, upload.single("file"), async (req, res) => {
+  try {
+    console.log("Upload route hit, file:", req.file);
+
+    const filePath = req.file.path;
+    const fileContent = fs.readFileSync(filePath, "utf8");
+
+    // Parse CSV
+    const parsed = Papa.parse(fileContent, { header: true });
+    const rows = parsed.data;
+
+    for (const row of rows) {
+        if (!row.driver_id) continue; // skip empty rows
+        await db.query(
+          "INSERT INTO earnings (driver_id, week, gross, commission, net, payout_status) VALUES (?, ?, ?, ?, ?, ?)",
+          [row.driver_id, row.week, row.gross, row.commission, row.net, row.payout_status]
+        );
       }
 
-      next(); // ✅ allow access
-    } catch (err) {
-      console.error("Authorization error:", err);
-      res.status(401).json({ error: "Unauthorized" });
-    }
-  };
-}
+    res.json({ success: true, message: "CSV uploaded successfully!" });
+  } catch (err) {
+    console.error("CSV upload error:", err);
+    res.status(500).json({ error: "CSV upload failed" });
+  }
+});
 
 // -----------------------------
 // Audit Logging Helper
@@ -909,7 +921,13 @@ app.use(express.static(path.join(__dirname, "../build")));
 
 // Catch-all handler: send back index.html for any non-API routes (for React Router)
 app.use((req, res, next) => {
-  if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/support') && !req.path.startsWith('/admin') && !req.path.startsWith('/finance') && !req.path.startsWith('/audit-logs') && !req.path.startsWith('/driver-statement')) {
+  if (req.method === 'GET' && !req.path.startsWith('/api') &&
+  !req.path.startsWith('/support') && 
+  !req.path.startsWith('/admin') &&
+   !req.path.startsWith('/finance') && 
+   !req.path.startsWith('/audit-logs') && 
+   !req.path.startsWith('/driver-statement')) 
+   {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
   } else {
     next();

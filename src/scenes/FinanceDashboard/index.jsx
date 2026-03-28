@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  Typography,
-  Snackbar,
-  Alert,
-  TextField,
-} from "@mui/material";
+import { Box, Button,Typography,Snackbar,Alert,TextField} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -18,26 +11,25 @@ const FinanceDashboard = () => {
   const navigate = useNavigate();
   const role = localStorage.getItem("role");
   const API_URL =
-    process.env.REACT_APP_API_URL ||
-    "https://biasedly-abjective-brenden.ngrok-free.dev";
+    process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev";
 
   const colors = tokens("dark");
 
-  // ✅ State for payouts
+  //  State for payouts
   const [payouts, setPayouts] = useState([]);
-  // ✅ Snackbar feedback
+  // Snackbar feedback
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success",
   });
-  // ✅ Loading state
+  //  Loading state
   const [loading, setLoading] = useState(false);
-  // ✅ Date range filter
+  //  Date range filter
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // ✅ Fetch payout history
+  //  Fetch payout history
   const fetchHistory = async () => {
     setLoading(true);
     try {
@@ -58,10 +50,10 @@ const FinanceDashboard = () => {
   };
 
   useEffect(() => {
-    if (role !== "finance") {
+    if (role !== "finance"|| role !==  "owner") {
       setSnackbar({
         open: true,
-        message: "Access denied: Finance role required",
+        message: "Access denied: Finance or Owner role required",
         severity: "error",
       });
       navigate("/");
@@ -217,7 +209,7 @@ const FinanceDashboard = () => {
         </Box>
       </Box>
 
-      {/* ✅ Charts */}
+      {/*  Charts */}
       <Box mt="40px" backgroundColor="#1f2a40" p="20px">
         <Typography variant="h5">Pending vs Paid</Typography>
         <Box height="250px">
@@ -239,7 +231,7 @@ const FinanceDashboard = () => {
         </Box>
       </Box>
 
-      {/* ✅ Payout history table */}
+      {/*  Payout history table */}
       <Box mt="40px">
         <Typography variant="h5">Payout History</Typography>
         <DataGrid
@@ -255,7 +247,7 @@ const FinanceDashboard = () => {
       </Box>
 
 
-      {/* ✅ Global Snackbar */}
+      {/*  Global Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
