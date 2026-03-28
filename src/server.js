@@ -738,17 +738,34 @@ app.get("/support/audit-logs/export",  authenticateToken, authorizeRole("support
 // Support Module Routes (with audit logging)
 // -----------------------------
 
+<<<<<<< HEAD
 //  Create new issue (driver submits)
 app.post("/support/issues", async (req, res) => {
   const { driverId, description } = req.body;
+=======
+// ✅ Create new issue (any role can submit)
+app.post("/support/issues", authenticateToken, async (req, res) => {
+  const { description } = req.body;
+>>>>>>> 3b219fa (Tried Support dashboard, failed)
   try {
+    if (!description) {
+      return res.status(400).json({ error: "Description is required" });
+    }
+
+    // Save issue with user info
     await db.query(
-      "INSERT INTO support_issues (driver_id, description) VALUES (?, ?)",
-      [driverId, description]
+      "INSERT INTO support_issues (user_id, role, description, status, created_at) VALUES (?, ?, ?, 'Open', NOW())",
+      [req.user.id, req.user.role, description]
     );
 
-    // 🔒 Log action
-    await logAction(req.user.username, req.user.role, "Issue Created", `Driver ${driverId}: ${description}`);
+     // 🔒 Log action
+    await logAction(
+      req.user.username,
+      req.user.role,
+      "Issue Created",
+      `${req.user.role} ${req.user.id}: ${description}`
+    );
+
 
     res.json({ success: true, message: "Issue logged successfully" });
   } catch (err) {
@@ -757,7 +774,13 @@ app.post("/support/issues", async (req, res) => {
   }
 });
 
+<<<<<<< HEAD
 //  View all issues (support staff)
+=======
+
+
+// ✅ View all issues (support staff)
+>>>>>>> 3b219fa (Tried Support dashboard, failed)
 app.get("/support/issues",  authenticateToken, authorizeRole("support"), async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM support_issues ORDER BY created_at DESC");
@@ -792,21 +815,34 @@ app.post("/support/issues/:id/resolve",  authenticateToken, authorizeRole("suppo
   }
 });
 
+<<<<<<< HEAD
 //  Escalate issue
 app.post("/support/issues/:id/escalate",  authenticateToken, authorizeRole("support"), async (req, res) => {
   const { id } = req.params;
   try {
     await db.query("UPDATE support_issues SET status = 'Escalated' WHERE id = ?", [id]);
+=======
+// ✅ Escalate issue with reason
+    app.post("/support/issues/:id/escalate", authenticateToken, authorizeRole("support"), async (req, res) => {
+      const { id } = req.params;
+      const { reason } = req.body;
+      try {
+        await db.query(
+          "UPDATE support_issues SET status = 'Escalated', reason = ? WHERE id = ?",
+          [reason, id]
+        );
+>>>>>>> 3b219fa (Tried Support dashboard, failed)
 
-    // 🔒 Log action
-    await logAction(req.user.username, req.user.role, "Issue Escalated", `Issue ${id} escalated to Admin`);
+        // 🔒 Log action
+        await logAction(req.user.username, req.user.role, "Issue Escalated", `Issue ${id} escalated with reason: ${reason}`);
 
-    res.json({ success: true, message: "Issue escalated to Admin" });
-  } catch (err) {
-    console.error("Error escalating issue:", err);
-    res.status(500).json({ error: "Failed to escalate issue" });
-  }
-});
+        res.json({ success: true, message: "Issue escalated to Admin" });
+      } catch (err) {
+        console.error("Error escalating issue:", err);
+        res.status(500).json({ error: "Failed to escalate issue" });
+      }
+    });
+
 
 
 

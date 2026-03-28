@@ -172,6 +172,17 @@ const AppSidebar = () => {
           />
         )}
 
+         {/* Support  */}
+        <Box mt="auto">
+          <MenuItem
+            icon={<HelpOutlineIcon />}
+            component={<Link to="/support" />}
+          >
+            <Typography>Support</Typography>
+          </MenuItem>
+        </Box>
+
+
          {/* Logout at bottom */}
         <Box mt="auto">
           <MenuItem icon={<ExitToAppIcon />} onClick={handleLogout}>
