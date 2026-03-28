@@ -14,6 +14,7 @@ import FinanceDashboard from "./scenes/FinanceDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GlobalErrorBoundary from "./components/GlobalErrorBoundary";
 import ManageUsers from "./scenes/ManageUsers";
+import SupportDashboard from "./scenes/SupportDashboard";
 
 
 // 😏Owner Layout
@@ -25,6 +26,9 @@ const OwnerLayout = () => (
       <Routes>
         <Route path="" element={<Dashboard />} />
         <Route path="manage-users" element={< ManageUsers />} />
+        
+{/*  <Route path="finance" element={<FinanceDashboard />} />      */}
+        {/*  Protect Audit Logs */}
         
 {/*  <Route path="finance" element={<FinanceDashboard />} />      */}
         {/*  Protect Audit Logs */}
@@ -43,7 +47,7 @@ const OwnerLayout = () => (
   </div>
 );
 
-// ✅ Admin Layout
+//  Admin Layout
 const AdminLayout = () => (
   <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
     <Sidebar />
@@ -76,11 +80,14 @@ const DriverLayout = () => {
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <Topbar />
         {/*  Pass driverId into dashboard */}
+        {/*  Pass driverId into dashboard */}
         <DriverDashboard driverId={driverId} />
       </div>
     </div>
   );
 };
+
+
 
 //  Finance Layout
 const FinanceLayout = () => (
@@ -92,6 +99,20 @@ const FinanceLayout = () => (
     </div>
   </div>
 );
+
+//  Support Layout
+const SupportLayout = () => (
+  <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
+    <Sidebar />
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <Topbar />
+      <Routes>
+        <Route path="" element={<SupportDashboard />} />    
+      </Routes>
+    </div>
+  </div>
+);
+
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -145,8 +166,18 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-            </Routes>
-            
+
+              {/* Support routes */}
+              <Route
+                path="/support"
+                element={
+                  <ProtectedRoute role="support">
+                    <SupportLayout />
+                  </ProtectedRoute>
+                }
+              />
+
+            </Routes>       
             {/* Toast notifications */}
           <ToastContainer position="top-right" autoClose={3000} />
         </GlobalErrorBoundary>

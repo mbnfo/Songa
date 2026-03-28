@@ -25,7 +25,8 @@ const { Parser } = require("json2csv"); //  for CSV export
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
-  'https://songa.onrender.com'
+  'https://songa.onrender.com',
+  'https://biasedly-abjective-brenden.ngrok-free.dev'
 ];
 const corsOptions = {
   origin: (origin, callback) => {
