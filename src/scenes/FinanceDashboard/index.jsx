@@ -50,7 +50,7 @@ const FinanceDashboard = () => {
   };
 
   useEffect(() => {
-    if (role !== "finance"|| role !==  "owner") {
+    if (role !== "finance" && role !==  "owner") {
       setSnackbar({
         open: true,
         message: "Access denied: Finance or Owner role required",
@@ -62,7 +62,7 @@ const FinanceDashboard = () => {
     fetchHistory();
   }, [role, navigate, API_URL]);
 
-  // ✅ Export CSV
+  //  Export CSV
   const exportCSV = () => {
     window.open(
       `${API_URL}/finance/export-payouts?startDate=${startDate}&endDate=${endDate}`,
@@ -70,7 +70,7 @@ const FinanceDashboard = () => {
     );
   };
 
-  // ✅ Mark payout as paid
+  //  Mark payout as paid
   const markPaid = async (driverId, week) => {
     try {
       await axios.post(`${API_URL}/finance/mark-paid`, { driverId, week });
@@ -90,7 +90,7 @@ const FinanceDashboard = () => {
     }
   };
 
-  // ✅ Analytics
+  //  Analytics
   const totalNet = payouts.reduce((sum, p) => sum + Number(p.net || 0), 0);
   const totalCommission = payouts.reduce(
     (sum, p) => sum + Number(p.commission || 0),
@@ -105,19 +105,19 @@ const FinanceDashboard = () => {
     .filter((p) => p.payout_status === "Paid")
     .reduce((sum, p) => sum + Number(p.net || 0), 0);
 
-  // ✅ Pie chart data (Pending vs Paid)
+  //  Pie chart data (Pending vs Paid)
   const pieData = [
     { id: "Pending", label: "Pending", value: pendingNet },
     { id: "Paid", label: "Paid", value: paidNet },
   ];
 
-  // ✅ Commission breakdown chart data
+  //  Commission breakdown chart data
   const commissionData = [
     { id: "Commission", label: "Commission", value: totalCommission },
     { id: "Net Earnings", label: "Net Earnings", value: totalNet },
   ];
 
-  // ✅ Line chart data (weekly totals)
+  //  Line chart data (weekly totals)
   const weeklyTotals = payouts.reduce((acc, p) => {
     if (!acc[p.week]) acc[p.week] = 0;
     acc[p.week] += Number(p.net || 0);
@@ -134,7 +134,7 @@ const FinanceDashboard = () => {
     },
   ];
 
-  // ✅ DataGrid columns
+  //  DataGrid columns
   const columns = [
     { field: "driver_id", headerName: "Driver ID", flex: 1 },
     { field: "week", headerName: "Week", flex: 1 },
@@ -162,7 +162,7 @@ const FinanceDashboard = () => {
     <Box m="20px">
       <Typography variant="h4">Finance Dashboard</Typography>
 
-      {/* ✅ Date Range Filter */}
+      {/*  Date Range Filter */}
       <Box mt="20px" display="flex" gap="20px" alignItems="center">
         <TextField
           type="date"
@@ -183,7 +183,7 @@ const FinanceDashboard = () => {
         </Button>
       </Box>
 
-      {/* ✅ Export button */}
+      {/*  Export button */}
       <Button
         variant="contained"
         color="secondary"
@@ -193,7 +193,7 @@ const FinanceDashboard = () => {
         Export Payouts (CSV)
       </Button>
 
-      {/* ✅ Summary Cards */}
+      {/*  Summary Cards */}
       <Box mt="20px" display="flex" gap="20px">
         <Box p="20px" bgcolor={colors.primary[400]} borderRadius="8px">
           <Typography variant="h6">Total Gross</Typography>
@@ -209,27 +209,42 @@ const FinanceDashboard = () => {
         </Box>
       </Box>
 
-      {/*  Charts */}
-      <Box mt="40px" backgroundColor="#1f2a40" p="20px">
-        <Typography variant="h5">Pending vs Paid</Typography>
-        <Box height="250px">
-          <PieChart isDashboard={true} data={pieData} />
-        </Box>
-      </Box>
+      
 
-      <Box mt="40px" backgroundColor="#1f2a40" p="20px">
-        <Typography variant="h5">Commission vs Net Earnings</Typography>
-        <Box height="250px">
-          <PieChart isDashboard={true} data={commissionData} />
+      {/* Charts */}
+        <Box mt="40px" backgroundColor="#1f2a40" p="20px">
+          <Typography variant="h5">Pending vs Paid</Typography>
+          <Box height="250px">
+            {pieData.some(d => d.value > 0) ? (
+              <PieChart isDashboard={true} data={pieData} />
+            ) : (
+              <Typography>No payout data available</Typography>
+            )}
+          </Box>
         </Box>
-      </Box>
 
-      <Box mt="40px" backgroundColor="#1f2a40" p="20px">
-        <Typography variant="h5">Weekly Net Payouts</Typography>
-        <Box height="250px">
-          <LineChart isDashboard={true} data={lineData} />
+        <Box mt="40px" backgroundColor="#1f2a40" p="20px">
+          <Typography variant="h5">Commission vs Net Earnings</Typography>
+          <Box height="250px">
+            {commissionData.some(d => d.value > 0) ? (
+              <PieChart isDashboard={true} data={commissionData} />
+            ) : (
+              <Typography>No commission data available</Typography>
+            )}
+          </Box>
         </Box>
-      </Box>
+
+        <Box mt="40px" backgroundColor="#1f2a40" p="20px">
+          <Typography variant="h5">Weekly Net Payouts</Typography>
+          <Box height="250px">
+            {lineData[0].data.length > 0 ? (
+              <LineChart isDashboard={true} data={lineData} />
+            ) : (
+              <Typography>No weekly data available</Typography>
+            )}
+          </Box>
+        </Box>
+
 
       {/*  Payout history table */}
       <Box mt="40px">
