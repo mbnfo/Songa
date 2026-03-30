@@ -174,6 +174,7 @@ app.use((req, res, next) => {
 app.use(cors()); // Allow cross-origin requests
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 const allowedOrigins = [
   'http://localhost:3000', // local React dev server
   'http://localhost:3001', // local backend
@@ -200,6 +201,8 @@ app.options('', cors(corsOptions));
 
 =======
 >>>>>>> bd8f9c2 (New merge to fix finance)
+=======
+>>>>>>> 0c3972c (resolved a few issues that came with merging the branches)
 
 app.use(express.json()); // Parse JSON request bodies
 
