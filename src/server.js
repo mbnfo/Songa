@@ -459,12 +459,13 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
 
 // -----------------------------
 // Finance & Owner Role-Based Access Middleware (supports single OR multiple roles)
+// Note: This runs AFTER authenticateToken, so req.user is already set
 // -----------------------------
 function authorizeRole(requiredRoles) {
   return (req, res, next) => {
     try {
       // Extract role from JWT payload (set earlier in authenticateToken middleware)
-      const userRole = req.user.role?.toLowerCase();
+      const userRole = req.user?.role?.toLowerCase();
 
       // Normalize requiredRoles into an array of lowercase strings
       const allowedRoles = Array.isArray(requiredRoles)
@@ -472,21 +473,11 @@ function authorizeRole(requiredRoles) {
         : [requiredRoles.toLowerCase()];
 
       // Check if the user's role is in the allowed list
-      if (!allowedRoles.includes(userRole)) {
+      if (!userRole || !allowedRoles.includes(userRole)) {
         return res.status(403).json({ error: "Access denied: insufficient role" });
       }
 
-      console.log("🔐 Incoming token:", token);
-              jwt.verify(token, process.env.JWT_SECRET || "mysecret", (err, decoded) => {
-                if (err) {
-                  console.error("JWT verification failed:", err);
-                  return res.status(403).json({ error: "Invalid token" });
-                }
-                console.log(" Decoded payload:", decoded);
-                req.user = decoded;
-                next();
-              });
-
+      console.log("✅ Role authorized:", userRole, "- allowed roles:", allowedRoles);
 
       // If role is allowed, continue to the next middleware/route
       next();
@@ -551,7 +542,7 @@ router.post("/finance/mark-paid", authenticateToken, authorizeRole(["finance", "
 router.get("/finance/payout-history", authenticateToken,  authorizeRole(["finance", "owner"]), async (req, res) => {
   try {
     const [rows] = await db.query(
-      "SELECT driver_id, week, net, payout_status FROM earnings ORDER BY week DESC"
+      "SELECT DISTINCT driver_id, week, gross, commission, net, payout_status FROM earnings ORDER BY week DESC"
     );
     res.json(rows);
   } catch (err) {
