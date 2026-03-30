@@ -24,8 +24,24 @@ const DriverDashboard = ({ driverId }) => {
 
     const fetchDriverData = async () => {
       try {
-        const res = await axios.get(`${API_URL}/driver-dashboard/${driverId}`);
-        setDriverData(res.data || []);
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`${API_URL}/driver-dashboard/${driverId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = Array.isArray(res.data)
+          ? res.data
+          : Array.isArray(res.data?.earnings)
+          ? res.data.earnings
+          : [];
+
+        if (!data.length) {
+          console.log("the function works, just that the data is not passing through");
+        }
+
+        setDriverData(data);
       } catch (err) {
         console.error("Failed to fetch driver data:", err);
       }
