@@ -21,11 +21,116 @@ const Papa = require("papaparse");
 const router = express.Router();
 const { Parser } = require("json2csv"); //  for CSV export
 
+// ✅ Middleware first - CORS must be before routes
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://songa.onrender.com'
+];
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS policy disallows origin ${origin}`));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
+
+app.use(express.json()); // Parse JSON request bodies
 
 
 
+// -----------------------------
+// CSV UPLOAD ROUTE
+// -----------------------------
+app.post("/upload-csv", upload.single("file"), async (req, res) => {
+  try {
+    const filePath = req.file.path;
+    let fileContent = fs.readFileSync(filePath, "utf8");
 
+    // Sanitize one-cell style input like
+    fileContent = fileContent.trim();
+    if (fileContent.toLowerCase().startsWith("data:")) {
+      fileContent = fileContent.slice(5).trim();
+    }
+    fileContent = fileContent.replace(/\|$/, "").trim();
 
+    const normalizeDriverId = (id) => {
+      if (typeof id !== "string") return id;
+      const cleaned = id.trim();
+      // strip everything after the first colon, like "S0015:1" -> "S0015"
+      return cleaned.replace(/:.+$/, "");
+    };
+
+    // First, try header-parsing csv (standard format)
+    let rows = [];
+    const parsedHeader = Papa.parse(fileContent, { header: true, skipEmptyLines: true, trim: true });
+
+    if (parsedHeader.data && parsedHeader.data.length > 0) {
+      const hasDriverId = parsedHeader.data.some((row) => row.driver_id || row.Driver_id || row.driver_id === 0);
+      const headers = Object.keys(parsedHeader.data[0] || {}).map((k) => k.toLowerCase());
+      const headerFields = ["driver_id", "week", "gross", "commission", "net", "payout_status"];
+
+      if (hasDriverId || headerFields.every((field) => headers.includes(field))) {
+        rows = parsedHeader.data;
+      }
+    }
+
+    // Fallback: single-cell or no-header CSV
+    if (!rows.length) {
+      const parsedNoHeader = Papa.parse(fileContent, { header: false, skipEmptyLines: true, trim: true });
+      if (parsedNoHeader.data && parsedNoHeader.data.length > 0) {
+        rows = parsedNoHeader.data
+          .map((rawRow) => {
+            if (!rawRow || !rawRow.length) return null;
+            let values = rawRow;
+
+            // rawRow may be like ["S0015,Week1,1200.00,240.00,960.00,Pending"]
+            if (rawRow.length === 1 && typeof rawRow[0] === "string" && rawRow[0].includes(",")) {
+              values = rawRow[0].split(",").map((v) => v.trim());
+            }
+
+            if (values.length < 6) return null;
+
+            return {
+              driver_id: normalizeDriverId(values[0]),
+              week: values[1],
+              gross: values[2],
+              commission: values[3],
+              net: values[4],
+              payout_status: values[5],
+            };
+          })
+          .filter(Boolean);
+      }
+    }
+
+    if (!rows.length) {
+      return res.status(400).json({ error: "No valid CSV rows found" });
+    }
+
+    for (const row of rows) {
+      if (!row || !row.driver_id) continue; // skip empty rows
+      const driverId = normalizeDriverId(row.driver_id || row.Driver_id || row.driverId);
+      if (!driverId) continue;
+
+      await db.query(
+        "INSERT INTO earnings (driver_id, week, gross, commission, net, payout_status) VALUES (?, ?, ?, ?, ?, ?)",
+        [driverId, row.week, row.gross, row.commission, row.net, row.payout_status]
+      );
+    }
+
+    res.json({ success: true, message: "CSV uploaded successfully!" });
+  } catch (err) {
+    console.error("CSV upload error:", err);
+    res.status(500).json({ error: "CSV upload failed" });
+  }
+});
 
 // authMiddleware.js
 function authenticateToken(req, res, next) {
@@ -821,6 +926,59 @@ app.put("/owner/drivers/:id",  authenticateToken, authorizeRole("owner"), async 
 });
 
 
+
+
+// -----------------------------
+// Driver Dashboard route used by driverDashboard component
+// -----------------------------
+app.get("/driver-dashboard/:driverId", authenticateToken,  async (req, res) => {
+  let driverId = (req.params.driverId || "").toString().trim();
+
+  // Fallback from parsed token if route param is bad/empty
+  if (!driverId && req.user) {
+    driverId = (req.user.driverId || req.user.id || "").toString();
+  }
+
+  try {
+    let [driverRows] = [ [] ];
+
+    if (/^\d+$/.test(driverId)) {
+      [driverRows] = await db.query("SELECT * FROM drivers WHERE id = ? OR user_id = ?", [driverId, driverId]);
+    }
+
+    if (!driverRows.length) {
+      [driverRows] = await db.query("SELECT * FROM drivers WHERE vehicle_id = ?", [driverId]);
+    }
+
+    // If we got here, first try vehicle_id matching (for non-numeric strings)
+    if (!driverRows.length) {
+      [driverRows] = await db.query("SELECT * FROM drivers WHERE vehicle_id = ?", [driverId]);
+    }
+
+    // As requested: prefer direct driverId resolution, not user_id path.
+    if (!driverRows.length) {
+      const [earningsRowsFromEarnings] = await db.query(
+        "SELECT week, gross, commission, net, payout_status FROM earnings WHERE driver_id = ? ORDER BY week ASC",
+        [driverId]
+      );
+      if (earningsRowsFromEarnings.length) {
+        return res.json(earningsRowsFromEarnings);
+      }
+      return res.status(404).json({ error: "Driver not found" });
+    }
+
+    const driver = driverRows[0];
+    const [earningsRows] = await db.query(
+      "SELECT week, gross, commission, net, payout_status FROM earnings WHERE driver_id = ? ORDER BY week ASC",
+      [driver.id]
+    );
+
+    return res.json(earningsRows);
+  } catch (err) {
+    console.error("Error fetching driver dashboard:", err);
+    return res.status(500).json({ error: "Failed to fetch driver dashboard" });
+  }
+});
 
 
 //  Download My Data (Driver GDPR)

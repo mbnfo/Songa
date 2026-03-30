@@ -130,10 +130,11 @@ useEffect(() => {
   // Update status
   const handleStatusChange = async (id, newStatus) => {
     try {
-      await axios.put( `${API_URL}/users/${id}/status`, { status: newStatus },
+      await axios.put( `${API_URL}/owner/users/${id}/status`, { status: newStatus },
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
 
       );
+    
       setRows(rows.map((u) => (u.id === id ? { ...u, status: newStatus } : u)));
       setSnackbar({ open: true, message: `Status updated to ${newStatus}`, severity: "success" });
     } catch {
