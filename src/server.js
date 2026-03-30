@@ -23,23 +23,29 @@ const { Parser } = require("json2csv"); //  for CSV export
 
 // ✅ Middleware first - CORS must be before routes
 const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'https://songa.onrender.com'
+  'http://localhost:3000', // local React dev server
+  'http://localhost:3001', // local backend
+  'https://songa.onrender.com', // deployed frontend
+  'https://biasedly-abjective-brenden.ngrok-free.dev', // ngrok tunnel
+  'https://songa.com.pl', // Songa domain home
 ];
+
+
 const corsOptions = {
   origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error(`CORS policy disallows origin ${origin}`));
+      callback(new Error(`CORS policy disallows origin: ${origin}`));
     }
   },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, //  allow cookies/authorization headers
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], //  allowed HTTP methods
+  allowedHeaders: ["Content-Type", "Authorization"], //  headers your frontend sends
 };
 app.use(cors(corsOptions));
+app.options('', cors(corsOptions));
 
 app.use(express.json()); // Parse JSON request bodies
 
@@ -166,30 +172,6 @@ app.use((req, res, next) => {
 
 //  Middleware first
 app.use(cors()); // Allow cross-origin requests
-
-const allowedOrigins = [
-  'http://localhost:3000', // local React dev server
-  'http://localhost:3001', // local backend
-  'https://songa.onrender.com', // deployed frontend
-  'https://biasedly-abjective-brenden.ngrok-free.dev', // ngrok tunnel
-  'https://songa.com.pl', // Songa domain home
-];
-const corsOptions = {
-  origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS policy disallows origin: ${origin}`));
-    }
-  },
-  credentials: true, //  allow cookies/authorization headers
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], //  allowed HTTP methods
-  allowedHeaders: ["Content-Type", "Authorization"], //  headers your frontend sends
-};
-app.use(cors(corsOptions));
-app.options('', cors(corsOptions));
-
 
 
 app.use(express.json()); // Parse JSON request bodies
