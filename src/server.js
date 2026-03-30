@@ -23,24 +23,29 @@ const { Parser } = require("json2csv"); //  for CSV export
 
 // ✅ Middleware first - CORS must be before routes
 const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'https://songa.onrender.com',
-  'https://biasedly-abjective-brenden.ngrok-free.dev'
+  'http://localhost:3000', // local React dev server
+  'http://localhost:3001', // local backend
+  'https://songa.onrender.com', // deployed frontend
+  'https://biasedly-abjective-brenden.ngrok-free.dev', // ngrok tunnel
+  'https://songa.com.pl', // Songa domain home
 ];
+
+
 const corsOptions = {
   origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error(`CORS policy disallows origin ${origin}`));
+      callback(new Error(`CORS policy disallows origin: ${origin}`));
     }
   },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, //  allow cookies/authorization headers
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], //  allowed HTTP methods
+  allowedHeaders: ["Content-Type", "Authorization"], //  headers your frontend sends
 };
 app.use(cors(corsOptions));
+app.options('', cors(corsOptions));
 
 app.use(express.json()); // Parse JSON request bodies
 
@@ -168,6 +173,7 @@ app.use((req, res, next) => {
 //  Middleware first
 app.use(cors()); // Allow cross-origin requests
 
+<<<<<<< HEAD
 const allowedOrigins = [
   'http://localhost:3000', // local React dev server
   'http://localhost:3001', // local backend
@@ -192,6 +198,8 @@ app.use(cors(corsOptions));
 app.options('', cors(corsOptions));
 
 
+=======
+>>>>>>> bd8f9c2 (New merge to fix finance)
 
 app.use(express.json()); // Parse JSON request bodies
 
@@ -739,6 +747,7 @@ app.get("/support/audit-logs/export",  authenticateToken, authorizeRole("support
 // -----------------------------
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 //  Create new issue (driver submits)
 app.post("/support/issues", async (req, res) => {
   const { driverId, description } = req.body;
@@ -747,6 +756,11 @@ app.post("/support/issues", async (req, res) => {
 app.post("/support/issues", authenticateToken, async (req, res) => {
   const { description } = req.body;
 >>>>>>> 3b219fa (Tried Support dashboard, failed)
+=======
+//  Create new issue (driver submits)
+app.post("/support/issues", async (req, res) => {
+  const { driverId, description } = req.body;
+>>>>>>> bd8f9c2 (New merge to fix finance)
   try {
     if (!description) {
       return res.status(400).json({ error: "Description is required" });
@@ -775,12 +789,16 @@ app.post("/support/issues", authenticateToken, async (req, res) => {
 });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 //  View all issues (support staff)
 =======
 
 
 // ✅ View all issues (support staff)
 >>>>>>> 3b219fa (Tried Support dashboard, failed)
+=======
+//  View all issues (support staff)
+>>>>>>> bd8f9c2 (New merge to fix finance)
 app.get("/support/issues",  authenticateToken, authorizeRole("support"), async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM support_issues ORDER BY created_at DESC");
@@ -816,11 +834,15 @@ app.post("/support/issues/:id/resolve",  authenticateToken, authorizeRole("suppo
 });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> bd8f9c2 (New merge to fix finance)
 //  Escalate issue
 app.post("/support/issues/:id/escalate",  authenticateToken, authorizeRole("support"), async (req, res) => {
   const { id } = req.params;
   try {
     await db.query("UPDATE support_issues SET status = 'Escalated' WHERE id = ?", [id]);
+<<<<<<< HEAD
 =======
 // ✅ Escalate issue with reason
     app.post("/support/issues/:id/escalate", authenticateToken, authorizeRole("support"), async (req, res) => {
@@ -832,6 +854,8 @@ app.post("/support/issues/:id/escalate",  authenticateToken, authorizeRole("supp
           [reason, id]
         );
 >>>>>>> 3b219fa (Tried Support dashboard, failed)
+=======
+>>>>>>> bd8f9c2 (New merge to fix finance)
 
         // 🔒 Log action
         await logAction(req.user.username, req.user.role, "Issue Escalated", `Issue ${id} escalated with reason: ${reason}`);

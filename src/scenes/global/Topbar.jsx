@@ -92,13 +92,13 @@ const Topbar = () => {
 
         <Box className="ticker-text">
           <Typography variant="h6" sx={{ fontWeight: "bold", color: colors.greenAccent[500], display: "inline", mr: 4 }}>
-            WELCOME TO SONGA FLEET MANAGEMENT
+            SONGA FLEET MANAGEMENT
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: "bold", color: colors.greenAccent[500], display: "inline", mr: 4 }}>
-            BY CALVIN NCUBE
+            SONGA FLEET MANAGEMENT
           </Typography>
           <Typography variant="h6" sx={{ fontWeight: "bold", color: colors.greenAccent[500], display: "inline", mr: 4 }}>
-            DIRECTOR
+            SONGA FLEET MANAGEMENT
           </Typography>
         </Box>
       </Box>

@@ -87,8 +87,6 @@ const DriverLayout = () => {
   );
 };
 
-
-
 //  Finance Layout
 const FinanceLayout = () => (
   <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
