@@ -132,11 +132,11 @@ const AppSidebar = () => {
             )}
     
 
-        {/*  Show Support Dashboard only if role === 'support' */}
+        {/* Show Support Dashboard only if role === 'support' */}
         {userRole === "support" && (
           <Item
             title="Support Dashboard"
-            to="/support"
+            to="/support-dashboard"
             icon={<HelpOutlineIcon />}
             selected={location.pathname}
           />
@@ -163,6 +163,7 @@ const AppSidebar = () => {
 
 
         {/*  Show Audit Logs only if role === 'owner' */}
+        {/*  Show Audit Logs only if role === 'owner' */}
         {userRole === "owner" && (
           <Item
             title="Audit Logs"
@@ -172,15 +173,15 @@ const AppSidebar = () => {
           />
         )}
 
-         {/* Support  */}
-        <Box mt="auto">
-          <MenuItem
-            icon={<HelpOutlineIcon />}
-            component={<Link to="/support" />}
-          >
-            <Typography>Support</Typography>
-          </MenuItem>
-        </Box>
+        {/* Support: visible to all roles */}
+            <Item
+              title="Support"
+              to="/support" // route to your SubmitIssueForm page
+              icon={<HelpOutlineIcon />}
+              selected={location.pathname}
+            />
+
+       
 
 
          {/* Logout at bottom */}

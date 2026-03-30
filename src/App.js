@@ -15,6 +15,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import GlobalErrorBoundary from "./components/GlobalErrorBoundary";
 import ManageUsers from "./scenes/ManageUsers";
 import SupportDashboard from "./scenes/SupportDashboard";
+import SupportPage from "./scenes/SupportPage";
 
 
 // 😏Owner Layout
@@ -165,15 +166,20 @@ function App() {
                 }
               />
 
-              {/* Support routes */}
+              {/* Support staff routes */}
               <Route
-                path="/support"
+                path="/support-dashboard"
                 element={
                   <ProtectedRoute role="support">
                     <SupportLayout />
                   </ProtectedRoute>
                 }
               />
+
+               {/* Support for users */}
+               <Route path="/support" element={<SupportPage/>} />
+
+
 
             </Routes>       
             {/* Toast notifications */}

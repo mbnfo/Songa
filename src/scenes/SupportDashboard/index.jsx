@@ -11,25 +11,30 @@ const SupportDashboard = () => {
   const [reasons, setReasons] = useState({}); // ✅ store escalation reasons per issue
 
   const fetchIssues = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/support/issues`);
-      let filtered = res.data;
+  try {
+    const res = await axios.get(`${API_URL}/support/issues`);
+    let filtered = res.data;
 
-      if (statusFilter !== "All") {
-        filtered = filtered.filter((i) => i.status === statusFilter);
-      }
-      if (search.trim()) {
-        filtered = filtered.filter(
-          (i) =>
-            i.description.toLowerCase().includes(search.toLowerCase()) ||
-            (i.resolution_notes || "").toLowerCase().includes(search.toLowerCase())
-        );
-      }
-      setIssues(filtered);
-    } catch (err) {
-      console.error("Failed to fetch issues:", err);
+    // ✅ Apply status filter
+    if (statusFilter !== "All") {
+      filtered = filtered.filter((i) => i.status === statusFilter);
     }
-  };
+
+    // ✅ Apply search filter (description + resolution notes)
+    if (search.trim()) {
+      filtered = filtered.filter(
+        (i) =>
+          i.description.toLowerCase().includes(search.toLowerCase()) ||
+          (i.resolution_notes || "").toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    setIssues(filtered);
+  } catch (err) {
+    console.error("Failed to fetch issues:", err);
+  }
+};
+
 
   useEffect(() => {
     fetchIssues();
@@ -37,7 +42,7 @@ const SupportDashboard = () => {
 
   // ✅ Resolve issue with custom notes
   const resolveIssue = async (id) => {
-    const resolutionNotes = notes[id] || "No notes provided";
+    const resolutionNotes = notes[id] || "No notes provided"; // fallback if empty
     await axios.post(`${API_URL}/support/issues/${id}/resolve`, { resolutionNotes });
     alert("Issue resolved!");
     fetchIssues();
