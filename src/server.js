@@ -50,7 +50,7 @@ app.post("/upload-csv", upload.single("file"), async (req, res) => {
     const filePath = req.file.path;
     let fileContent = fs.readFileSync(filePath, "utf8");
 
-    // Sanitize one-cell style input like "data:S0015,Week1,1200.00,240.00,960.00,Pending|"
+    // Sanitize one-cell style input like
     fileContent = fileContent.trim();
     if (fileContent.toLowerCase().startsWith("data:")) {
       fileContent = fileContent.slice(5).trim();
