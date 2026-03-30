@@ -9,7 +9,6 @@ import { tokens } from "../../theme";
 
 const FinanceDashboard = () => {
   const navigate = useNavigate();
-  const role = localStorage.getItem("role");
   const API_URL =
     process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev";
 
@@ -33,7 +32,26 @@ const FinanceDashboard = () => {
   const fetchHistory = async () => {
     setLoading(true);
     try {
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
+      
+      console.log("📍 Token in fetchHistory:", token);
+      console.log("📍 Role in fetchHistory:", role);
+      
+      if (!token) {
+        setSnackbar({
+          open: true,
+          message: "No authentication token found. Please log in again.",
+          severity: "error",
+        });
+        navigate("/");
+        return;
+      }
+
       const res = await axios.get(`${API_URL}/finance/payout-history`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         params: { startDate, endDate },
       });
       setPayouts(res.data);
@@ -50,6 +68,7 @@ const FinanceDashboard = () => {
   };
 
   useEffect(() => {
+    const role = localStorage.getItem("role");
     if (role !== "finance" && role !==  "owner") {
       setSnackbar({
         open: true,
@@ -60,7 +79,7 @@ const FinanceDashboard = () => {
       return;
     }
     fetchHistory();
-  }, [role, navigate, API_URL]);
+  }, [navigate, API_URL]);
 
   //  Export CSV
   const exportCSV = () => {
@@ -73,7 +92,21 @@ const FinanceDashboard = () => {
   //  Mark payout as paid
   const markPaid = async (driverId, week) => {
     try {
-      await axios.post(`${API_URL}/finance/mark-paid`, { driverId, week });
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setSnackbar({
+          open: true,
+          message: "Authentication token missing. Please log in again.",
+          severity: "error",
+        });
+        return;
+      }
+
+      await axios.post(`${API_URL}/finance/mark-paid`, { driverId, week }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setSnackbar({
         open: true,
         message: "Payout marked as paid!",
