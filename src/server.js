@@ -309,9 +309,9 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
   const { driverId } = req.params;
 
   try {
-    //  Fetch driver info (name, vehicle, city) from drivers table
+    //  Fetch driver info (first_name, last_name, vehicle, city) from drivers table
     const [driverRows] = await db.query(
-      "SELECT name, vehicle_id, city FROM drivers WHERE id = ?",
+      "SELECT first_name, last_name, vehicle_id, city FROM drivers WHERE id = ?",
       [driverId]
     );
     const driver = driverRows[0];
@@ -364,7 +364,7 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
     doc.moveDown();
 
     //  Driver info section
-    doc.fontSize(12).text(`Driver Name: ${driver?.name || "N/A"}`);
+    doc.fontSize(12).text(`Driver Name: ${driver?.first_name} ${driver?.last_name || "N/A"}`);
     doc.text(`Driver ID: ${driverId}`);
     doc.text(`Vehicle ID: ${driver?.vehicle_id || "N/A"}`);
     doc.text(`City: ${driver?.city || "N/A"}`);
