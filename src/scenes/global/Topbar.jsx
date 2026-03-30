@@ -29,75 +29,63 @@ const Topbar = () => {
         boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
       }}
     >
-      {/* ✅ Logo + Scrolling Text */}
+      {/* ✅ Left side: icons */}
+      <Box display="flex" gap={1}>
+        <IconButton onClick={colorMode.toggleColorMode}>
+          {theme.palette.mode === "dark" ? <DarkModeOutlinedIcon /> : <LightModeOutlinedIcon />}
+        </IconButton>
+        <IconButton><NotificationsOutlinedIcon /></IconButton>
+        <IconButton><SettingsOutlinedIcon /></IconButton>
+        <IconButton><PersonOutlinedIcon /></IconButton>
+        <IconButton onClick={handleLogout}><ExitToAppIcon /></IconButton>
+      </Box>
+
+      {/* ✅ Center: scrolling ticker */}
       <Box
-        display="flex"
-        alignItems="center"
-        gap={2}
-        sx={{ overflow: "hidden", whiteSpace: "nowrap", cursor: "pointer" }}
-        onClick={() => (window.location.href = "/")} // click to go home
+        sx={{
+          flex: 1,
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          mx: 2,
+        }}
       >
         <style>
           {`
-            @keyframes scrollText {
+            @keyframes ticker {
               0%   { transform: translateX(100%); }
               100% { transform: translateX(-100%); }
             }
-            .scrolling-text {
+            .ticker-text {
               display: inline-block;
-              animation: scrollText 12s linear infinite;
+              padding-right: 50px; /* spacing between repeats */
+              animation: ticker 20s linear infinite;
             }
-            .scrolling-text:hover {
+            .ticker-text:hover {
               animation-play-state: paused;
             }
           `}
         </style>
 
-        {/* Responsive logo */}
-        <Box
-          component="img"
-          src={logo}
-          alt="Songa Logo"
-          sx={{
-            width: { xs: 50, sm: 60, md: 70 },
-            height: "auto",
-          }}
-        />
-
-        {/* Scrolling text */}
-        <Typography
-          variant="h6"
-          className="scrolling-text"
-          sx={{ fontWeight: "bold", color: colors.greenAccent[500] }}
-        >
-          SONGA FLEET MANAGEMENT
-        </Typography>
+        <Box className="ticker-text">
+          <Typography variant="h6" sx={{ fontWeight: "bold", color: colors.greenAccent[500], display: "inline", mr: 4 }}>
+            SONGA FLEET MANAGEMENT
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: "bold", color: colors.greenAccent[500], display: "inline", mr: 4 }}>
+            SONGA FLEET MANAGEMENT
+          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: "bold", color: colors.greenAccent[500], display: "inline", mr: 4 }}>
+            SONGA FLEET MANAGEMENT
+          </Typography>
+        </Box>
       </Box>
 
-      {/* ✅ ICONS */}
-      <Box display="flex" gap={1}>
-        <IconButton
-          onClick={colorMode.toggleColorMode}
-          sx={{ "&:hover": { transform: "scale(1.1)", color: colors.greenAccent[400] } }}
-        >
-          {theme.palette.mode === "dark" ? <DarkModeOutlinedIcon /> : <LightModeOutlinedIcon />}
-        </IconButton>
-        <IconButton sx={{ "&:hover": { transform: "scale(1.1)", color: colors.greenAccent[400] } }}>
-          <NotificationsOutlinedIcon />
-        </IconButton>
-        <IconButton sx={{ "&:hover": { transform: "scale(1.1)", color: colors.greenAccent[400] } }}>
-          <SettingsOutlinedIcon />
-        </IconButton>
-        <IconButton sx={{ "&:hover": { transform: "scale(1.1)", color: colors.greenAccent[400] } }}>
-          <PersonOutlinedIcon />
-        </IconButton>
-        <IconButton
-          onClick={handleLogout}
-          sx={{ "&:hover": { transform: "scale(1.1)", color: colors.greenAccent[400] } }}
-        >
-          <ExitToAppIcon />
-        </IconButton>
-      </Box>
+      {/* ✅ Right side: logo */}
+      <Box
+        component="img"
+        src={logo}
+        alt="Songa Logo"
+        sx={{ width: 100, height: "auto" }}
+      />
     </Box>
   );
 };

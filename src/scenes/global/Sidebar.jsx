@@ -41,11 +41,12 @@ const AppSidebar = () => {
   // ✅ Get username from localStorage (saved at login)
   const username = localStorage.getItem("username");
   const userRole = localStorage.getItem("role"); 
+  const firstName = localStorage.getItem("first_name"); 
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
-    localStorage.removeItem("username"); // ✅ clear username on logout
+    localStorage.removeItem("username"); // clear username on logout
     navigate("/", { replace: true });
   };
 
@@ -78,7 +79,7 @@ const AppSidebar = () => {
         >
           {!isCollapsed && (
             <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Typography variant="h3">Owners</Typography>
+              <Typography variant="h3">{firstName}</Typography>
               <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                 <MenuOutlinedIcon />
               </IconButton>
@@ -97,7 +98,7 @@ const AppSidebar = () => {
               style={{ cursor: "pointer", borderRadius: "50%" }}
             />
             <Typography variant="h2" fontWeight="bold" sx={{ mt: "10px" }}>
-              {username} {/* ✅ dynamic username */}
+              {username} {/* dynamic username */}
             </Typography>
 
 
@@ -126,12 +127,6 @@ const AppSidebar = () => {
                 selected={location.pathname}
               />
             )}
-
-
-        {/*<Item title="Invoices" to="/owner/invoices" icon={<ReceiptOutlinedIcon />} selected={location.pathname} />*/}
-        {/* <Item title="Contacts" to="/owner/contacts" icon={<ContactsOutlinedIcon />} selected={location.pathname} />*/}
-        {/*<Item title="Manage Drivers" to="/owner/manage-drivers" icon={<PeopleOutlinedIcon />} selected={location.pathname} />*/}
-        {/*<Item title="New Driver Form" to="/owner/form" icon={<PersonOutlinedIcon />} selected={location.pathname} />*/}
     
 
         {/* ✅ Show Support Dashboard only if role === 'support' */}
@@ -144,15 +139,16 @@ const AppSidebar = () => {
           />
         )}
 
-        {/* ✅ Show Finance Dashboard only if role === 'finance' */}
-        {userRole === "finance" && (
-          <Item
-            title="Finance Dashboard"
-            to="/finance"
-            icon={<AttachMoneyIcon />}
-            selected={location.pathname}
-          />
-        )}
+        {/*  Show Finance Dashboard only if role is finance or owner*/}
+        {(userRole === "finance" || userRole === "owner") && (
+            <Item
+              title="Finance Dashboard"
+              to="/finance"
+              icon={<AttachMoneyIcon />}
+              selected={location.pathname}
+            />
+          )}
+
 
         {/* ✅ Show Audit Logs only if role === 'owner' */}
         {userRole === "owner" && (

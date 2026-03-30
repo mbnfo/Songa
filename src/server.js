@@ -4,7 +4,7 @@
 // Handles user creation and authentication
 // -----------------------------
 
-
+require("dotenv").config();
 const cors = require("cors");
 const express = require("express");
 const jwt = require("jsonwebtoken");
@@ -18,7 +18,8 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const fs = require("fs");
 const Papa = require("papaparse");
-require("dotenv").config();
+const router = express.Router();
+const { Parser } = require("json2csv"); //  for CSV export
 
 // ✅ Middleware first - CORS must be before routes
 const allowedOrigins = [
@@ -41,6 +42,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.json()); // Parse JSON request bodies
+
+
 
 // -----------------------------
 // CSV UPLOAD ROUTE
@@ -156,14 +159,44 @@ function authenticateToken(req, res, next) {
 
 
 app.use((req, res, next) => {
-  // ✅ This header tells ngrok to skip the browser warning page
+  //  This header tells ngrok to skip the browser warning page
   res.setHeader("ngrok-skip-browser-warning", "true");
   next();
 });
 
+//  Middleware first
+app.use(cors()); // Allow cross-origin requests
+
+const allowedOrigins = [
+  'http://localhost:3000', // local React dev server
+  'http://localhost:3001', // local backend
+  'https://songa.onrender.com', // deployed frontend
+  'https://biasedly-abjective-brenden.ngrok-free.dev', // ngrok tunnel
+  'https://songa.com.pl', // Songa domain home
+];
+const corsOptions = {
+  origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS policy disallows origin: ${origin}`));
+    }
+  },
+  credentials: true, //  allow cookies/authorization headers
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], //  allowed HTTP methods
+  allowedHeaders: ["Content-Type", "Authorization"], //  headers your frontend sends
+};
+app.use(cors(corsOptions));
+app.options('', cors(corsOptions));
+
+
+
+app.use(express.json()); // Parse JSON request bodies
+
 // 🔑 Debug line to check JWT_SECRET
 if (process.env.JWT_SECRET) {
-  console.log("✅ JWT_SECRET loaded:", process.env.JWT_SECRET);
+  console.log(" JWT_SECRET loaded:", process.env.JWT_SECRET);
 } else {
   console.log("❌ JWT_SECRET is missing!");
 }
@@ -204,7 +237,7 @@ app.post("/register", async (req, res) => {
       );
     }
 
-    res.json({ message: "✅User registered successfully!" });
+    res.json({ message: "User registered successfully!" });
   } catch (err) {
     console.error("Registration error:", err);
     res.status(500).json({ error: "❌Failed to register user." });
@@ -294,14 +327,14 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
   const { driverId } = req.params;
 
   try {
-    // ✅ Fetch driver info (name, vehicle, city) from drivers table
+    //  Fetch driver info (name, vehicle, city) from drivers table
     const [driverRows] = await db.query(
       "SELECT name, vehicle_id, city FROM drivers WHERE id = ?",
       [driverId]
     );
     const driver = driverRows[0];
 
-    // ✅ Fetch weekly earnings for this driver
+    //  Fetch weekly earnings for this driver
     const [rows] = await db.query(
       "SELECT week, gross, commission, net, payout_status FROM earnings WHERE driver_id = ? ORDER BY week ASC",
       [driverId]
@@ -311,25 +344,25 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
       return res.status(404).json({ error: "No earnings found for this driver" });
     }
 
-    // ✅ Generate Statement ID (unique hash)
+    //  Generate Statement ID (unique hash)
     const statementId = `SONGA-${driverId}-${crypto.randomBytes(4).toString("hex")}`;
 
-    // ✅ Get date range (first and last week)
+    //  Get date range (first and last week)
     const startWeek = rows[0].week;
     const endWeek = rows[rows.length - 1].week;
 
-    // ✅ Set headers so browser downloads PDF
+    //  Set headers so browser downloads PDF
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
       `attachment; filename=statement_${driverId}.pdf`
     );
 
-    // ✅ Create PDF document
+    //  Create PDF document
     const doc = new PDFDocument({ margin: 50 });
     doc.pipe(res);
 
-    // ✅ Add company logo 
+    //  Add company logo 
     const logoPath = path.join(__dirname, "assets", "New_Songa_Logo.png");
     try {
       doc.image(logoPath, 50, 40, { width: 80 }); // left corner
@@ -337,29 +370,29 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
       console.warn("Logo not found, skipping image.");
     }
 
-    // ✅ Company header
+    //  Company header
     doc.fontSize(20).text("Songa Fleet Management", 150, 50); // next to logo
     doc.moveDown();
     doc.fontSize(14).text("Weekly Driver Earnings Statement", { align: "center" });
     doc.moveDown();
 
-    // ✅ Statement metadata
+    //  Statement metadata
     doc.fontSize(12).text(`Statement ID: ${statementId}`);
     doc.text(`Period: ${startWeek} to ${endWeek}`);
     doc.moveDown();
 
-    // ✅ Driver info section
+    //  Driver info section
     doc.fontSize(12).text(`Driver Name: ${driver?.name || "N/A"}`);
     doc.text(`Driver ID: ${driverId}`);
     doc.text(`Vehicle ID: ${driver?.vehicle_id || "N/A"}`);
     doc.text(`City: ${driver?.city || "N/A"}`);
     doc.moveDown();
 
-    // ✅ Table header
+    //  Table header
     doc.fontSize(12).text("Weekly Earnings Summary", { underline: true });
     doc.moveDown();
 
-    // ✅ Draw table borders
+    //  Draw table borders
     const tableTop = doc.y;
     const itemHeight = 20;
 
@@ -393,18 +426,18 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
 
     doc.moveDown();
 
-    // ✅ Totals (sum net earnings)
+    //  Totals (sum net earnings)
     const totalNet = rows.reduce((sum, r) => sum + Number(r.net || 0), 0);
     doc.fontSize(12).text(`Total Net Payout: ${totalNet.toFixed(2)}`, { align: "right" });
     doc.moveDown();
 
-    // ✅ Disclaimer
+    //  Disclaimer
     doc.fontSize(10).text(
       "Disclaimer: This statement is generated by Songa Fleet Management. Actual payouts are subject to company policy.",
       { align: "center" }
     );
 
-    // ✅ Finalize PDF
+    //  Finalize PDF
     doc.end();
   } catch (err) {
     console.error("PDF generation error:", err);
@@ -413,15 +446,54 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
 });
 
 // -----------------------------
-// Finance Module Routes
+// Finance & Owner Role-Based Access Middleware (supports single OR multiple roles)
 // -----------------------------
+function authorizeRole(requiredRoles) {
+  return (req, res, next) => {
+    try {
+      // Extract role from JWT payload (set earlier in authenticateToken middleware)
+      const userRole = req.user.role?.toLowerCase();
+
+      // Normalize requiredRoles into an array of lowercase strings
+      const allowedRoles = Array.isArray(requiredRoles)
+        ? requiredRoles.map(r => r.toLowerCase())
+        : [requiredRoles.toLowerCase()];
+
+      // Check if the user's role is in the allowed list
+      if (!allowedRoles.includes(userRole)) {
+        return res.status(403).json({ error: "Access denied: insufficient role" });
+      }
+
+      console.log("🔐 Incoming token:", token);
+              jwt.verify(token, process.env.JWT_SECRET || "mysecret", (err, decoded) => {
+                if (err) {
+                  console.error("JWT verification failed:", err);
+                  return res.status(403).json({ error: "Invalid token" });
+                }
+                console.log(" Decoded payload:", decoded);
+                req.user = decoded;
+                next();
+              });
+
+
+      // If role is allowed, continue to the next middleware/route
+      next();
+    } catch (err) {
+      console.error("Authorization error:", err);
+      res.status(401).json({ error: "Unauthorized" });
+    }
+  };
+}
+
+// -----------------------------
+// Finance Module Routes
+// --------------------------ssss---
 
 //const express = require("express");
-const router = express.Router();
-const { Parser } = require("json2csv"); // ✅ for CSV export
 
-// ✅ Export pending payouts as CSV
-router.get("/finance/export-payouts", authorizeRole("finance"), async (req, res) => {
+
+// Export pending payouts as CSV
+router.get("/finance/export-payouts", authenticateToken, authorizeRole(["finance", "owner"]), async (req, res) => {
   try {
     const [rows] = await db.query(
       "SELECT driver_id, week, net, payout_status FROM earnings WHERE payout_status = 'Pending'"
@@ -444,8 +516,8 @@ router.get("/finance/export-payouts", authorizeRole("finance"), async (req, res)
   }
 });
 
-// ✅ Mark payout as paid
-router.post("/finance/mark-paid",  authorizeRole("finance"), async (req, res) => {
+//  Mark payout as paid
+router.post("/finance/mark-paid", authenticateToken, authorizeRole(["finance", "owner"]), async (req, res) => {
   const { driverId, week } = req.body;
   try {
     await db.query(
@@ -463,8 +535,8 @@ router.post("/finance/mark-paid",  authorizeRole("finance"), async (req, res) =>
   }
 });
 
-// ✅ View payout history
-router.get("/finance/payout-history", async (req, res) => {
+// View payout history
+router.get("/finance/payout-history", authenticateToken,  authorizeRole(["finance", "owner"]), async (req, res) => {
   try {
     const [rows] = await db.query(
       "SELECT driver_id, week, net, payout_status FROM earnings ORDER BY week DESC"
@@ -478,26 +550,36 @@ router.get("/finance/payout-history", async (req, res) => {
 
 module.exports = router;
 
-// -----------------------------
-// Finance Role-Based Access Middleware
-// -----------------------------
-function authorizeRole(requiredRole) {
-  return (req, res, next) => {
-    try {
-      // ✅ Extract role from JWT (decoded earlier in auth middleware)
-      const userRole = req.user.role; // assumes you set req.user in auth middleware
 
-      if (userRole !== requiredRole) {
-        return res.status(403).json({ error: "Access denied: insufficient role" });
+
+// -----------------------------
+// CSV PARSING
+// -----------------------------
+app.post("/upload-csv", authenticateToken, upload.single("file"), async (req, res) => {
+  try {
+    console.log("Upload route hit, file:", req.file);
+
+    const filePath = req.file.path;
+    const fileContent = fs.readFileSync(filePath, "utf8");
+
+    // Parse CSV
+    const parsed = Papa.parse(fileContent, { header: true });
+    const rows = parsed.data;
+
+    for (const row of rows) {
+        if (!row.driver_id) continue; // skip empty rows
+        await db.query(
+          "INSERT INTO earnings (driver_id, week, gross, commission, net, payout_status) VALUES (?, ?, ?, ?, ?, ?)",
+          [row.driver_id, row.week, row.gross, row.commission, row.net, row.payout_status]
+        );
       }
 
-      next(); // ✅ allow access
-    } catch (err) {
-      console.error("Authorization error:", err);
-      res.status(401).json({ error: "Unauthorized" });
-    }
-  };
-}
+    res.json({ success: true, message: "CSV uploaded successfully!" });
+  } catch (err) {
+    console.error("CSV upload error:", err);
+    res.status(500).json({ error: "CSV upload failed" });
+  }
+});
 
 // -----------------------------
 // Audit Logging Helper
@@ -569,7 +651,7 @@ router.get("/audit-logs/export",  authenticateToken, authorizeRole("owner"), asy
   let query = "SELECT * FROM audit_logs WHERE 1=1";
   const params = [];
 
-    // ✅ Apply filters if provided
+    //  Apply filters if provided
   if (user) { query += " AND user = ?"; params.push(user); }
   if (role) { query += " AND role = ?"; params.push(role); }
   if (startDate) { query += " AND timestamp >= ?"; params.push(startDate); }
@@ -583,7 +665,7 @@ router.get("/audit-logs/export",  authenticateToken, authorizeRole("owner"), asy
  try {
     const [rows] = await db.query(query, params);
 
-    // ✅ Count with same filters (so total matches filtered set)
+    //  Count with same filters (so total matches filtered set)
     let countQuery = "SELECT COUNT(*) as total FROM audit_logs WHERE 1=1";
     const countParams = [];
     if (user) { countQuery += " AND user = ?"; countParams.push(user); }
@@ -607,7 +689,7 @@ router.get("/audit-logs/export",  authenticateToken, authorizeRole("owner"), asy
   }
 });
 
-// ✅ Support audit logs with pagination
+//  Support audit logs with pagination
 app.get("/support/audit-logs",  authenticateToken, authorizeRole("support"), async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
 
@@ -655,7 +737,7 @@ app.get("/support/audit-logs/export",  authenticateToken, authorizeRole("support
 // Support Module Routes (with audit logging)
 // -----------------------------
 
-// ✅ Create new issue (driver submits)
+//  Create new issue (driver submits)
 app.post("/support/issues", async (req, res) => {
   const { driverId, description } = req.body;
   try {
@@ -674,7 +756,7 @@ app.post("/support/issues", async (req, res) => {
   }
 });
 
-// ✅ View all issues (support staff)
+//  View all issues (support staff)
 app.get("/support/issues",  authenticateToken, authorizeRole("support"), async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM support_issues ORDER BY created_at DESC");
@@ -689,7 +771,7 @@ app.get("/support/issues",  authenticateToken, authorizeRole("support"), async (
   }
 });
 
-// ✅ Resolve issue
+//  Resolve issue
 app.post("/support/issues/:id/resolve",  authenticateToken, authorizeRole("support"), async (req, res) => {
   const { id } = req.params;
   const { resolutionNotes } = req.body;
@@ -709,7 +791,7 @@ app.post("/support/issues/:id/resolve",  authenticateToken, authorizeRole("suppo
   }
 });
 
-// ✅ Escalate issue
+//  Escalate issue
 app.post("/support/issues/:id/escalate",  authenticateToken, authorizeRole("support"), async (req, res) => {
   const { id } = req.params;
   try {
@@ -927,7 +1009,7 @@ app.get("/driver/data/:driverId",  authenticateToken, authorizeRole("driver"), a
   }
 });
 
-// ✅ Delete My Account (Driver GDPR)
+//  Delete My Account (Driver GDPR)
 app.delete("/driver/delete/:driverId",  authenticateToken, authorizeRole("driver"), async (req, res) => {
   const { driverId } = req.params;
   try {
@@ -1003,17 +1085,24 @@ app.use(express.static(path.join(__dirname, "../build")));
 
 
 
-// Mount router for finance and audit logs
-app.use("/", router);
-/*
+// Mount router for finance and audit logs   
+ app.use("/", router);
+
+
 // Catch-all handler: send back index.html for any non-API routes (for React Router)
 app.use((req, res, next) => {
-  if (req.method === 'GET' && !req.path.startsWith('/api') && !req.path.startsWith('/support') && !req.path.startsWith('/admin') && !req.path.startsWith('/finance') && !req.path.startsWith('/audit-logs') && !req.path.startsWith('/driver-statement')) {
+  if (req.method === 'GET' && !req.path.startsWith('/api') &&
+  !req.path.startsWith('/support') && 
+  !req.path.startsWith('/admin') &&
+   !req.path.startsWith('/finance') && 
+   !req.path.startsWith('/audit-logs') && 
+   !req.path.startsWith('/driver-statement')) 
+   {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
   } else {
     next();
   }
 });
-*/
+
 // Start server once
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
