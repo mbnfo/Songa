@@ -38,7 +38,7 @@ const AppSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ Get username from localStorage (saved at login)
+  //  Get username from localStorage (saved at login)
   const username = localStorage.getItem("username");
   const userRole = localStorage.getItem("role"); 
   const firstName = localStorage.getItem("first_name"); 
@@ -46,6 +46,7 @@ const AppSidebar = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+    localStorage.removeItem("username"); // clear username on logout
     localStorage.removeItem("username"); // clear username on logout
     navigate("/", { replace: true });
   };
@@ -80,6 +81,7 @@ const AppSidebar = () => {
           {!isCollapsed && (
             <Box display="flex" justifyContent="space-between" alignItems="center">
               <Typography variant="h3">{firstName}</Typography>
+              <Typography variant="h3">{firstName}</Typography>
               <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                 <MenuOutlinedIcon />
               </IconButton>
@@ -99,6 +101,7 @@ const AppSidebar = () => {
             />
             <Typography variant="h2" fontWeight="bold" sx={{ mt: "10px" }}>
               {username} {/* dynamic username */}
+              {username} {/* dynamic username */}
             </Typography>
 
 
@@ -113,12 +116,12 @@ const AppSidebar = () => {
         {/* Navigation */}
           <Item
             title="Dashboard"
-            to={`/${userRole}`} // ✅ dynamic role-based dashboard
+            to={`/${userRole}`} //  dynamic role-based dashboard
             icon={<HomeOutlinedIcon />}
             selected={location.pathname}
           />
 
-          {/* ✅ Show Manage Users only for owners */}
+          {/*  Show Manage Users only for owners */}
             {userRole === "owner" && (
               <Item
                 title="Manage Users"
@@ -129,11 +132,11 @@ const AppSidebar = () => {
             )}
     
 
-        {/* ✅ Show Support Dashboard only if role === 'support' */}
+        {/* Show Support Dashboard only if role === 'support' */}
         {userRole === "support" && (
           <Item
             title="Support Dashboard"
-            to="/support"
+            to="/support-dashboard"
             icon={<HelpOutlineIcon />}
             selected={location.pathname}
           />
@@ -148,9 +151,19 @@ const AppSidebar = () => {
               selected={location.pathname}
             />
           )}
+        {/*  Show Finance Dashboard only if role is finance or owner*/}
+        {(userRole === "finance" || userRole === "owner") && (
+            <Item
+              title="Finance Dashboard"
+              to="/finance"
+              icon={<AttachMoneyIcon />}
+              selected={location.pathname}
+            />
+          )}
 
 
-        {/* ✅ Show Audit Logs only if role === 'owner' */}
+        {/*  Show Audit Logs only if role === 'owner' */}
+        {/*  Show Audit Logs only if role === 'owner' */}
         {userRole === "owner" && (
           <Item
             title="Audit Logs"
@@ -159,6 +172,17 @@ const AppSidebar = () => {
             selected={location.pathname}
           />
         )}
+
+        {/* Support: visible to all roles */}
+            <Item
+              title="Support"
+              to="/support" // route to your SubmitIssueForm page
+              icon={<HelpOutlineIcon />}
+              selected={location.pathname}
+            />
+
+       
+
 
          {/* Logout at bottom */}
         <Box mt="auto">
