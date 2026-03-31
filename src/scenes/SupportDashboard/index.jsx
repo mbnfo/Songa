@@ -11,7 +11,12 @@ const SupportDashboard = () => {
   // ✅ Fetch issues with filters
   const fetchIssues = async () => {
     try {
-      const res = await axios.get(`${API_URL}/support/issues`);
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${API_URL}/support/issues`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       let filtered = res.data;
 
       // ✅ Apply status filter
@@ -40,14 +45,27 @@ const SupportDashboard = () => {
 
   // ✅ Resolve issue
   const resolveIssue = async (id) => {
-    await axios.post(`${API_URL}/support/issues/${id}/resolve`, { resolutionNotes: "Fixed payout error" });
+    const token = localStorage.getItem("token");
+    await axios.post(`${API_URL}/support/issues/${id}/resolve`, 
+      { resolutionNotes: "Fixed payout error" },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     alert("Issue resolved!");
     fetchIssues();
   };
 
   // ✅ Escalate issue
   const escalateIssue = async (id) => {
-    await axios.post(`${API_URL}/support/issues/${id}/escalate`);
+    const token = localStorage.getItem("token");
+    await axios.post(`${API_URL}/support/issues/${id}/escalate`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     alert("Issue escalated to Admin!");
     fetchIssues();
   };

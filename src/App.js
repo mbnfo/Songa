@@ -14,6 +14,10 @@ import FinanceDashboard from "./scenes/FinanceDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import GlobalErrorBoundary from "./components/GlobalErrorBoundary";
 import ManageUsers from "./scenes/ManageUsers";
+import SupportDashboard from "./scenes/SupportDashboard";
+import SupportPage from "./scenes/SupportPage";
+
+
 
 
 // 😏Owner Layout
@@ -93,6 +97,17 @@ const FinanceLayout = () => (
   </div>
 );
 
+//  Support Layout
+const SupportLayout = () => (
+  <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
+    <Sidebar />
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <Topbar />
+      <SupportDashboard />
+    </div>
+  </div>
+);
+
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
@@ -142,6 +157,16 @@ function App() {
                 element={
                   <ProtectedRoute role={["finance", "owner"]}>
                     <FinanceLayout />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Support routes */}
+              <Route
+                path="/support"
+                element={
+                  <ProtectedRoute role="support">
+                    <SupportLayout />
                   </ProtectedRoute>
                 }
               />
