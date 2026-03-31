@@ -47,7 +47,7 @@ const Topbar = () => {
           overflow: "hidden",
           whiteSpace: "nowrap",
           mx: 2,
-        }}
+        }}/>
       {/* ✅ Left side: icons */}
       <Box display="flex" gap={1}>
         <IconButton onClick={colorMode.toggleColorMode}>
