@@ -15,7 +15,6 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import GlobalErrorBoundary from "./components/GlobalErrorBoundary";
 import ManageUsers from "./scenes/ManageUsers";
 import SupportDashboard from "./scenes/SupportDashboard";
-import SupportPage from "./scenes/SupportPage";
 
 
 // 😏Owner Layout
@@ -105,13 +104,10 @@ const SupportLayout = () => (
     <Sidebar />
     <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
       <Topbar />
-      <Routes>
-        <Route path="" element={<SupportDashboard />} />    
-      </Routes>
+      <SupportDashboard />
     </div>
   </div>
 );
-
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -166,22 +162,17 @@ function App() {
                 }
               />
 
-              {/* Support staff routes */}
+              {/* Support routes */}
               <Route
-                path="/support-dashboard"
+                path="/support"
                 element={
                   <ProtectedRoute role="support">
                     <SupportLayout />
                   </ProtectedRoute>
                 }
               />
-
-               {/* Support for users */}
-               <Route path="/support" element={<SupportPage/>} />
-
-
-
-            </Routes>       
+            </Routes>
+            
             {/* Toast notifications */}
           <ToastContainer position="top-right" autoClose={3000} />
         </GlobalErrorBoundary>

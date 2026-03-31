@@ -11,9 +11,14 @@ const SupportDashboard = () => {
   const [reasons, setReasons] = useState({}); // ✅ store escalation reasons per issue
 
   const fetchIssues = async () => {
-  try {
-    const res = await axios.get(`${API_URL}/support/issues`);
-    let filtered = res.data;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${API_URL}/support/issues`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      let filtered = res.data;
 
     // ✅ Apply status filter
     if (statusFilter !== "All") {
@@ -42,16 +47,27 @@ const SupportDashboard = () => {
 
   // ✅ Resolve issue with custom notes
   const resolveIssue = async (id) => {
-    const resolutionNotes = notes[id] || "No notes provided"; // fallback if empty
-    await axios.post(`${API_URL}/support/issues/${id}/resolve`, { resolutionNotes });
+    const token = localStorage.getItem("token");
+    await axios.post(`${API_URL}/support/issues/${id}/resolve`, 
+      { resolutionNotes: "Fixed payout error" },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     alert("Issue resolved!");
     fetchIssues();
   };
 
   // ✅ Escalate issue with custom reason
   const escalateIssue = async (id) => {
-    const reason = reasons[id] || "No reason provided";
-    await axios.post(`${API_URL}/support/issues/${id}/escalate`, { reason });
+    const token = localStorage.getItem("token");
+    await axios.post(`${API_URL}/support/issues/${id}/escalate`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     alert("Issue escalated to Admin!");
     fetchIssues();
   };
