@@ -47,19 +47,43 @@ const Topbar = () => {
           overflow: "hidden",
           whiteSpace: "nowrap",
           mx: 2,
+        }}/>
+      {/* ✅ Left side: icons */}
+      <Box display="flex" gap={1}>
+        <IconButton onClick={colorMode.toggleColorMode}>
+          {theme.palette.mode === "dark" ? <DarkModeOutlinedIcon /> : <LightModeOutlinedIcon />}
+        </IconButton>
+        <IconButton><NotificationsOutlinedIcon /></IconButton>
+        <IconButton><SettingsOutlinedIcon /></IconButton>
+        <IconButton><PersonOutlinedIcon /></IconButton>
+        <IconButton onClick={handleLogout}><ExitToAppIcon /></IconButton>
+      </Box>
+
+      {/* ✅ Center: scrolling ticker */}
+      <Box
+        sx={{
+          flex: 1,
+          overflow: "hidden",
+          whiteSpace: "nowrap",
+          mx: 2,
         }}
       >
         <style>
           {`
             @keyframes ticker {
+            @keyframes ticker {
               0%   { transform: translateX(100%); }
               100% { transform: translateX(-100%); }
             }
             .ticker-text {
+            .ticker-text {
               display: inline-block;
               padding-right: 50px; /* spacing between repeats */
               animation: ticker 20s linear infinite;
+              padding-right: 50px; /* spacing between repeats */
+              animation: ticker 20s linear infinite;
             }
+            .ticker-text:hover {
             .ticker-text:hover {
               animation-play-state: paused;
             }

@@ -32,6 +32,9 @@ const OwnerLayout = () => (
         
 {/*  <Route path="finance" element={<FinanceDashboard />} />      */}
         {/*  Protect Audit Logs */}
+        
+{/*  <Route path="finance" element={<FinanceDashboard />} />      */}
+        {/*  Protect Audit Logs */}
         <Route
           path="audit-logs"
           element={
@@ -47,7 +50,7 @@ const OwnerLayout = () => (
   </div>
 );
 
-// ✅ Admin Layout
+//  Admin Layout
 const AdminLayout = () => (
   <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
     <Sidebar />
@@ -80,6 +83,7 @@ const DriverLayout = () => {
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <Topbar />
         {/*  Pass driverId into dashboard */}
+        {/*  Pass driverId into dashboard */}
         <DriverDashboard driverId={driverId} />
       </div>
     </div>
@@ -93,6 +97,17 @@ const FinanceLayout = () => (
     <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
       <Topbar />
       <FinanceDashboard />
+    </div>
+  </div>
+);
+
+//  Support Layout
+const SupportLayout = () => (
+  <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
+    <Sidebar />
+    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <Topbar />
+      <SupportDashboard />
     </div>
   </div>
 );
@@ -168,6 +183,13 @@ function App() {
                   <ProtectedRoute role="support">
                     <SupportLayout />
                   </ProtectedRoute>
+                }
+              />
+              {/* Support page */}
+              <Route
+                path="/support/issues"
+                element={
+                  <SupportPage />
                 }
               />
             </Routes>
