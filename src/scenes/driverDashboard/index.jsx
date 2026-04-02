@@ -137,6 +137,29 @@ const totalNet = safeData.reduce(
     }
   };
 
+  //  Secure PDF download with token (replaces old window.open)
+const handleDownloadPDF = async () => {
+  try {
+    const token = localStorage.getItem("token"); // get JWT from localStorage
+    const res = await axios.get(`${API_URL}/driver-statement/${driverId}`, {
+      headers: { Authorization: `Bearer ${token}` }, // send token in header
+      responseType: "blob", // important: treat response as binary PDF
+    });
+
+    // ✅ Create a temporary download link for the PDF
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `statement_${driverId}.pdf`; // filename for download
+    link.click();
+  } catch (err) {
+    console.error("Failed to download PDF:", err);
+    alert("Could not download PDF statement."); // user-friendly error
+  }
+};
+
+
+
   return (
     <Box m="20px">
       <Header title="Driver Dashboard" subtitle={`Welcome, ${username}`} />
@@ -207,18 +230,42 @@ const totalNet = safeData.reduce(
         </Box>
       </Box>
 
-      {/* PDF Download */}
-      <Box mt="20px">
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => {
-            window.open(`${API_URL}/driver-statement/${driverId}`, "_blank");
-          }}
-        >
-          Download PDF Statement
-        </Button>
+      {/* Weekly Payout Status */}
+      <Box mt="40px" backgroundColor={colors.primary[400]} p="20px">
+        <Typography variant="h5" fontWeight="600">
+          Weekly Payout Status
+        </Typography>
+        {safeData.map((row, idx) => (
+          <Box
+            key={idx}
+            display="flex"
+            justifyContent="space-between"
+            p="8px"
+            borderBottom="1px solid #ccc"
+          >
+            <Typography>Week {row.week}</Typography>
+            <Typography
+              color={row.payout_status === "Paid" ? colors.greenAccent[500] : colors.redAccent[500]}
+              fontWeight="bold"
+            >
+              {row.payout_status || "Unpaid"}
+            </Typography>
+          </Box>
+        ))}
       </Box>
+
+
+      {/* PDF Download */}
+        <Box mt="20px">
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleDownloadPDF} // ✅ use secure handler
+          >
+            Download PDF Statement
+          </Button>
+        </Box>
+
 
       {/* GDPR Buttons */}
       <Box mt="20px" display="flex" gap="10px">

@@ -23,23 +23,29 @@ const { Parser } = require("json2csv"); //  for CSV export
 
 // ✅ Middleware first - CORS must be before routes
 const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'https://songa.onrender.com'
+  'http://localhost:3000', // local React dev server
+  'http://localhost:3001', // local backend
+  'https://songa.onrender.com', // deployed frontend
+  'https://biasedly-abjective-brenden.ngrok-free.dev', // ngrok tunnel
+  'https://songa.com.pl', // Songa domain home
 ];
+
+
 const corsOptions = {
   origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error(`CORS policy disallows origin ${origin}`));
+      callback(new Error(`CORS policy disallows origin: ${origin}`));
     }
   },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, //  allow cookies/authorization headers
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], //  allowed HTTP methods
+  allowedHeaders: ["Content-Type", "Authorization"], //  headers your frontend sends
 };
 app.use(cors(corsOptions));
+app.options('', cors(corsOptions));
 
 app.use(express.json()); // Parse JSON request bodies
 
@@ -167,36 +173,12 @@ app.use((req, res, next) => {
 //  Middleware first
 app.use(cors()); // Allow cross-origin requests
 
-const allowedOrigins = [
-  'http://localhost:3000', // local React dev server
-  'http://localhost:3001', // local backend
-  'https://songa.onrender.com', // deployed frontend
-  'https://biasedly-abjective-brenden.ngrok-free.dev', // ngrok tunnel
-  'https://songa.com.pl', // Songa domain home
-];
-const corsOptions = {
-  origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS policy disallows origin: ${origin}`));
-    }
-  },
-  credentials: true, //  allow cookies/authorization headers
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], //  allowed HTTP methods
-  allowedHeaders: ["Content-Type", "Authorization"], //  headers your frontend sends
-};
-app.use(cors(corsOptions));
-app.options('', cors(corsOptions));
-
-
 
 app.use(express.json()); // Parse JSON request bodies
 
 // 🔑 Debug line to check JWT_SECRET
 if (process.env.JWT_SECRET) {
-  console.log(" JWT_SECRET loaded:", process.env.JWT_SECRET);
+  console.log(" ✅JWT_SECRET loaded:", process.env.JWT_SECRET);
 } else {
   console.log("❌ JWT_SECRET is missing!");
 }
@@ -315,26 +297,25 @@ app.get("/dashboard-data", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch dashboard data" });
   }
 });
-
 // -----------------------------
 // Driver Statement PDF Route
 // -----------------------------
 const PDFDocument = require("pdfkit"); // PDF generation library
 const crypto = require("crypto");      // For generating unique statement IDs
-//const path = require("path");
+// const path = require("path");
 
-app.get("/driver-statement/:driverId",   async (req, res) => {
+app.get("/driver-statement/:driverId", authenticateToken, async (req, res) => {
   const { driverId } = req.params;
 
   try {
-    //  Fetch driver info (name, vehicle, city) from drivers table
+    //  Fetch driver info (first_name, last_name, vehicle, city) from drivers table
     const [driverRows] = await db.query(
-      "SELECT name, vehicle_id, city FROM drivers WHERE id = ?",
+      "SELECT first_name, last_name, vehicle_id, city FROM drivers WHERE id = ?",
       [driverId]
     );
     const driver = driverRows[0];
 
-    //  Fetch weekly earnings for this driver
+    // 2️⃣ Fetch weekly earnings
     const [rows] = await db.query(
       "SELECT week, gross, commission, net, payout_status FROM earnings WHERE driver_id = ? ORDER BY week ASC",
       [driverId]
@@ -344,66 +325,57 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
       return res.status(404).json({ error: "No earnings found for this driver" });
     }
 
-    //  Generate Statement ID (unique hash)
+    // 3️⃣ Generate Statement ID
     const statementId = `SONGA-${driverId}-${crypto.randomBytes(4).toString("hex")}`;
 
-    //  Get date range (first and last week)
+    // 4️⃣ Date range
     const startWeek = rows[0].week;
     const endWeek = rows[rows.length - 1].week;
 
-    //  Set headers so browser downloads PDF
+    // 5️⃣ Set headers
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename=statement_${driverId}.pdf`
-    );
+    res.setHeader("Content-Disposition", `attachment; filename=statement_${driverId}.pdf`);
 
-    //  Create PDF document
+    // 6️⃣ Create PDF
     const doc = new PDFDocument({ margin: 50 });
     doc.pipe(res);
 
-    //  Add company logo 
+    // Company logo
     const logoPath = path.join(__dirname, "assets", "New_Songa_Logo.png");
     try {
-      doc.image(logoPath, 50, 40, { width: 80 }); // left corner
+      doc.image(logoPath, 50, 40, { width: 80 });
     } catch (err) {
       console.warn("Logo not found, skipping image.");
     }
 
-    //  Company header
-    doc.fontSize(20).text("Songa Fleet Management", 150, 50); // next to logo
+    // Company header
+    doc.fontSize(20).text("Songa Fleet Management", 150, 50);
     doc.moveDown();
     doc.fontSize(14).text("Weekly Driver Earnings Statement", { align: "center" });
     doc.moveDown();
 
-    //  Statement metadata
+    // Statement metadata
     doc.fontSize(12).text(`Statement ID: ${statementId}`);
     doc.text(`Period: ${startWeek} to ${endWeek}`);
     doc.moveDown();
 
     //  Driver info section
-    doc.fontSize(12).text(`Driver Name: ${driver?.name || "N/A"}`);
+    doc.fontSize(12).text(`Driver Name: ${driver?.first_name} ${driver?.last_name || "N/A"}`);
     doc.text(`Driver ID: ${driverId}`);
     doc.text(`Vehicle ID: ${driver?.vehicle_id || "N/A"}`);
     doc.text(`City: ${driver?.city || "N/A"}`);
     doc.moveDown();
 
-    //  Table header
+    // Table header
     doc.fontSize(12).text("Weekly Earnings Summary", { underline: true });
     doc.moveDown();
 
-    //  Draw table borders
+    // Table columns
     const tableTop = doc.y;
     const itemHeight = 20;
+    const colWeek = 50, colGross = 150, colCommission = 250, colNet = 350, colStatus = 450;
 
-    // Table column positions
-    const colWeek = 50;
-    const colGross = 150;
-    const colCommission = 250;
-    const colNet = 350;
-    const colStatus = 450;
-
-    // Draw header row
+    // Header row
     doc.rect(colWeek - 5, tableTop - 5, 450, itemHeight).stroke();
     doc.fontSize(10).text("Week", colWeek, tableTop);
     doc.text("Gross", colGross, tableTop);
@@ -413,31 +385,45 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
 
     let y = tableTop + itemHeight;
 
-    // Draw each row with borders
+    // Rows
     rows.forEach((row) => {
       doc.rect(colWeek - 5, y - 5, 450, itemHeight).stroke();
       doc.text(row.week, colWeek, y);
-      doc.text(row.gross, colGross, y);
-      doc.text(row.commission, colCommission, y);
-      doc.text(row.net, colNet, y);
+      // 7️⃣ Align numbers neatly
+      doc.text(Number(row.gross).toFixed(2), colGross, y, { width: 80, align: "right" });
+      doc.text(Number(row.commission).toFixed(2), colCommission, y, { width: 80, align: "right" });
+      doc.text(Number(row.net).toFixed(2), colNet, y, { width: 80, align: "right" });
       doc.text(row.payout_status, colStatus, y);
       y += itemHeight;
     });
 
     doc.moveDown();
 
-    //  Totals (sum net earnings)
+    // 8️⃣ Totals section
+    const totalGross = rows.reduce((sum, r) => sum + Number(r.gross || 0), 0);
+    const totalCommission = rows.reduce((sum, r) => sum + Number(r.commission || 0), 0);
     const totalNet = rows.reduce((sum, r) => sum + Number(r.net || 0), 0);
-    doc.fontSize(12).text(`Total Net Payout: ${totalNet.toFixed(2)}`, { align: "right" });
+
+    doc.fontSize(12).text(`Total Gross: $${totalGross.toFixed(2)}`);
+    doc.text(`Total Commission: $${totalCommission.toFixed(2)}`);
+    doc.text(`Total Net Payout: $${totalNet.toFixed(2)}`, { align: "right" });
     doc.moveDown();
 
-    //  Disclaimer
+    // Disclaimer
     doc.fontSize(10).text(
       "Disclaimer: This statement is generated by Songa Fleet Management. Actual payouts are subject to company policy.",
       { align: "center" }
     );
 
-    //  Finalize PDF
+    // 9️⃣ Audit log
+    await logAction(
+      req.user?.username || "Driver",
+      req.user?.role || "driver",
+      "Downloaded PDF Statement",
+      `Driver ${driverId} downloaded statement ${statementId}`
+    );
+
+    // Finalize
     doc.end();
   } catch (err) {
     console.error("PDF generation error:", err);
@@ -445,14 +431,16 @@ app.get("/driver-statement/:driverId",   async (req, res) => {
   }
 });
 
+
 // -----------------------------
 // Finance & Owner Role-Based Access Middleware (supports single OR multiple roles)
+// Note: This runs AFTER authenticateToken, so req.user is already set
 // -----------------------------
 function authorizeRole(requiredRoles) {
   return (req, res, next) => {
     try {
       // Extract role from JWT payload (set earlier in authenticateToken middleware)
-      const userRole = req.user.role?.toLowerCase();
+      const userRole = req.user?.role?.toLowerCase();
 
       // Normalize requiredRoles into an array of lowercase strings
       const allowedRoles = Array.isArray(requiredRoles)
@@ -460,21 +448,11 @@ function authorizeRole(requiredRoles) {
         : [requiredRoles.toLowerCase()];
 
       // Check if the user's role is in the allowed list
-      if (!allowedRoles.includes(userRole)) {
+      if (!userRole || !allowedRoles.includes(userRole)) {
         return res.status(403).json({ error: "Access denied: insufficient role" });
       }
 
-      console.log("🔐 Incoming token:", token);
-              jwt.verify(token, process.env.JWT_SECRET || "mysecret", (err, decoded) => {
-                if (err) {
-                  console.error("JWT verification failed:", err);
-                  return res.status(403).json({ error: "Invalid token" });
-                }
-                console.log(" Decoded payload:", decoded);
-                req.user = decoded;
-                next();
-              });
-
+      console.log("✅ Role authorized:", userRole, "- allowed roles:", allowedRoles);
 
       // If role is allowed, continue to the next middleware/route
       next();
@@ -487,9 +465,7 @@ function authorizeRole(requiredRoles) {
 
 // -----------------------------
 // Finance Module Routes
-// --------------------------ssss---
-
-//const express = require("express");
+// -----------------------------
 
 
 // Export pending payouts as CSV
@@ -539,7 +515,7 @@ router.post("/finance/mark-paid", authenticateToken, authorizeRole(["finance", "
 router.get("/finance/payout-history", authenticateToken,  authorizeRole(["finance", "owner"]), async (req, res) => {
   try {
     const [rows] = await db.query(
-      "SELECT driver_id, week, net, payout_status FROM earnings ORDER BY week DESC"
+      "SELECT DISTINCT driver_id, week, gross, commission, net, payout_status FROM earnings ORDER BY week DESC"
     );
     res.json(rows);
   } catch (err) {
@@ -734,20 +710,38 @@ app.get("/support/audit-logs/export",  authenticateToken, authorizeRole("support
 });
 
 // -----------------------------
-// Support Module Routes (with audit logging)
+// Support Module Routes (with audit logging) 
 // -----------------------------
 
-//  Create new issue (driver submits)
-app.post("/support/issues", async (req, res) => {
-  const { driverId, description } = req.body;
+
+// ✅ Create new issue (any role can submit)
+app.post("/support/issues", authenticateToken, async (req, res) => {
+  const { userId, description } = req.body;
+  const issueUserId = userId || req.user?.id;
+  const issueRole = req.user?.role || "driver";
+
   try {
+    if (!description) {
+      return res.status(400).json({ error: "Description is required" });
+    }
+    if (!issueUserId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
+
+    // Save issue with user info (body userId or authenticated user)
     await db.query(
-      "INSERT INTO support_issues (driver_id, description) VALUES (?, ?)",
-      [driverId, description]
+      "INSERT INTO support_issues (user_id, role, description, status, created_at) VALUES (?, ?, ?, 'Open', NOW())",
+      [issueUserId, issueRole, description]
     );
 
-    // 🔒 Log action
-    await logAction(req.user.username, req.user.role, "Issue Created", `Driver ${driverId}: ${description}`);
+     // 🔒 Log action
+    await logAction(
+      req.user?.username || `userId:${issueUserId}`,
+      issueRole,
+      "Issue Created",
+      `${req.user.role} ${req.user.id}: ${description}`
+    );
+
 
     res.json({ success: true, message: "Issue logged successfully" });
   } catch (err) {
@@ -755,6 +749,8 @@ app.post("/support/issues", async (req, res) => {
     res.status(500).json({ error: "Failed to log issue" });
   }
 });
+
+
 
 //  View all issues (support staff)
 app.get("/support/issues",  authenticateToken, authorizeRole("support"), async (req, res) => {
@@ -791,14 +787,24 @@ app.post("/support/issues/:id/resolve",  authenticateToken, authorizeRole("suppo
   }
 });
 
-//  Escalate issue
-app.post("/support/issues/:id/escalate",  authenticateToken, authorizeRole("support"), async (req, res) => {
-  const { id } = req.params;
-  try {
-    await db.query("UPDATE support_issues SET status = 'Escalated' WHERE id = ?", [id]);
+// ✅ Escalate issue with reason
+    app.post("/support/issues/:id/escalate", authenticateToken, authorizeRole("support"), async (req, res) => {
+      const { id } = req.params;
+      const { reason } = req.body;
+      try {
+        await db.query(
+          "UPDATE support_issues SET status = 'Escalated', reason = ? WHERE id = ?",
+          [reason, id]
+        );
+
 
     // 🔒 Log action
-    await logAction(req.user.username, req.user.role, "Issue Escalated", `Issue ${id} escalated to Admin`);
+    await logAction(
+      req.user.username,
+      req.user.role,
+      "Issue Escalated",
+      `Issue ${id} escalated with reason: ${reason}`
+    );
 
     res.json({ success: true, message: "Issue escalated to Admin" });
   } catch (err) {
@@ -806,6 +812,35 @@ app.post("/support/issues/:id/escalate",  authenticateToken, authorizeRole("supp
     res.status(500).json({ error: "Failed to escalate issue" });
   }
 });
+
+// -----------------------------
+// Driver: View own issues
+// -----------------------------
+app.get("/support/issues/driver/:driverId", authenticateToken, authorizeRole("driver"), async (req, res) => {
+  const { driverId } = req.params;
+
+  try {
+    // ✅ Only fetch issues belonging to this driver
+    const [rows] = await db.query(
+      "SELECT id, description, status, resolution_notes, reason, created_at, resolved_at, escalated_at FROM support_issues WHERE user_id = ? ORDER BY created_at DESC",
+      [driverId]
+    );
+
+    // 🔒 Log action
+    await logAction(
+      req.user.username,
+      req.user.role,
+      "Viewed Own Issues",
+      `Driver ${driverId} viewed their support issues`
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error("Error fetching driver issues:", err);
+    res.status(500).json({ error: "Failed to fetch driver issues" });
+  }
+});
+
 
 
 

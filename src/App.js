@@ -32,6 +32,9 @@ const OwnerLayout = () => (
         
 {/*  <Route path="finance" element={<FinanceDashboard />} />      */}
         {/*  Protect Audit Logs */}
+        
+{/*  <Route path="finance" element={<FinanceDashboard />} />      */}
+        {/*  Protect Audit Logs */}
         <Route
           path="audit-logs"
           element={
@@ -47,7 +50,7 @@ const OwnerLayout = () => (
   </div>
 );
 
-// ✅ Admin Layout
+//  Admin Layout
 const AdminLayout = () => (
   <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
     <Sidebar />
@@ -80,6 +83,7 @@ const DriverLayout = () => {
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <Topbar />
         {/*  Pass driverId into dashboard */}
+        {/*  Pass driverId into dashboard */}
         <DriverDashboard driverId={driverId} />
       </div>
     </div>
@@ -108,9 +112,11 @@ const SupportLayout = () => (
   </div>
 );
 
+
+
 function App() {
   const [theme, colorMode] = useMode();
-  const [isSidebar, setIsSidebar] = useState(true);
+ // const [isSidebar, setIsSidebar] = useState(true);
 
   return (
     <ColorModeContext.Provider value={colorMode}>
@@ -168,6 +174,13 @@ function App() {
                   <ProtectedRoute role="support">
                     <SupportLayout />
                   </ProtectedRoute>
+                }
+              />
+              {/* Support page */}
+              <Route
+                path="/support/issues"
+                element={
+                  <SupportPage />
                 }
               />
             </Routes>
