@@ -112,20 +112,11 @@ const SupportLayout = () => (
   </div>
 );
 
-//  Support Layout
-const SupportLayout = () => (
-  <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
-    <Sidebar />
-    <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-      <Topbar />
-      <SupportDashboard />
-    </div>
-  </div>
-);
+
 
 function App() {
   const [theme, colorMode] = useMode();
-  const [isSidebar, setIsSidebar] = useState(true);
+ // const [isSidebar, setIsSidebar] = useState(true);
 
   return (
     <ColorModeContext.Provider value={colorMode}>
