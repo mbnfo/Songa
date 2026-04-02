@@ -151,24 +151,37 @@ export const themeSettings = (mode) => {
                         },
           }
         : {
-            // palette values for light mode
+          //-----------------------------------
+            // Palette values for light mode
+           // ---------------------------
             primary: {
-              main: colors.primary[300],
+           //   main: colors.primary[300],
+              main: colors.blueAccent[500], // a friendly blue
             },
             secondary: {
               main: colors.greenAccent[500],
             },
             neutral: {
-              dark: colors.grey[700],
-              main: colors.grey[500],
-              light: colors.grey[300],
+            //  dark: colors.grey[700],
+             // main: colors.grey[500],
+             // light: colors.grey[300],
+              dark: "#555555",
+              main: "#888888",
+              light: "#cccccc",
             },
             background: {
-              default: "#c2c2c2",
+            //  default: "#c2c2c2",
+              default: "#f9f9f9",   // light grey/white background
+              paper: "#ffffff",     // pure white for cards
+              
             },
           }),
     },
     typography: {
+      allVariants: {
+       color: "#333333", // ensure text is dark enough
+        },
+        
       fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
       fontSize: 12,
       h1: {

@@ -47,7 +47,6 @@ const AppSidebar = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("username"); // clear username on logout
-    localStorage.removeItem("username"); // clear username on logout
     navigate("/", { replace: true });
   };
 
@@ -81,7 +80,6 @@ const AppSidebar = () => {
           {!isCollapsed && (
             <Box display="flex" justifyContent="space-between" alignItems="center">
               <Typography variant="h3">{firstName}</Typography>
-              <Typography variant="h3">{firstName}</Typography>
               <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                 <MenuOutlinedIcon />
               </IconButton>
@@ -99,8 +97,7 @@ const AppSidebar = () => {
               src={`../../assets/user.png`}
               style={{ cursor: "pointer", borderRadius: "50%" }}
             />
-            <Typography variant="h2" fontWeight="bold" sx={{ mt: "10px" }}>
-              {username} {/* dynamic username */}
+            <Typography variant="h2" color="#888888" fontWeight="bold" sx={{ mt: "10px" }}>
               {username} {/* dynamic username */}
             </Typography>
 
@@ -110,8 +107,6 @@ const AppSidebar = () => {
             </Typography>
           </Box>
         )}
-
-        {/* Navigation */}
 
         {/* Navigation */}
           <Item
@@ -162,7 +157,6 @@ const AppSidebar = () => {
           )}
 
 
-        {/*  Show Audit Logs only if role === 'owner' */}
         {/*  Show Audit Logs only if role === 'owner' */}
         {userRole === "owner" && (
           <Item
