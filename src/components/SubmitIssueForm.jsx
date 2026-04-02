@@ -15,7 +15,7 @@ const SubmitIssueForm = ({ userId }) => {
       const token = localStorage.getItem("token");
       await axios.post(
         `${API_URL}/support/issues`,
-        { driverId: userId, description },
+        { userId: userId, description },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert("Issue submitted to Support!");

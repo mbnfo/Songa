@@ -170,7 +170,7 @@ const AppSidebar = () => {
         {/* Support: visible to all roles */}
             <Item
               title="Support"
-              to="/support" // route to your SubmitIssueForm page
+              to="/support/issues" // route to your SubmitIssueForm page
               icon={<HelpOutlineIcon />}
               selected={location.pathname}
             />

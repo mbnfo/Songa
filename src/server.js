@@ -716,26 +716,28 @@ app.get("/support/audit-logs/export",  authenticateToken, authorizeRole("support
 
 // ✅ Create new issue (any role can submit)
 app.post("/support/issues", authenticateToken, async (req, res) => {
-  const { description } = req.body;
+  const { userId, description } = req.body;
+  const issueUserId = userId || req.user?.id;
+  const issueRole = req.user?.role || "driver";
 
-//  Create new issue (driver submits)
-/*app.post("/support/issues", async (req, res) => {
-  const { driverId, description } = req.body;
-*/
   try {
     if (!description) {
       return res.status(400).json({ error: "Description is required" });
     }
-    // Save issue with user info
+    if (!issueUserId) {
+      return res.status(400).json({ error: "userId is required" });
+    }
+
+    // Save issue with user info (body userId or authenticated user)
     await db.query(
       "INSERT INTO support_issues (user_id, role, description, status, created_at) VALUES (?, ?, ?, 'Open', NOW())",
-      [req.user.id, req.user.role, description]
+      [issueUserId, issueRole, description]
     );
 
      // 🔒 Log action
     await logAction(
-      req.user.username,
-      req.user.role,
+      req.user?.username || `userId:${issueUserId}`,
+      issueRole,
       "Issue Created",
       `${req.user.role} ${req.user.id}: ${description}`
     );
