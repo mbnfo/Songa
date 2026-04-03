@@ -1,10 +1,15 @@
 import { useState, useEffect } from "react";
-import {Box,Button,TextField,Typography,Select, MenuItem,Alert,Fade,} from "@mui/material";
+import { tokens } from "../../theme";  
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
-// ✅ Import your logo
+//mui material
+import {Box,Button,TextField,Typography,Select,
+         MenuItem,Alert,Fade, useTheme,
+} from "@mui/material";
+
+//  Import  logo
 import logo from "../../assets/New_Songa_Logo.png";
 
 
@@ -28,6 +33,11 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  //Theme colours
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  
+
   //  Clear token on startup and check if redirected with sessionExpired flag
   useEffect(() => {
     localStorage.removeItem("token"); // always start clean
@@ -43,7 +53,7 @@ const LoginPage = () => {
  }, [location.state]);
 
 
-  // ✅ Login handler
+  //  Login handler
   const handleLogin = async () => {
   const API_URL = process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev";
   try {
@@ -159,10 +169,7 @@ const LoginPage = () => {
             </style>
 
 
-          {/*  Responsive Logo
-          
-          
-          */}
+          {/*  Responsive Logo   */}
      <Box display="flex" justifyContent="center" mb={2}>
         <Fade in={true} timeout={1200}>
             <img
@@ -183,28 +190,7 @@ const LoginPage = () => {
          </Fade>
       </Box>
 
-
-          {/*FLEET MANAGEMENT TEXT 
-
-          <Typography 
-              variant="h4" 
-              color="#e0e0e0"
-              sx={{ mb: 1 , lineHeight: 1 }} // Adjust text height, move it further up
-          >
-              Songa
-        </Typography>
-
-        <Typography 
-              variant="h4" 
-              mb={1} 
-              color="#e0e0e0"
-              sx={{ lineHeight: 2 }} // Adjust text height, move it further up         
-        >
-               Fleet Management {isRegister ? "Register" : "Login"}
-        </Typography>
-   */}
-
-      {/* ✅ Fade-in + Fade-out + Dismissible session expired alert */}
+      {/*  Fade-in + Fade-out + Dismissible session expired alert */}
       <Fade in={showSessionExpired} timeout={{ enter: 600, exit: 600 }}>
         <Box>
           {showSessionExpired && (
@@ -236,40 +222,58 @@ const LoginPage = () => {
 
 
 
-      {/*  Login/Register form */}
-      <TextField label="Username" value={username} onChange={(e) => setUsername(e.target.value)} sx={{ mb: 2, width: "300px" }} />
-      <TextField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} sx={{ mb: 2, width: "300px" }} />
+                 {/*  Login form only */}
+              <TextField
+                    label="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    sx={{
+                      mb: 2,
+                      width: "300px",
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": { borderColor: colors.blueAccent[300] }, // light blue border
+                        "&:hover fieldset": { borderColor: colors.blueAccent[400] },
+                        "&.Mui-focused fieldset": { borderColor: colors.blueAccent[500] },
+                      },
+                      "& .MuiInputLabel-root": {
+                        color: colors.blueAccent[300],
+                      },
+                    }}
+                  />
 
-      {isRegister && (
-        <>
-          <TextField label="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} sx={{ mb: 2, width: "300px" }} />
-          <TextField label="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} sx={{ mb: 2, width: "300px" }} />
-          <TextField label="Cell Number" value={cellNumber} onChange={(e) => setCellNumber(e.target.value)} sx={{ mb: 2, width: "300px" }} />
-          <TextField label="Email" value={email} onChange={(e) => setEmail(e.target.value)} sx={{ mb: 2, width: "300px" }} />
+                <TextField
+                  label="Password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  sx={{
+                    mb: 2,
+                    width: "300px",
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": { borderColor: colors.blueAccent[300] },
+                      "&:hover fieldset": { borderColor: colors.blueAccent[400] },
+                      "&.Mui-focused fieldset": { borderColor: colors.blueAccent[500] },
+                    },
+                    "& .MuiInputLabel-root": {
+                      color: colors.blueAccent[300],
+                    },
+                  }}
+                />
 
-          <Select value={role} onChange={(e) => setRole(e.target.value)} sx={{ mb: 2, width: "300px" }}>
-            <MenuItem value="admin">Admin</MenuItem>
-            <MenuItem value="driver">Driver</MenuItem>
-          </Select>
-
-          {role === "driver" && (
-            <TextField label="Driver ID" value={driverId} onChange={(e) => setDriverId(e.target.value)} sx={{ mb: 2, width: "300px" }} />
-          )}
-        </>
-      )}
+       
         
                      {/*ACTUAL LOGIN BUTTON */}
-          <Button
-                variant="contained"
-                color="primary"
-                onClick={ handleLogin}
-                sx={{
-                  border: "2px solid #fff", // white border
-                  borderRadius: "8px",      // Rounded corners
-                }}
-              >
-                {isRegister ? "Register" : "Login"}
-        </Button>
+                <Button
+                      variant="contained"
+                      color= "primary"
+                      onClick={ handleLogin}
+                      sx={{
+                        border: "2px solid #fff", // white border
+                        borderRadius: "8px",      // Rounded corners
+                      }}
+                    >
+                      {isRegister ? "Register" : "Login"}
+              </Button>
 
     {/* REGISTER BUTTON 
       <Button sx={{ mt: 2 }} onClick={() => setIsRegister(!isRegister)}>
