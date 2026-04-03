@@ -11,21 +11,18 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import CsvUpload from "../../components/CsvUpload"; 
 //Backend fetch:
-import { useEffect } from "react";
+import { useEffect, useState} from "react";
 import axios from "axios";
 //CSV Imports
 import Papa from "papaparse";
-import { useState } from "react";
 //Colours for Bar graph and Pie chart
 import { getDriverColor } from "../../utils/colorUtils";
-import { useNavigate } from "react-router-dom";
 
 const username = localStorage.getItem("username") || "Admin";
 
 const Dashboard = () => { 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-   const navigate = useNavigate();
 
   // State for backend data
   const API_URL = process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev"; 
@@ -430,8 +427,8 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
           variant="h5" 
           fontWeight="600"
             sx={{ marginBottom: "15px" }}
+           color={colors.grey[100]}
             >
-
             Driver Perfomance
           </Typography>
           <Box
@@ -461,6 +458,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
             variant="h5"
             fontWeight="600"
             sx={{ padding: "30px 30px 0 30px" }}
+            color={colors.grey[100]}
           >
             Sales Quantity
           </Typography>
