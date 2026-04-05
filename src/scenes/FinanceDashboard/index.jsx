@@ -1,4 +1,4 @@
-import { Box, Button,Typography,Snackbar,Alert,TextField} from "@mui/material";
+import { Box, Button,Typography,Snackbar,Alert,TextField,useTheme} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import PieChart from "../../components/PieChart";
 import LineChart from "../../components/LineChart";
 import { tokens } from "../../theme";
+import Header from "../../components/Header";
 
 const FinanceDashboard = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const FinanceDashboard = () => {
     process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev";
 
   const colors = tokens("dark");
+  const theme = useTheme();
 
   //  State for payouts
   const [payouts, setPayouts] = useState([]);
@@ -184,19 +186,25 @@ const FinanceDashboard = () => {
           <Button
             size="small"
             onClick={() => markPaid(params.row.driver_id, params.row.week)}
+            sx={{
+                  color: "#ffffff",             // text color
+                  backgroundColor: "#3da58a",   // green accent background
+                  "&:hover": { backgroundColor: "#2e7c67" },
+                }}
           >
             Mark Paid
           </Button>
         ) : null,
     },
   ];
-
+  {/* <Typography variant="h4" color="secondary" >Finance Dashboard</Typography>*/}
   return (
     <Box m="20px">
-      <Typography variant="h4">Finance Dashboard</Typography>
+
+      <Header title="Finance Dashboard" subtitle="Your centralized hub for financial insights" />
 
       {/*  Date Range Filter */}
-      <Box mt="20px" display="flex" gap="20px" alignItems="center">
+      <Box mt="50px" display="flex" gap="20px" alignItems="center">
         <TextField
           type="date"
           label="Start Date"
@@ -214,9 +222,8 @@ const FinanceDashboard = () => {
         <Button variant="contained" onClick={fetchHistory}>
           Apply Filter
         </Button>
-      </Box>
 
-      {/*  Export button */}
+        {/*  Export Payouts button */}
       <Button
         variant="contained"
         color="secondary"
@@ -225,6 +232,10 @@ const FinanceDashboard = () => {
       >
         Export Payouts (CSV)
       </Button>
+
+    </Box>
+
+      
 
       {/*  Summary Cards */}
       <Box mt="20px" display="flex" gap="20px">
@@ -245,7 +256,11 @@ const FinanceDashboard = () => {
       
 
       {/* Charts */}
-        <Box mt="40px" backgroundColor="#1f2a40" p="20px">
+        <Box mt="40px" backgroundColor="#1f2a40" p="20px"
+         sx={{
+          border:  "1px solid #ddd",
+         boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
+         }}>
           <Typography variant="h5">Pending vs Paid</Typography>
           <Box height="250px">
             {pieData.some(d => d.value > 0) ? (
@@ -256,7 +271,11 @@ const FinanceDashboard = () => {
           </Box>
         </Box>
 
-        <Box mt="40px" backgroundColor="#1f2a40" p="20px">
+        <Box mt="40px" backgroundColor="#1f2a40" p="20px"
+         sx={{
+          border:  "1px solid #ddd",
+         boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
+         }}>
           <Typography variant="h5">Commission vs Net Earnings</Typography>
           <Box height="250px">
             {commissionData.some(d => d.value > 0) ? (
@@ -267,7 +286,11 @@ const FinanceDashboard = () => {
           </Box>
         </Box>
 
-        <Box mt="40px" backgroundColor="#1f2a40" p="20px">
+        <Box mt="40px" backgroundColor="#1f2a40" p="20px"
+         sx={{
+          border:  "1px solid #ddd",
+         boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
+         }}>
           <Typography variant="h5">Weekly Net Payouts</Typography>
           <Box height="250px">
             {lineData[0].data.length > 0 ? (
@@ -280,7 +303,11 @@ const FinanceDashboard = () => {
 
 
       {/*  Payout history table */}
-      <Box mt="40px">
+      <Box mt="40px"
+       sx={{
+          border:  "1px solid #ddd",
+         boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
+         }}>
         <Typography variant="h5">Payout History</Typography>
         <DataGrid
           loading={loading}
@@ -291,6 +318,7 @@ const FinanceDashboard = () => {
           rowsPerPageOptions={[5, 10, 20]}
           pagination
           autoHeight
+
         />
       </Box>
 

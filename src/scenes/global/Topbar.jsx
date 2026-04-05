@@ -9,10 +9,10 @@ import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import useLogout from "./LogoutButton";
 
-// ✅ Import your logo
+//  Import your logo
 import logo from "../../assets/New_Songa_Logo.png";
 
-// ✅ Messages to cycle through
+//  Messages to cycle through
 const messages = [
   "SONGA FLEET MANAGEMENT",
   "DRIVING EFFICIENCY",
@@ -42,42 +42,41 @@ const Topbar = () => {
       display="flex"
       justifyContent="space-between"
       alignItems="center"
-      p={2}
+      p={1}
       sx={{
-        background: `linear-gradient(90deg, ${colors.primary[700]}, ${colors.greenAccent[700]})`,
-        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+        background: `linear-gradient(90deg,
+         ${colors.primary[700]}, 
+         ${colors.greenAccent[700]
+          
+         })`,
+        boxShadow: "0 2px 6px rgba(0,10,0,0.3)",
+
       }}
     >
-      {/* ✅ Left side: icons */}
+      {/*  Left side: icons */}  
       <Box display="flex" gap={1}>
+
+        {/*  
         <IconButton onClick={colorMode.toggleColorMode}>
           {theme.palette.mode === "dark" ? <DarkModeOutlinedIcon /> : <LightModeOutlinedIcon />}
         </IconButton>
         <IconButton><NotificationsOutlinedIcon /></IconButton>
         <IconButton><SettingsOutlinedIcon /></IconButton>
         <IconButton><PersonOutlinedIcon /></IconButton>
-        <IconButton onClick={handleLogout}><ExitToAppIcon /></IconButton>
+        */}
+       
+        <IconButton onClick={handleLogout}><ExitToAppIcon />  Logout</IconButton>
       </Box>
 
-      {/* ✅ Center: animated messages */}
+      {/*  Center: animated messages */}
       <Box
         sx={{
           flex: 1,
-          textAlign: "center",
+          textAlign: "left",
           mx: 2,
         }}/>
-      {/* ✅ Left side: icons */}
-      <Box display="flex" gap={1}>
-        <IconButton onClick={colorMode.toggleColorMode}>
-          {theme.palette.mode === "dark" ? <DarkModeOutlinedIcon /> : <LightModeOutlinedIcon />}
-        </IconButton>
-        <IconButton><NotificationsOutlinedIcon /></IconButton>
-        <IconButton><SettingsOutlinedIcon /></IconButton>
-        <IconButton><PersonOutlinedIcon /></IconButton>
-        <IconButton onClick={handleLogout}><ExitToAppIcon /></IconButton>
-      </Box>
 
-      {/* ✅ Center: scrolling ticker */}
+      {/*  Center: scrolling ticker */}
       <Box
         sx={{
           flex: 1,
@@ -112,12 +111,12 @@ const Topbar = () => {
         </Typography>
       </Box>
 
-      {/* ✅ Right side: logo */}
+      {/*  Right side: logo */}
       <Box
         component="img"
         src={logo}
         alt="Songa Logo"
-        sx={{ width: 100, height: "auto" }}
+        sx={{ width: 120, height: "auto" }}
       />
     </Box>
   );

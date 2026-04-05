@@ -248,7 +248,7 @@ const AuditLogViewer = () => {
         sx={{
           "& .MuiDataGrid-root": { border: "none" },
           "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700],
+            backgroundColor: colors.blueAccent[700], // change this to your desired color
             borderBottom: "none",
           },
           "& .MuiDataGrid-virtualScroller": {
@@ -258,6 +258,8 @@ const AuditLogViewer = () => {
             borderTop: "none",
             backgroundColor: colors.blueAccent[700],
           },
+          border:  "1px solid #ddd",
+         boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
         }}
       >
         <DataGrid

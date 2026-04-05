@@ -78,10 +78,10 @@ export const tokens = (mode) => ({
           100: "#040509",
           200: "#080b12",
           300: "#0c101b",
-          400: "#f2f0f0", // manually changed
-          500: "#141b2d",
-          600: "#1F2A40",
-          700: "#727681",
+          400: "#B6B6B6",//"#6E6E6E",//"#CFCFCF",//"#E7E7E7F", // manually changed / "#141b2d",
+          500: "#FFFFFF",
+          600: "#1F2A40", // 700: "#727681", 900: "#d0d1d5",
+          700: "#a1a4ab",//"#868686",
           800: "#a1a4ab",
           900: "#d0d1d5",
         },
@@ -90,9 +90,9 @@ export const tokens = (mode) => ({
           200: "#1e5245",
           300: "#2e7c67",
           400: "#3da58a",
-          500: "#4cceac",
-          600: "#70d8bd",
-          700: "#94e2cd",
+          500: "#2e7c67",//"#4cceac",
+          600: "#3da58a",//"#70d8bd",
+          700: "#4cceac",//"#3da58a",//"#94e2cd",
           800: "#b7ebde",
           900: "#dbf5ee",
         },
@@ -130,58 +130,155 @@ export const themeSettings = (mode) => {
       ...(mode === "dark"
         ? {
             // palette values for dark mode
-            primary: {
-              main: colors.primary[500], 
-            },
-            secondary: {
-              main: colors.greenAccent[500],
-            },
+            primary: { main: colors.primary[800], },
+            secondary: { main: colors.greenAccent[500],},
             neutral: {
-              dark: colors.grey[700],
-              main: colors.grey[500],
-              light: colors.grey[400],
+          //    dark: colors.grey[700],
+                 // dark: colors.grey[500],
+                dark: "#e0f7fa",
+          //    main: colors.grey[500],
+                  main: colors.grey[700],
+           //   light: colors.grey[400],
+                  light: colors.grey[900],
             },
-           /* background: {
-              default: colors.primary[500], 
-             //  default: "#666666",
-            },*/
             background: {
-                          default: "#141b2d",   // dark background
-                          paper: "#1F2A40",     // slightly lighter for cards
+              default: colors.primary[500], 
+            },
+
+            text: {
+              primary: "#e0f7fa",   // lighter text color
+              secondary: "#b2ebf2", // softer accent
+            },
+
+
+          components: {
+
+                MuiDataGrid: {
+                  styleOverrides: {
+                    columnHeaders: {
+                      backgroundColor: colors.primary[600], // pick from your tokens
+                      color: colors.grey[100],                // header text color
+                    },
+                  },
+                },
+                
+                  MuiMenuItem: {
+                    styleOverrides: {
+                      root: {
+                        color: colors.grey[100], // light text
+                        backgroundColor: colors.primary[400], // dropdown background
+                        "&:hover": {
+                          backgroundColor: colors.blueAccent[700],
                         },
+                      },
+                    },
+                  },
+                  MuiInputLabel: {
+                    styleOverrides: {
+                      root: {
+                        color: colors.blueAccent[200], // lighter labels globally
+                      },
+                    },
+                  },
+                  MuiSelect: {
+                    styleOverrides: {
+                      icon: {
+                        color: colors.blueAccent[200], // dropdown arrow color
+                      },
+                    },
+                  },
+                  MuiSvgIcon: {
+                    styleOverrides: {
+                      root: {
+                        color: mode === "light" ? "#333333" : "#e0f7fa", 
+                      },
+                    },
+                  },
+                },
+
+          MuiPaper: {
+              styleOverrides: {
+                root: {
+                  backgroundColor: colors.primary[400], // dropdown background
+                },
+              },
+            },
+            MuiInputLabel: {
+              styleOverrides: {
+                root: {
+                  color: colors.blueAccent[200],
+                },
+              },
+            },
+            MuiSelect: {
+              styleOverrides: {
+                icon: {
+                  color: colors.blueAccent[200],
+                },
+              },
+            },
           }
         : {
+
+
           //-----------------------------------
             // Palette values for light mode
            // ---------------------------
             primary: {
-           //   main: colors.primary[300],
               main: colors.blueAccent[500], // a friendly blue
             },
             secondary: {
               main: colors.greenAccent[500],
             },
-            neutral: {
-            //  dark: colors.grey[700],
-             // main: colors.grey[500],
-             // light: colors.grey[300],
+            neutral: { 
               dark: "#555555",
               main: "#888888",
               light: "#cccccc",
             },
-            background: {
-            //  default: "#c2c2c2",
-              default: "#f9f9f9",   // light grey/white background
-              paper: "#ffffff",     // pure white for cards
-              
+             background: {
+              default: colors.primary[500], 
             },
-          }),
-    },
-    typography: {
-      allVariants: {
-       color: "#333333", // ensure text is dark enough
-        },
         
+          }),
+            components: {
+                MuiMenuItem: {
+                  styleOverrides: {
+                    root: {
+                      color:  colors.grey[100],         // dark text for readability
+                      backgroundColor: "#ffffff",    // white dropdown background
+                      "&:hover": {
+                        backgroundColor: "#f0f0f0",  // light grey hover
+                      },
+                    },
+                  },
+                },
+                MuiInputLabel: {
+                  styleOverrides: {
+                    root: {
+                      color: colors.grey[100],              // medium grey labels
+                    },
+                  },
+                },
+                MuiSelect: {
+                  styleOverrides: {
+                    icon: {
+                      color: "#555555",              // dropdown arrow in medium grey
+                    },
+                  },
+                },
+                MuiPaper: {
+                  styleOverrides: {
+                    root: {
+                      backgroundColor: "#ffffff",    // cards/paper pure white
+                    },
+                  },
+                },
+              }
+
+    },
+
+    typography: {
+
       fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
       fontSize: 12,
       h1: {
