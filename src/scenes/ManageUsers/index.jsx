@@ -1,7 +1,7 @@
             //mui icons
 import { Snackbar, Alert, Box, Paper,Button,Dialog,
          DialogTitle, DialogContent, TextField, FormControl, 
-          InputLabel, Select, MenuItem, IconButton, Menu} from "@mui/material";
+          InputLabel, Select, MenuItem, IconButton, Menu, useTheme } from "@mui/material";
 import { DataGrid, GridToolbar  } from "@mui/x-data-grid";
 import MoreVertIcon from "@mui/icons-material/MoreVert"; // three-dot icon
            //react icons
@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
          //other files
 import Header from "../../components/Header";
+import { tokens } from "../../theme";
 
 
 const API_URL =
@@ -99,6 +100,9 @@ const ManageUsers = () => {
     severity: "success",
   });
 
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+
   // Status filter
   const [statusFilter, setStatusFilter] = useState("");
   const role = localStorage.getItem("role");
@@ -180,7 +184,15 @@ useEffect(() => {
   const columns = [
     { field: "id", headerName: "ID", width: 40, sortable: true },
     { field: "username", headerName: "Username", flex: 1, sortable: true },
-    { field: "role", headerName: "Role", flex: 1, sortable: true },
+    {
+      field: "role",
+      headerName: "Role",
+      flex: 1,
+      sortable: true,
+      headerClassName: "role-header",
+      headerAlign: "center",
+      align: "center",
+    },
     { field: "first_name", headerName: "First Name", flex: 1, sortable: true },
     { field: "last_name", headerName: "Last Name", flex: 1, sortable: true },
     { field: "cell_number", headerName: "Cell Number", flex: 1, sortable: true },
@@ -265,6 +277,10 @@ const filteredRows = rows.filter((row) => {
             sx={{
               "& .MuiDataGrid-row": { minHeight: 78 }, // increase row height for better readability
               "& .MuiDataGrid-cell": { alignItems: "center" },
+              "& .MuiDataGrid-columnHeader.role-header": {
+                backgroundColor: colors.grey[800],
+                color: colors.grey[100],
+              },
               overflow: "scroll",
             }}
           />

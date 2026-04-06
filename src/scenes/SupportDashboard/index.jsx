@@ -73,7 +73,7 @@ const SupportDashboard = () => {
   };
 
   return (
-    <Box m="20px" sx={{overflow: "scroll", height: "88vh"}}>
+    <Box m="20px" sx={{overflow: "scroll", height: "88vh"}}> 
       <Typography variant="h4">Support Dashboard</Typography>
 
       {/* Filters */}

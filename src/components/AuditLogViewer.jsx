@@ -76,11 +76,21 @@ const AuditLogViewer = () => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
 
+  const uniqueRoles = [...new Set(logs.map((log) => log.role))];
+  console.log("Unique roles from logs:", uniqueRoles);
+
   // DataGrid columns
   const columns = [
     { field: "timestamp", headerName: "Timestamp", flex: 1 },
     { field: "user", headerName: "User", flex: 1 },
-    { field: "role", headerName: "Role", flex: 1 },
+    {
+      field: "role",
+      headerName: "Role",
+      flex: 1,
+      headerClassName: "role-header",
+      headerAlign: "center",
+      align: "center",
+    },
     { field: "action", headerName: "Action", flex: 1 },
     { field: "details", headerName: "Details", flex: 2 },
   ];
@@ -172,7 +182,7 @@ const AuditLogViewer = () => {
               All
             </MenuItem>
 
-            {[...new Set(logs.map((log) => log.role))].map((role) => (
+            {uniqueRoles.map((role) => (
               <MenuItem
                 key={role}
                 value={role}
@@ -250,6 +260,10 @@ const AuditLogViewer = () => {
           "& .MuiDataGrid-columnHeaders": {
             backgroundColor: colors.blueAccent[700], // change this to your desired color
             borderBottom: "none",
+          },
+          "& .MuiDataGrid-columnHeader.role-header": {
+            backgroundColor: colors.grey[800],
+            color: colors.grey[100],
           },
           "& .MuiDataGrid-virtualScroller": {
             backgroundColor: colors.primary[400],

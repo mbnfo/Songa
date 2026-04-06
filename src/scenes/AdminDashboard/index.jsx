@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -14,7 +14,6 @@ import CsvUpload from "../../components/CsvUpload";
 import { useEffect, useState} from "react";
 import axios from "axios";
 //CSV Imports
-import Papa from "papaparse";
 //Colours for Bar graph and Pie chart
 import { getDriverColor } from "../../utils/colorUtils";
 
@@ -61,26 +60,23 @@ const fetchData = async () => {
     }, [dbData]);
 //--------------------------------------------------------
 
-//Displa CSV name
-const [selectedFileName, setSelectedFileName] = useState("");
-const [uploaded, setUploaded] = useState(false);
 
 
-  // CSV Upload (optional local parsing)
-const handleFileUpload = (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-  setSelectedFileName(file.name);   // show file name
-  setUploaded(true);                // hide upload button after upload
-  Papa.parse(file, {
-    header: true,
-    dynamicTyping: true,
-    complete: (results) => {
-      setDbData(results.data);
-      console.log("Parsed CSV:", results.data);
-    },
-  });
-};
+//   // CSV Upload (optional local parsing)
+// const handleFileUpload = (event) => {
+//   const file = event.target.files[0];
+//   if (!file) return;
+//   setSelectedFileName(file.name);   // show file name
+//   setUploaded(true);                // hide upload button after upload
+//   Papa.parse(file, {
+//     header: true,
+//     dynamicTyping: true,
+//     complete: (results) => {
+//       setDbData(results.data);
+//       console.log("Parsed CSV:", results.data);
+//     },
+//   });
+// };
 
 
 // Compute stats from CSV
@@ -100,9 +96,7 @@ const totalDrivers = dbData.length
   ? new Set(dbData.map((row) => row.driver_id)).size
   : 0;
 
-const pendingPayouts = dbData.length
-  ? dbData.filter((row) => row.payout_status === "Pending").length
-  : 0;
+
 
 // Normalize driver IDs/names
 const normalizeDriver = (row) =>
@@ -141,13 +135,13 @@ const barData = Object.entries(driverGrossTotals).map(([driverId, totalGross]) =
 
 
 // Aggregate net earnings per driver for pie chart
-const driverNetTotals = dbData.reduce((acc, row) => {
-  const id = normalizeDriver(row);
-  if (!id) return acc;
-  if (!acc[id]) acc[id] = 0;
-  acc[id] += Number(row.net || row.NetEarnings || 0);
-  return acc;
-}, {});
+// const driverNetTotals = dbData.reduce((acc, row) => {
+//   const id = normalizeDriver(row);
+//   if (!id) return acc;
+//   if (!acc[id]) acc[id] = 0;
+//   acc[id] += Number(row.net || row.NetEarnings || 0);
+//   return acc;
+// }, {});
 
  
 // Convert to chart format
