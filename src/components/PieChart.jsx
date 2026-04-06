@@ -1,7 +1,7 @@
 import { ResponsivePie } from "@nivo/pie";
 import { tokens } from "../theme";
 import { useTheme } from "@mui/material";
-import { getDriverColor } from "../utils/colorUtils"; // ✅ import
+import { getDriverColor } from "../utils/colorUtils"; //  import
 
 const PieChart = ({ isDashboard = false, data = [] }) => {
   const theme = useTheme();
@@ -20,6 +20,13 @@ const PieChart = ({ isDashboard = false, data = [] }) => {
           },
         },
         legends: { text: { fill: colors.grey[100] } },
+         tooltip: {
+      container: {
+        background: "#ffffff",   // tooltip background
+        color: "#000000",        // tooltip text color
+        fontSize: "14px",
+      },
+    },
       }}
       margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
       innerRadius={0.5}
@@ -34,7 +41,8 @@ const PieChart = ({ isDashboard = false, data = [] }) => {
       enableArcLabels={false}
       arcLabelsRadiusOffset={0.4}
       arcLabelsSkipAngle={7}
-      arcLabelsTextColor={{ from: "color", modifiers: [["darker", 2]] }}
+      arcLabelsTextColor="#000000"
+      //arcLabelsTextColor={{ from: "color", modifiers: [["darker", 2]] }}
       // ✅ Use dynamic driver colors
       colors={({ id }) => getDriverColor(id)}
       legends={[

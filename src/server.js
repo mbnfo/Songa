@@ -620,50 +620,74 @@ router.get(
 // Export filtered audit logs as CSV
 
 
+router.get(
+  "/audit-logs/export",
+  authenticateToken,
+  authorizeRole("owner"),
+  async (req, res) => {
+    const { user, role, startDate, endDate } = req.query;
 
-router.get("/audit-logs/export",  authenticateToken, authorizeRole("owner"), async (req, res) => {
-  const { user, role, startDate, endDate, page = 1, limit = 20  } = req.query;
+    let query = "SELECT * FROM audit_logs WHERE 1=1";
+    const params = [];
 
-  let query = "SELECT * FROM audit_logs WHERE 1=1";
-  const params = [];
+    // Apply filters if provided
+    if (user && user !== "All") {
+      query += " AND user = ?";
+      params.push(user);
+    }
+    if (role && role !== "All") {
+      query += " AND role = ?";
+      params.push(role);
+    }
+    if (startDate) {
+      query += " AND timestamp >= ?";
+      params.push(startDate);
+    }
+    if (endDate) {
+      query += " AND timestamp <= ?";
+      params.push(endDate);
+    }
 
-    //  Apply filters if provided
-  if (user) { query += " AND user = ?"; params.push(user); }
-  if (role) { query += " AND role = ?"; params.push(role); }
-  if (startDate) { query += " AND timestamp >= ?"; params.push(startDate); }
-  if (endDate) { query += " AND timestamp <= ?"; params.push(endDate); }
+    // ✅ No LIMIT/OFFSET here
+    query += " ORDER BY timestamp DESC";
 
-//  Pagination
-  query += " ORDER BY timestamp DESC LIMIT ? OFFSET ?";
-  params.push(Number(limit));
-  params.push((Number(page) - 1) * Number(limit));
+    try {
+      const [rows] = await db.query(query, params);
 
- try {
-    const [rows] = await db.query(query, params);
+      // Count with same filters
+      let countQuery = "SELECT COUNT(*) as total FROM audit_logs WHERE 1=1";
+      const countParams = [];
+      if (user && user !== "All") {
+        countQuery += " AND user = ?";
+        countParams.push(user);
+      }
+      if (role && role !== "All") {
+        countQuery += " AND role = ?";
+        countParams.push(role);
+      }
+      if (startDate) {
+        countQuery += " AND timestamp >= ?";
+        countParams.push(startDate);
+      }
+      if (endDate) {
+        countQuery += " AND timestamp <= ?";
+        countParams.push(endDate);
+      }
 
-    //  Count with same filters (so total matches filtered set)
-    let countQuery = "SELECT COUNT(*) as total FROM audit_logs WHERE 1=1";
-    const countParams = [];
-    if (user) { countQuery += " AND user = ?"; countParams.push(user); }
-    if (role) { countQuery += " AND role = ?"; countParams.push(role); }
-    if (startDate) { countQuery += " AND timestamp >= ?"; countParams.push(startDate); }
-    if (endDate) { countQuery += " AND timestamp <= ?"; countParams.push(endDate); }
+      const [countRows] = await db.query(countQuery, countParams);
+      const total = countRows[0].total;
 
-    const [countRows] = await db.query(countQuery, countParams);
-    const total = countRows[0].total;
-
-    res.json({
-      logs: rows,
-      total,
-      page: Number(page),
-      limit: Number(limit),
-      totalPages: Math.ceil(total / limit),
-    });
-  } catch (err) {
-    console.error("Error fetching audit logs:", err);
-    res.status(500).json({ error: "Failed to fetch audit logs" });
+      res.json({
+        logs: rows,   // all filtered logs
+        total,        // total count of filtered logs
+      });
+    } catch (err) {
+      console.error("Error exporting audit logs:", err);
+      res.status(500).json({ error: "Failed to export audit logs" });
+    }
   }
-});
+);
+
 
 //  Support audit logs with pagination
 app.get("/support/audit-logs",  authenticateToken, authorizeRole("support"), async (req, res) => {

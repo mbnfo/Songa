@@ -34,7 +34,7 @@ const fetchData = async () => {
     const token = localStorage.getItem("token");
     const res = await axios.get(`${API_URL}/dashboard-data`, {
       headers: {
-        Authorization: `Bearer ${token}`, // ✅ send JWT
+        Authorization: `Bearer ${token}`, // send JWT
       },
     });
 
@@ -70,8 +70,8 @@ const [uploaded, setUploaded] = useState(false);
 const handleFileUpload = (event) => {
   const file = event.target.files[0];
   if (!file) return;
-  setSelectedFileName(file.name);   // ✅ show file name
-  setUploaded(true);                // ✅ hide upload button after upload
+  setSelectedFileName(file.name);   // show file name
+  setUploaded(true);                // hide upload button after upload
   Papa.parse(file, {
     header: true,
     dynamicTyping: true,
@@ -150,7 +150,7 @@ const driverNetTotals = dbData.reduce((acc, row) => {
 }, {});
 
  
-// ✅ Convert to chart format
+// Convert to chart format
 const lineData = [
   {
     id: "Gross Earnings",
@@ -189,35 +189,71 @@ const driverTotals = dbData.reduce((acc, row) => {
 // Convert to pie chart format
 const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
   id: driverId,
-  label: driverId,   // ✅ no "Driver " prefix
+  label: driverId, 
   value: totalNet,
 }));
 
 
-  return (
-    
-    <Box m="20px">
-      {/* HEADER */}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="ADMIN DASHBOARD" subtitle={`Welcome, ${username}`} />
+  return ( 
+          <Box
+          //  m="20px"
+          sx={{
+                   backgroundColor: (theme) =>
+                    theme.palette.mode === 'light'
+                      ? theme.palette.background.default
+                      : theme.palette.background.default,
+                    border: 'none',
+                    boxShadow: 'none',
+              }}
+          >
 
-        <Box display="flex" gap="10px">
+      {/* HEADER */}
+          <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{
+                   backgroundColor: (theme) =>
+                    theme.palette.mode === 'light'
+                      ? theme.palette.background.default
+                      : theme.palette.background.default,
+                    border: 'none',
+                    boxShadow: 'none',
+                    ml: 2
+              }}
+          >
+            <Header title="ADMIN DASHBOARD" 
+            subtitle={`Welcome, ${username}`}  />
+
+         {/* CONTENT*/}
+        <Box display="flex" gap="10px" >
+          {/*
+          
           <Button
             sx={{
-              backgroundColor: colors.blueAccent[700],
+             backgroundColor: colors.blueAccent[700],
               color: colors.grey[100],
               fontSize: "14px",
               fontWeight: "bold",
-              padding: "10px 20px",
+              padding: "10px 20px",           
             }}
           >
             <DownloadOutlinedIcon sx={{ mr: "10px" }} />
             Download Reports
-          </Button>
-          <Box display="flex" gap="10px">
+          </Button>*/}
+          
+
+          <Box display="flex" gap="10px" 
+          sx={{backgroundColor: colors.blueAccent[700],
+            mr:2,
+            color: colors.grey[100],
+
+          }}>
+
+            
            {/* CSV Upload */}
 
-    <CsvUpload onUploadSuccess={fetchData} />
+            <CsvUpload onUploadSuccess={fetchData} />
         </Box>
       </Box>
       </Box>
@@ -230,14 +266,22 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
         gridTemplateColumns="repeat(12, 1fr)"
         gridAutoRows="140px"
         gap="20px"
+        sx={{ml: 2, mr:2 
+
+        }}
+        
       >
         {/* ROW 1 */}
         <Box
           gridColumn="span 4"
-          backgroundColor={colors.primary[400]}
+         backgroundColor={colors.primary[400]} //CARD background colour
           display="flex"
           alignItems="center"
           justifyContent="center"
+          sx={{
+          border:  "1px solid #FFFFFF",
+          boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
+        }}
         >
            {/*  //GROSS EARNINGS  */}
           <StatBox
@@ -252,12 +296,18 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
             }
           />
         </Box>
+
+
         <Box
           gridColumn="span 4"
           backgroundColor={colors.primary[400]}
           display="flex"
           alignItems="center"
           justifyContent="center"
+          sx={{
+          border:  "1px solid #ddd",
+         boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
+        }}
         >
            {/*  //TOTAL NET EARNINGS  */}
           <StatBox
@@ -279,6 +329,10 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
           display="flex"
           alignItems="center"
           justifyContent="center"
+          sx={{
+          border:  "1px solid #ddd",
+         boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
+        }}
         >
           {/*  //TOTAL DRIVERS  */}
           <StatBox
@@ -301,6 +355,10 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
           gridColumn="span 8"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
+          sx={{
+          border:  "1px solid #ddd",
+         boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
+        }}
         >
           <Box
             mt="25px"
@@ -330,6 +388,8 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
                 </Typography>
               </Typography>
             </Box>
+
+
             <Box>
               <IconButton>
                 <DownloadOutlinedIcon
@@ -344,11 +404,16 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
             />
           </Box>
         </Box>
+
         <Box
           gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           overflow="auto"
+          sx={{
+          border:  "1px solid #ddd",
+         boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
+        }}
         >
 
             {/* RECENT TRANSACTIONS */}
@@ -357,8 +422,9 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
             justifyContent="space-between"
             alignItems="center"
             borderBottom={`4px solid ${colors.primary[500]}`}
-            colors={colors.grey[100]}
+            colors={colors.grey[400]}
             p="15px"
+            
           >
             <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
               Recent Transactions
@@ -378,11 +444,11 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
 
               <Box>
                 <Typography
-                  color={colors.greenAccent[500]}
+                  color={colors.greenAccent[400]}
                   variant="h5"
                   fontWeight="600"
+                  
                 >
-
                   {row.driver_id || row.DriverID}
                 </Typography>
                 <Typography color={colors.grey[100]}>
@@ -414,6 +480,10 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           p="30px"
+          sx={{
+          border:  "1px solid #ddd",
+         boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
+        }}
         >         
           
          <PieChart
@@ -453,6 +523,10 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
           gridColumn="span 6"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
+          sx={{
+          border:  "1px solid #ddd",
+         boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
+        }}
         >
           <Typography
             variant="h5"

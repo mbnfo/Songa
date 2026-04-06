@@ -7,10 +7,8 @@ import { tokens } from "../../theme";
 // MUI Icons
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
@@ -56,7 +54,7 @@ const AppSidebar = () => {
       rootStyles={{
         height: "100vh",
         ".ps-sidebar-container": {
-          backgroundColor: colors.primary[700],
+          backgroundColor: colors.primary[700], //changes light mode
           height: "100%",
         },
         color: colors.grey[100],
@@ -146,16 +144,6 @@ const AppSidebar = () => {
               selected={location.pathname}
             />
           )}
-        {/*  Show Finance Dashboard only if role is finance or owner*/}
-        {(userRole === "finance" || userRole === "owner") && (
-            <Item
-              title="Finance Dashboard"
-              to="/finance"
-              icon={<AttachMoneyIcon />}
-              selected={location.pathname}
-            />
-          )}
-
 
         {/*  Show Audit Logs only if role === 'owner' */}
         {userRole === "owner" && (
