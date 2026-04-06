@@ -40,6 +40,8 @@ const AuditLogViewer = () => {
   try {
     const query = new URLSearchParams({
       ...filters,
+      page,
+              limit: 10,
     }).toString();
 
     const token = localStorage.getItem("token");
