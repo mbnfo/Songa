@@ -719,6 +719,7 @@ app.post("/support/issues", authenticateToken, async (req, res) => {
   const { userId, description } = req.body;
   const issueUserId = userId || req.user?.id;
   const issueRole = req.user?.role || "driver";
+  const issueDriverId = 999999; // impossible driver ID per request
 
   try {
     if (!description) {
@@ -729,10 +730,22 @@ app.post("/support/issues", authenticateToken, async (req, res) => {
     }
 
     // Save issue with user info (body userId or authenticated user)
-    await db.query(
-      "INSERT INTO support_issues (user_id, role, description, status, created_at) VALUES (?, ?, ?, 'Open', NOW())",
-      [issueUserId, issueRole, description]
-    );
+    // Try driver_id column first; if not present, fallback to schema without it
+    try {
+      await db.query(
+        "INSERT INTO support_issues (user_id, driver_id, role, description, status, created_at) VALUES (?, ?, ?, ?, 'Open', NOW())",
+        [issueUserId, issueDriverId, issueRole, description]
+      );
+    } catch (insertErr) {
+      if (insertErr.code === "ER_BAD_FIELD_ERROR" && insertErr.sqlMessage.includes("driver_id")) {
+        await db.query(
+          "INSERT INTO support_issues (user_id, role, description, status, created_at) VALUES (?, ?, ?, 'Open', NOW())",
+          [issueUserId, issueRole, description]
+        );
+      } else {
+        throw insertErr;
+      }
+    }
 
      // 🔒 Log action
     await logAction(
