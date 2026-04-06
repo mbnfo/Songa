@@ -6,7 +6,8 @@ body,
   height: 100%;
   margin: 0;
   background-color: #141b2d; /* or use your dark token */
-  overflow: hidden; /* Prevent scrolling on the body */
+  overflow:  hidden; /* Prevent scrolling on the body */
+  
 }
 .app,
 .content {

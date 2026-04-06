@@ -254,18 +254,17 @@ const filteredRows = rows.filter((row) => {
         </Select>
       </FormControl>
 
-      {/* Table */}
-      <Box height="70vh">
-
-        {/* Search bar above the table */}
+       {/* Search bar above the table */}
           <TextField
             label="Search Users"
             variant="outlined"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
-            sx={{ mb: 2, minWidth: 300 }}
+            sx={{ mb: 2, minWidth: 300, ml: 10 }}
           />
 
+      {/* Table */}
+      <Box height="70vh" overflow="scroll">
 
           <DataGrid
             rows={filteredRows}
