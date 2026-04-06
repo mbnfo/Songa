@@ -263,8 +263,9 @@ const filteredRows = rows.filter((row) => {
             getRowId={(row) => row.id}
             components={{ Toolbar: GridToolbar }}
             sx={{
-              "& .MuiDataGrid-row": { minHeight: 60 },
+              "& .MuiDataGrid-row": { minHeight: 78 }, // increase row height for better readability
               "& .MuiDataGrid-cell": { alignItems: "center" },
+              overflow: "scroll",
             }}
           />
       </Box>

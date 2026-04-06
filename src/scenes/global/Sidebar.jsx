@@ -126,14 +126,14 @@ const AppSidebar = () => {
     
 
         {/* Show Support Dashboard only if role === 'support' */}
-        {userRole === "support" && (
+        {/* {userRole === "support" && (
           <Item
             title="Support Dashboard"
             to="/support-dashboard"
             icon={<HelpOutlineIcon />}
             selected={location.pathname}
           />
-        )}
+        )} */}
 
         {/*  Show Finance Dashboard only if role is finance or owner*/}
         {(userRole === "finance" || userRole === "owner") && (

@@ -266,8 +266,9 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
         gridTemplateColumns="repeat(12, 1fr)"
         gridAutoRows="140px"
         gap="20px"
-        sx={{ml: 2, mr:2 
-
+        overflow={"scroll"}
+        sx={{ml: 2, mr:2,
+          height: "78vh",
         }}
         
       >

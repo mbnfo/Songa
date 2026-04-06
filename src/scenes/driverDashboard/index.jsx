@@ -161,7 +161,7 @@ const handleDownloadPDF = async () => {
 
 
   return (
-    <Box m="20px">
+    <Box sx ={{height: "87vh"}} m="20px" overflow={"scroll"} >
       <Header title="Driver Dashboard" subtitle={`Welcome, ${username}`} />
 
       {/* Stat Boxes */}
