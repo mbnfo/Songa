@@ -27,7 +27,7 @@ const DriverSupportDashboard = ({ driverId }) => {
   }, [driverId]);
 
   return (
-    <Box m="20px">
+    <Box m="20px" width = "98vw">
       <Typography variant="h4">My Support Issues</Typography>
 
       {/* ✅ List driver’s own issues */}

@@ -284,27 +284,43 @@ export const themeSettings = (mode) => {
       h1: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
         fontSize: 40,
+        '@media (min-width:600px)':{fontSize: '20px'}, 
       },
       h2: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
         fontSize: 32,
+        '@media (min-width:320px)':{fontSize: '16px'},
+        '@media (min-width:600px)':{fontSize: '32px'},
+        '@media (min-width:1200px)':{fontSize: '40px'},
+        
       },
       h3: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
         fontSize: 24,
+        "@media (min-width: 320px)": {fontSize: "14px"},
+        "@media (min-width: 420px)": {fontSize: "18px"},
+        "@media (min-width: 600px)": {fontSize: "24px"},
       },
       h4: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 20,
+        '@media (min-width:320px': {fontSize: '12px'},
       },
       h5: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 16,
+        "@media (min-width: 320px)": {fontSize: "10px"},
+        "@media (min-width: 420px)": {fontSize: "14px"},
+        "@media (min-width: 600px)": {fontSize: "16px"},
       },
       h6: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
         fontSize: 14,
       },
+      text: {
+        fontFamily : ["Source Sans Pro", "sans-serif"].join(","),
+        "@media (min-width: 320px)": {fontSize: "10px"},
+        "@media (min-width: 420px)": {fontSize: "12px"},
+        "@media (min-width: 600px)": {fontSize: "14px"},
+      }
     },
   };
 };

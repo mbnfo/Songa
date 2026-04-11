@@ -98,8 +98,8 @@ const AuditLogViewer = () => {
   ];
 
   return (
-    <Box m="20px"  sx={{overflow : "scroll", height: "88vh"}}>
-      <Header title="AUDIT LOGS" subtitle="Track all system actions" />
+    <Box m="20px"  sx={{overflow : "scroll", height: "88vh", width: "98vw",}}>
+      <Header title="AUDIT LOGS" subtitle="Track all system actions"  />
 
       {/* Filter controls */}
       <Box display="flex" gap="10px" mt="10px" mb="20px">

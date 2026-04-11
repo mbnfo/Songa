@@ -199,7 +199,7 @@ const FinanceDashboard = () => {
   ];
   {/* <Typography variant="h4" color="secondary" >Finance Dashboard</Typography>*/}
   return (
-    <Box m="20px" sx={{overflow : "scroll", height: "88vh"}}>
+    <Box m="20px" sx={{overflow : "scroll", height: "88vh", width: "98vw"}}>
 
       <Header title="Finance Dashboard" subtitle="Your centralized hub for financial insights" />
 

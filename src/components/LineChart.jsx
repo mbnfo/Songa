@@ -7,6 +7,18 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false, data }) =>
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
+  const deviceSize = window.innerWidth;
+  let size;
+
+  if (deviceSize < 330) {
+    size = 10
+  } else if (deviceSize < 420){
+    size = 20
+  }
+  else {
+    size = 25
+  }
+
   return (
     <ResponsiveLine
       data={data}
@@ -29,12 +41,14 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false, data }) =>
             },
             text: {
               fill: colors.grey[100],
+              fontSize: size,
             },
           },
         },
         legends: {
           text: {
             fill: colors.grey[100],
+            fontSize: size,
           },
         },
         tooltip: {

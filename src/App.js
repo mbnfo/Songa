@@ -1,10 +1,11 @@
 import { Routes, Route } from "react-router-dom";
 import Topbar from "./scenes/global/Topbar";
 import Sidebar from "./scenes/global/Sidebar";
+import Bottombar from "./scenes/global/Bottombar";
 import Dashboard from "./scenes/AdminDashboard";
 import Invoices from "./scenes/invoices";
 import LoginPage from "./scenes/login";
-import { CssBaseline, ThemeProvider } from "@mui/material";
+import { Box, CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import { ToastContainer } from "react-toastify";
 import AuditLogViewer from "./components/AuditLogViewer";
@@ -22,7 +23,9 @@ import SupportPage from "./scenes/SupportPage";
 // 😏Owner Layout
 const OwnerLayout = () => (
   <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
+  <Box sx={{ display: { xs: "none", sm: "none", md: "block" } }}>
     <Sidebar />
+  </Box>
     <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
       <Topbar />
       <Routes>
@@ -44,13 +47,16 @@ const OwnerLayout = () => (
 
       </Routes>
     </div>
+    <Bottombar/>
   </div>
 );
 
 //  Admin Layout
 const AdminLayout = () => (
   <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
+  <Box sx={{ display: { xs: "none", sm: "none", md: "block" } }}>
     <Sidebar />
+  </Box>
     <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
       <Topbar />
       <Routes>
@@ -59,6 +65,7 @@ const AdminLayout = () => (
         <Route path="invoices" element={<Invoices />} />      
       </Routes>
     </div>
+    <Bottombar/>
   </div>
 );
 
@@ -76,13 +83,16 @@ const DriverLayout = () => {
 
   return (
     <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
-      <Sidebar />
+  <Box sx={{ display: { xs: "none", sm: "none", md: "block" } }}>
+    <Sidebar />
+  </Box>
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         <Topbar />
         {/*  Pass driverId into dashboard */}
         {/*  Pass driverId into dashboard */}
         <DriverDashboard driverId={driverId} />
       </div>
+      <Bottombar/>
     </div>
   );
 };
@@ -90,10 +100,13 @@ const DriverLayout = () => {
 //  Finance Layout
 const FinanceLayout = () => (
   <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
+  <Box sx={{ display: { xs: "none", sm: "none", md: "block" } }}>
     <Sidebar />
+  </Box>
     <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
       <Topbar />
       <FinanceDashboard />
+      <Bottombar/>
     </div>
   </div>
 );
@@ -101,10 +114,13 @@ const FinanceLayout = () => (
 //  Support Staff Layout
 const SupportStaffLayout = () => (
   <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
+  <Box sx={{ display: { xs: "none", sm: "none", md: "block" } }}>
     <Sidebar />
+  </Box>
     <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
       <Topbar />
       <SupportDashboard />
+      <Bottombar/>
     </div>
   </div>
 );
@@ -112,10 +128,13 @@ const SupportStaffLayout = () => (
 //  Support Page Layout
 const SupportPageLayout = () => (
   <div style={{ display: "flex", width: "100%", minHeight: "100vh" }}>
+  <Box sx={{ display: { xs: "none", sm: "none", md: "block" } }}>
     <Sidebar />
+  </Box>
     <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
       <Topbar />
       <SupportPage />
+      <Bottombar/>
     </div>
   </div>
 );

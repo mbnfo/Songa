@@ -50,7 +50,7 @@ const Topbar = () => {
           
          })`,
         boxShadow: "0 2px 6px rgba(0,10,0,0.3)",
-
+        height: {xs: "10vh"}
       }}
     >
       {/*  Left side: icons */}  
@@ -65,7 +65,7 @@ const Topbar = () => {
         <IconButton><PersonOutlinedIcon /></IconButton>
         */}
        
-        <IconButton onClick={handleLogout}><ExitToAppIcon />  Logout</IconButton>
+        <IconButton onClick={handleLogout} sx = {{fontSize: {xs: "16px"}}}><ExitToAppIcon />  Logout</IconButton>
       </Box>
 
       {/*  Center: animated messages */}

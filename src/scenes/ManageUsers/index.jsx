@@ -227,7 +227,7 @@ const filteredRows = rows.filter((row) => {
 
 
   return (
-    <Box m="20px">
+    <Box m="20px" width="96vw" overflow="scroll">
       <Header title="MANAGE USERS" subtitle="Manage all system users" />
 
       {/* Buttons ABOVE the table */}

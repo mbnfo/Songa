@@ -22,6 +22,16 @@ const username = localStorage.getItem("username") || "Admin";
 const Dashboard = () => { 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  var size
+  //Get device sizing in order to size the graph and other properties well
+  const deviceSize = window.innerWidth;
+  if (deviceSize < 330) {
+    size = 200
+  } else if(deviceSize < 420){ 
+    size = 200
+  } else {
+    size = 250
+  }
 
   // State for backend data
   const API_URL = process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev"; 
@@ -259,10 +269,12 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
         display="grid"
         gridTemplateColumns="repeat(12, 1fr)"
         gridAutoRows="140px"
-        gap="20px"
         overflow={"scroll"}
+        rowGap="20px"
         sx={{ml: 2, mr:2,
           height: "78vh",
+          columnGap: {xs:"5px", sm:"10px", md:"20px"},
+          rowGap: {xs:"5px", sm:"10px", md:"20px"},
         }}
         
       >
@@ -284,6 +296,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
             subtitle="Total Gross Earnings (Before deductions)"
             progress="0.75"
             increase="+14%"
+            // make your edits here bruuuu
             icon={
               <AttachMoneyIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -347,7 +360,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
         {/* ROW 2 */}
         
         <Box
-          gridColumn="span 8"
+          gridColumn={deviceSize > 500 ? "span 8" : "span 12"}
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           sx={{
@@ -361,6 +374,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
             display="flex"
             justifyContent="space-between"
             alignItems="center"
+            width="98%"
           >
             <Box>
               <Typography
@@ -393,85 +407,147 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
               </IconButton>
             </Box>
           </Box>
-          <Box height="250px" m="-20px 0 0 0">
+          <Box sx={{ height: `${size}px`}} m="-20px 0 0 0">
             <LineChart isDashboard={true} 
             data={lineData && lineData.length > 0 ? lineData : []}
             />
           </Box>
         </Box>
 
-        <Box
-          gridColumn="span 4"
-          gridRow="span 2"
-          backgroundColor={colors.primary[400]}
-          overflow="auto"
-          sx={{
-          border:  "1px solid #ddd",
-         boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
-        }}
-        >
 
-            {/* RECENT TRANSACTIONS */}
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            borderBottom={`4px solid ${colors.primary[500]}`}
-            colors={colors.grey[400]}
-            p="15px"
-            
-          >
-            <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
-              Recent Transactions
-            </Typography>
-          </Box>
 
-            {/* RECENT TRANSACTIONS FETCH FROM DB TO FRONT END */}
-          {dbData.slice(-5).map((row, i) => (
+        {/* RECENT TRANSACTIONS */}
+        {deviceSize > 500 ? (
             <Box
-              key={`${row.driver_id || row.DriverID}-${i}`}
+              gridColumn="span 4"
+              gridRow="span 2"
+              backgroundColor={colors.primary[400]}
+              overflow="auto"
+              sx={{
+              border:  "1px solid #ddd",
+              boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
+            }}
+            >
+              <>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  borderBottom={`4px solid ${colors.primary[500]}`}
+                  colors={colors.grey[400]}
+                  p="15px"
+                >
+                  <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
+                    Recent Transactions
+                  </Typography>
+                </Box>
+
+                {/* RECENT TRANSACTIONS FETCH FROM DB TO FRONT END */}
+                {dbData.slice(-5).map((row, i) => (
+                  <Box
+                    key={`${row.driver_id || row.DriverID}-${i}`}
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    borderBottom={`4px solid ${colors.primary[500]}`}
+                    p="15px"
+                  >
+                    <Box>
+                      <Typography
+                        color={colors.greenAccent[400]}
+                        variant="h5"
+                        fontWeight="600"
+                      >
+                        {row.driver_id || row.DriverID}
+                      </Typography>
+                      <Typography color={colors.grey[100]}>
+                        {row.week || row.Week}
+                      </Typography>
+                    </Box>
+                    <Box color={colors.grey[100]}>
+                      Gross: ${Number(row.gross || row.GrossEarnings).toFixed(2)}
+                    </Box>
+                    <Box
+                      backgroundColor={colors.greenAccent[500]}
+                      p="5px 10px"
+                      borderRadius="4px"
+                    >
+                      Net: ${(Number(row.gross || row.GrossEarnings) * 0.8).toFixed(2)}
+                    </Box>
+                  </Box>
+                ))}
+              </>
+              
+        </Box>
+            ) : null}
+
+        {/* Responsive 3rd row for when device size is less than 500px */}
+        {deviceSize < 500 && (
+          <Box
+            gridColumn="span 12"
+            gridRow="span 2"
+            backgroundColor={colors.primary[400]}
+            overflow="auto"
+            sx={{
+              border: "1px solid #ddd",
+              boxShadow: "0px 4px 12px rgba(0,0,0,0.8)",
+            }}
+          >
+            <Box
               display="flex"
               justifyContent="space-between"
               alignItems="center"
               borderBottom={`4px solid ${colors.primary[500]}`}
+              colors={colors.grey[400]}
               p="15px"
             >
-
-              <Box>
-                <Typography
-                  color={colors.greenAccent[400]}
-                  variant="h5"
-                  fontWeight="600"
-                  
-                >
-                  {row.driver_id || row.DriverID}
-                </Typography>
-                <Typography color={colors.grey[100]}>
-                  {row.week || row.Week}
-                </Typography>
-              </Box>
-              <Box color={colors.grey[100]}>
-                Gross: ${Number(row.gross || row.GrossEarnings).toFixed(2)}
-                </Box>
-              <Box
-                backgroundColor={colors.greenAccent[500]}
-                p="5px 10px"
-                borderRadius="4px"
-              >
-                Net: ${(Number(row.gross || row.GrossEarnings) * 0.8).toFixed(2)}
-              </Box>
+              <Typography color={colors.grey[100]} variant="h5" fontWeight="600">
+                Recent Transactions
+              </Typography>
             </Box>
-          ))}
-        </Box>
 
-
-
+            {/* RECENT TRANSACTIONS FETCH FROM DB TO FRONT END */}
+            {dbData.slice(-5).map((row, i) => (
+              <Box
+                key={`${row.driver_id || row.DriverID}-${i}`}
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                borderBottom={`4px solid ${colors.primary[500]}`}
+                p="15px"
+              >
+                <Box>
+                  <Typography
+                    color={colors.greenAccent[400]}
+                    variant="h5"
+                    fontWeight="600"
+                  >
+                    {row.driver_id || row.DriverID}
+                  </Typography>
+                  <Typography color={colors.grey[100]}>
+                    {row.week || row.Week}
+                  </Typography>
+                </Box>
+                <Box color={colors.grey[100]}>
+                  Gross: ${Number(row.gross || row.GrossEarnings).toFixed(2)}
+                </Box>
+                <Box
+                  backgroundColor={colors.greenAccent[500]}
+                  p="5px 10px"
+                  borderRadius="4px"
+                >
+                  Net: ${(Number(row.gross || row.GrossEarnings) * 0.8).toFixed(2)}
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        )}
 
         {/* ROW 3 */}
 
         {/*PIE CHART */}
         <Box
-          gridColumn="span 6"
+          gridColumn={deviceSize > 500 ? "span 6" : "span 12"}
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           p="30px"
@@ -514,8 +590,9 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
 
 
           {/*BAR GRAPH*/}
+
         <Box
-          gridColumn="span 6"
+          gridColumn={deviceSize > 500 ? "span 6" : "span 12"}
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
           sx={{
@@ -539,8 +616,10 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
               colors={({ indexValue }) => getDriverColor(indexValue)} // driver ID or name
             />
           </Box>
-        </Box>
+        </Box>  
       </Box>
+                {/* Responsive 4th row for when device size is less than 500px */}
+          
     </Box>
   )
 }  
