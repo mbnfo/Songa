@@ -83,8 +83,8 @@ const AuditLogViewer = () => {
 
   // DataGrid columns
   const columns = [
-    { field: "timestamp", headerName: "Timestamp", flex: 1 },
-    { field: "user", headerName: "User", flex: 1 },
+    { field: "timestamp", headerName: "Timestamp", headerClassName: "timestamp-header", flex: 1, headerAlign: "center",  fontWeight: "bold"},
+    { field: "user", headerName: "User",headerClassName: "user-header", flex: 1, headerAlign: "center",  fontWeight: "bold" },
     {
       field: "role",
       headerName: "Role",
@@ -92,17 +92,60 @@ const AuditLogViewer = () => {
       headerClassName: "role-header",
       headerAlign: "center",
       align: "center",
+       fontWeight: "bold"
     },
-    { field: "action", headerName: "Action", flex: 1 },
-    { field: "details", headerName: "Details", flex: 2 },
+    { field: "action", headerName: "Action", headerClassName: "action-header", flex: 1, headerAlign: "center",   fontWeight: "bold"},
+    { field: "details", headerName: "Details", headerClassName: "role-header", flex: 2, headerAlign: "center",  fontWeight: "bold" },
   ];
 
   return (
-    <Box m="20px"  sx={{overflow : "scroll", height: "88vh", width: "98vw",}}>
-      <Header title="AUDIT LOGS" subtitle="Track all system actions"  />
+     <Box m="20px" sx={{ overflow: "scroll", height: "88vh" }}>
+    {/* Header + Pagination on one line */}
+    <Box display="flex" justifyContent="space-between" alignItems="center" mb="20px">
+      <Header title="AUDIT LOGS" subtitle="Track all system actions" />
 
+      {/* Pagination controls */}
+      <Box display="flex" alignItems="left" gap="10px">
+        <Button
+          disabled={page <= 1}
+          sx={{
+            color: "#e0e0e0",
+            border: "1px solid #e0e0e0",
+            "&:disabled": {
+              color: "#888888",
+              borderColor: "#888888",
+            },
+          }}
+          onClick={() => setPage(page - 1)}
+        >
+          Previous
+        </Button>
+
+        <Typography color="secondary">
+          Page {page} of {totalPages}
+        </Typography>
+
+        <Button
+          disabled={page >= totalPages}
+          sx={{
+            color: "#e0e0e0",
+            border: "1px solid #e0e0e0",
+            "&:disabled": {
+              color: "#888888",
+              borderColor: "#888888",
+            },
+          }}
+          onClick={() => setPage(page + 1)}
+        >
+          Next
+        </Button>
+      </Box>
+    </Box>
+      
+      
+       
       {/* Filter controls */}
-      <Box display="flex" gap="10px" mt="10px" mb="20px">
+      <Box display="flex" gap="10px" mt="5px" mb="50px">
         <TextField
           select
           label="User"
@@ -123,12 +166,14 @@ const AuditLogViewer = () => {
                 color: colors.blueAccent[200], // dropdown arrow color
               },
             }}
-        >
+        >  
+
+           {/*USER - Drop down */}
           <MenuItem
               value="All"
               sx={{
                 color: colors.grey[100], // light text
-                backgroundColor: colors.primary[400], // dark but readable background
+                backgroundColor: colors.grey[900], //Drop down baackground colour
                 "&:hover": { backgroundColor: colors.blueAccent[700] },
               }}
             >
@@ -183,14 +228,15 @@ const AuditLogViewer = () => {
             >
               All
             </MenuItem>
-
+             
+             {/*ROLE Drop down */}
             {uniqueRoles.map((role) => (
               <MenuItem
                 key={role}
                 value={role}
                 sx={{
                   color: colors.grey[100],
-                  backgroundColor: colors.primary[400],
+                  backgroundColor: colors.grey[900], //Drop down baackground colour
                   "&:hover": { backgroundColor: colors.blueAccent[700] },
                 }}
               >
@@ -253,23 +299,75 @@ const AuditLogViewer = () => {
         </Button>
       </Box>
 
-      {/* Logs DataGrid */}
+      {/* Logs DataGrid */} 
       <Box
         m="20px 0"
-        height="70vh"
+        height="80vh"
         sx={{
           "& .MuiDataGrid-root": { border: "none" },
+
           "& .MuiDataGrid-columnHeaders": {
-            backgroundColor: colors.blueAccent[700], // change this to your desired color
+            backgroundColor: colors.grey[700], // change this to your desired color
+            fontWeight: "bold",
             borderBottom: "none",
           },
-          "& .MuiDataGrid-columnHeader.role-header": {
-            backgroundColor: colors.grey[800],
-            color: colors.grey[100],
+            //TIMESTAMP HEADER
+            "& .MuiDataGrid-columnHeader.timestamp-header": {
+              backgroundColor: colors.grey[700],
+              color: colors.grey[100],
+               fontWeight: "bold",
           },
+            
+            //USER HEADER
+            "& .MuiDataGrid-columnHeader.user-header": {
+              backgroundColor: colors.grey[700],
+              color: colors.grey[100],
+               fontWeight: "bold",
+          },
+
+              //ROLE HEADER
+            "& .MuiDataGrid-columnHeader.role-header": {
+              backgroundColor: colors.grey[700],
+              color: colors.grey[100],
+               fontWeight: "bold",
+          },
+              //DETAILS HEADER
+            "& .MuiDataGrid-columnHeader.details-header": {
+              backgroundColor: colors.grey[700],
+              color: colors.grey[100],
+               fontWeight: "bold",
+          },
+            //ACTION HEADER
+            "& .MuiDataGrid-columnHeader.action-header": {
+              backgroundColor: colors.grey[700],
+              color: colors.grey[100],
+               fontWeight: "bold",
+          },
+
+              // subtle row divider
+            "& .MuiDataGrid-cell": {
+                borderBottom: "1px solid #333", 
+          },
+            "& .MuiDataGrid-row:nth-of-type(odd)": {
+              backgroundColor: "#1a1a1a", // alternating row color
+          },
+            "& .MuiDataGrid-row:nth-of-type(even)": {
+              backgroundColor: "#121212", // alternating row color
+          },
+            "& .MuiDataGrid-row:hover": {
+              backgroundColor: colors.greenAccent[500], // hover highlight
+              cursor: "pointer",
+          },
+              
+
+           
+
+          //INSIDE GRID
           "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
+            backgroundColor: "#121212"//colors.grey[900],// colors.primary[400],
           },
+
+          //FOOTER
           "& .MuiDataGrid-footerContainer": {
             borderTop: "none",
             backgroundColor: colors.blueAccent[700],
@@ -278,12 +376,13 @@ const AuditLogViewer = () => {
          boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
         }}
       >
+
+        
         <DataGrid
           loading={loading}
           rows={logs}
           columns={columns}
-          getRowId={(row) => row.id
-            }
+          getRowId={(row) => row.id  }
           pageSize={10}
           rowsPerPageOptions={[5, 10, 20]}
           pagination
@@ -300,42 +399,13 @@ const AuditLogViewer = () => {
               "& .MuiTablePagination-actions button": {
                 color: "#c2c2c2", // pagination arrows
               },
+              
             }}
              hideFooter
         />
       </Box>
 
-      {/* Pagination controls */}
-      <Box display="flex" justifyContent="center" mt="20px" gap="10px">
-        <Button disabled={page <= 1} 
-          sx={{
-      color: "#e0e0e0",              // text color
-      border: "1px solid #e0e0e0",   // optional border for visibility
-      "&:disabled": {
-        color: "#888888",            // greyed out when disabled
-        borderColor: "#888888",
-      },
-    }}
-        onClick={() => setPage(page - 1) }>
-          Previous
-        </Button>
-        <Typography color="secondary">
-          Page {page} of {totalPages}
-        </Typography>
-        <Button disabled={page >= totalPages}
-          sx={{
-      color: "#e0e0e0",              // text color
-      border: "1px solid #e0e0e0",   // optional border for visibility
-      "&:disabled": {
-        color: "#888888",            // greyed out when disabled
-        borderColor: "#888888",
-      },
-    }}
-         onClick={() => setPage(page + 1)}
-         >
-          Next
-        </Button>
-      </Box>
+     
 
       {/* Global Snackbar */}
       <Snackbar

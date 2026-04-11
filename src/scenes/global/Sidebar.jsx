@@ -55,7 +55,7 @@ const AppSidebar = () => {
         height: "100vh",
         ".ps-sidebar-container": {
           backgroundColor: colors.primary[700], //changes light mode
-          height: "100%",
+          height: "200%",
         },
         color: colors.grey[100],
         display: "flex",
