@@ -99,7 +99,7 @@ const AuditLogViewer = () => {
   ];
 
   return (
-     <Box m="20px" sx={{ overflow: "scroll", height: "88vh" }}>
+     <Box m="20px" sx={{ overflow: "scroll", height: "88vh", width: "96vw", }}>
     {/* Header + Pagination on one line */}
     <Box display="flex" justifyContent="space-between" alignItems="center" mb="20px">
       <Header title="AUDIT LOGS" subtitle="Track all system actions" />
