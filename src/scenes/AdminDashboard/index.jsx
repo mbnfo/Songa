@@ -34,7 +34,7 @@ const Dashboard = () => {
   }
 
   // State for backend data
-  const API_URL = process.env.REACT_APP_API_URL ||"https://devoutly-ember-radiator.ngrok-free.dev"; 
+  const API_URL = process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev"; 
 
 const [dbData, setDbData] = useState([]);
 

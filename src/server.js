@@ -28,7 +28,6 @@ const allowedOrigins = [
   'https://songa.onrender.com', // deployed frontend
   'https://biasedly-abjective-brenden.ngrok-free.dev', // ngrok tunnel
   'https://songa.com.pl', // Songa domain home
-  'https://devoutly-ember-radiator.ngrok-free.dev',//New test URL
 ];
 
 

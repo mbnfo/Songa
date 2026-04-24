@@ -11,11 +11,12 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false, data }) =>
   let size;
 
   if (deviceSize < 330) {
-    size = 10;
-  } else if (deviceSize < 420) {
-    size = 12;
-  } else {
-    size = 14;
+    size = 10
+  } else if (deviceSize < 420){
+    size = 20
+  }
+  else {
+    size = 25
   }
 
   return (
@@ -74,7 +75,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false, data }) =>
         orient: "bottom",
         tickSize: 0,
         tickPadding: 5,
-        tickRotation: 45,
+        tickRotation: 0,
         legend: isDashboard ? undefined : "transportation", // added
         legendOffset: 36,
         legendPosition: "middle",
