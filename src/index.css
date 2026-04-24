@@ -6,7 +6,13 @@ body,
   height: 100%;
   margin: 0;
   background-color: #141b2d; /* or use your dark token */
-  overflow:  hidden; /* Prevent scrolling on the body */
+  /*overflow:  hidden; /* Prevent scrolling on the body */
+  .scroll-container {
+  height: 400px;        /* fixed height */
+  overflow-y: auto;     /* vertical scroll only */
+  overflow-x: hidden;   /* optional: hide horizontal scroll */
+}
+
   
 }
 .app,

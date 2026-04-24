@@ -22,15 +22,15 @@ const username = localStorage.getItem("username") || "Admin";
 const Dashboard = () => { 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  var size
-  //Get device sizing in order to size the graph and other properties well
+  var size;
+  // Get device sizing in order to size the graph and other properties well
   const deviceSize = window.innerWidth;
   if (deviceSize < 330) {
-    size = 200
-  } else if(deviceSize < 420){ 
-    size = 200
+    size = 160;
+  } else if (deviceSize < 420) {
+    size = 180;
   } else {
-    size = 250
+    size = 220;
   }
 
   // State for backend data
@@ -271,10 +271,13 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
         gridAutoRows="140px"
         overflow={"scroll"}
         rowGap="20px"
-        sx={{ml: 2, mr:2,
+        sx={{
+          ml: 2,
+          mr: 2,
           height: "78vh",
-          columnGap: {xs:"5px", sm:"10px", md:"20px"},
-          rowGap: {xs:"5px", sm:"10px", md:"20px"},
+          columnGap: { xs: "5px", sm: "10px", md: "20px" },
+          rowGap: { xs: "5px", sm: "10px", md: "20px" },
+          gridAutoRows: { xs: "120px", sm: "140px" },
         }}
         
       >
@@ -407,9 +410,10 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
               </IconButton>
             </Box>
           </Box>
-          <Box sx={{ height: `${size}px`}} m="-20px 0 0 0">
-            <LineChart isDashboard={true} 
-            data={lineData && lineData.length > 0 ? lineData : []}
+          <Box sx={{ height: `${size}px` }} m="-15px 0 0 0">
+            <LineChart
+              isDashboard={true}
+              data={lineData && lineData.length > 0 ? lineData : []}
             />
           </Box>
         </Box>
@@ -550,12 +554,13 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
           gridColumn={deviceSize > 500 ? "span 6" : "span 12"}
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
-          p="30px"
+          p={{ xs: "16px", md: "24px" }}
           sx={{
-          border:  "1px solid #ddd",
-         boxShadow:   "0px 4px 12px rgba(0,0,0,0.8)",
-        }}
-        >         
+            border: "1px solid #ddd",
+            boxShadow: "0px 4px 12px rgba(0,0,0,0.8)",
+            minHeight: { xs: "260px", sm: "300px" },
+          }}
+        >
           
          <PieChart
               isDashboard={true}
@@ -603,7 +608,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
           <Typography
             variant="h5"
             fontWeight="600"
-            sx={{ padding: "30px 30px 0 30px" }}
+            sx={{ padding: "10px 30px 0 30px" }}
             color={colors.grey[100]}
           >
             Sales Quantity

@@ -11,13 +11,8 @@
     "@fullcalendar/list": "^6.1.20",
     "@fullcalendar/react": "^6.1.20",
     "@fullcalendar/timegrid": "^6.1.20",
-<<<<<<< HEAD
     "@mui/icons-material": "^7.3.10",
     "@mui/material": "^7.3.10",
-=======
-    "@mui/icons-material": "^7.3.9",
-    "@mui/material": "^7.3.8",
->>>>>>> 3554f81d44c9c9ddcfe5d5a9e83796e1f0b136cb
     "@mui/x-data-grid": "^8.27.1",
     "@nivo/bar": "^0.99.0",
     "@nivo/geo": "^0.99.0",
@@ -27,11 +22,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^13.5.0",
-<<<<<<< HEAD
     "axios": "^1.15.2",
-=======
-    "axios": "^1.13.5",
->>>>>>> 3554f81d44c9c9ddcfe5d5a9e83796e1f0b136cb
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "csv-parser": "^3.2.0",
@@ -45,17 +36,10 @@
     "mysql2": "^3.17.1",
     "papaparse": "^5.5.3",
     "pdfkit": "^0.17.2",
-<<<<<<< HEAD
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-pro-sidebar": "^1.1.0",
     "react-router-dom": "^7.14.2",
-=======
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "react-pro-sidebar": "^1.1.0",
-    "react-router-dom": "^7.13.1",
->>>>>>> 3554f81d44c9c9ddcfe5d5a9e83796e1f0b136cb
     "react-scripts": "5.0.1",
     "react-toastify": "^11.0.5",
     "web-vitals": "^2.1.4",
