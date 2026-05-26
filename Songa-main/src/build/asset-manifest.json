@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/static/css/main.bd18a652.css",
+    "main.js": "/static/js/main.c5f2d4d6.js",
+    "static/media/New_Songa_Logo.png": "/static/media/New_Songa_Logo.74e33917d5067437917d.png",
+    "index.html": "/index.html",
+    "main.bd18a652.css.map": "/static/css/main.bd18a652.css.map",
+    "main.c5f2d4d6.js.map": "/static/js/main.c5f2d4d6.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.bd18a652.css",
+    "static/js/main.c5f2d4d6.js"
+  ]
+}
