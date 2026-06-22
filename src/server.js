@@ -27,6 +27,7 @@ const allowedOrigins = [
   'http://localhost:3001', // local backend
   'https://songa.onrender.com', // deployed frontend
   'https://biasedly-abjective-brenden.ngrok-free.dev', // ngrok tunnel
+  'https://songa.com.pl'
   'https://www.songa.com.pl', // Songa domain home
   'https://devoutly-ember-radiator.ngrok-free.dev',//New test URL
   'https://songa-q661.onrender.com'//Render URL
