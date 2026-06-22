@@ -36,7 +36,7 @@ const Dashboard = () => {
   // State for backend data
     //const API_URL = process.env.REACT_APP_API_URL  ||"https://songa-q661.onrender.com"|| "https://devoutly-ember-radiator.ngrok-free.dev";
  // const API_URL = "https://songa-q661.onrender.com"
-  const API_URL = "https://www.songa.com.pl"
+  const API_URL = "https://www.songa.com.pl/"
 
 const [dbData, setDbData] = useState([]);
 
