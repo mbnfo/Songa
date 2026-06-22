@@ -47,7 +47,7 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization","Origin", "Accept"], //  headers your frontend sends
 };
 app.use(cors(corsOptions));
-app.options('', cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use(express.json()); // Parse JSON request bodies
 
