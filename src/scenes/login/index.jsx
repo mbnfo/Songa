@@ -110,7 +110,7 @@ const LoginPage = () => {
 
          
     {
-    Register handler
+   // Register handler
   const handleRegister = async () => {
       const API_URL = process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev";
 
