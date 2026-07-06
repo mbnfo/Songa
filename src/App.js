@@ -154,6 +154,9 @@ function App() {
               {/* Public login page */}
               <Route path="/" element={<LoginPage />} />
 
+              {/* Public Register page */}
+              <Route path="/register" element={<RegisterPage />} />
+
               {/* Owner routes */}
               <Route
                 path="/owner/*"
