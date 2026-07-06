@@ -267,6 +267,14 @@ const RegisterPage = () => {
                 >
                   Register
                 </Button>
+
+                  <Button
+                    variant="text"
+                    onClick={() => navigate("/")}
+                >
+                    Already have an account? Login
+                </Button>
+                
               </Box>
             </form>
           )}
