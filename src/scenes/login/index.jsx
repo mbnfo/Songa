@@ -107,7 +107,9 @@ const LoginPage = () => {
     alert("Login failed");
   }
 };
-    {/*
+
+         
+    {
     Register handler
   const handleRegister = async () => {
       const API_URL = process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev";
@@ -130,7 +132,9 @@ const LoginPage = () => {
       alert("Registration failed");
     }
   };
-*/}
+ }
+
+         
   return (
     <Box display="flex" 
         flexDirection="column" 
@@ -275,11 +279,11 @@ const LoginPage = () => {
                       {isRegister ? "Register" : "Login"}
               </Button>
 
-    {/* REGISTER BUTTON 
+    { REGISTER BUTTON 
       <Button sx={{ mt: 2 }} onClick={() => setIsRegister(!isRegister)}>
         {isRegister ? "Already have an account? Login" : "Create an account"}
       </Button>
-    */}
+    }
     </Box>
   );
 };
