@@ -295,7 +295,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
         >
            {/*  //GROSS EARNINGS  */}
           <StatBox
-            title={`PLN${totalGross.toFixed(2)}`}
+            title={`zł${totalGross.toFixed(2)}`}
             subtitle="Total Gross Earnings (Before deductions)"
             progress="0.75"
             increase="+14%"
@@ -322,7 +322,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
         >
            {/*  //TOTAL NET EARNINGS  */}
           <StatBox
-            title={`$${totalNet.toFixed(2)}`}
+            title={`zł${totalNet.toFixed(2)}`}
             subtitle="Total Net Earnings (After deductions)"
             progress="0.50"
             increase="+21%"
@@ -396,7 +396,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
                 variant="h3" 
                 fontWeight="bold" 
                 color={colors.greenAccent[500]}>
-                ${revenueGenerated.toFixed(2)}
+                zł{revenueGenerated.toFixed(2)}
                 </Typography>
               </Typography>
             </Box>
