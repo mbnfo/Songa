@@ -295,7 +295,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
         >
            {/*  //GROSS EARNINGS  */}
           <StatBox
-            title={`zł${totalGross.toFixed(2)}`}
+            title={`zł ${totalGross.toFixed(2)}`}
             subtitle="Total Gross Earnings (Before deductions)"
             progress="0.75"
             increase="+14%"
@@ -322,7 +322,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
         >
            {/*  //TOTAL NET EARNINGS  */}
           <StatBox
-            title={`zł${totalNet.toFixed(2)}`}
+            title={`zł ${totalNet.toFixed(2)}`}
             subtitle="Total Net Earnings (After deductions)"
             progress="0.50"
             increase="+21%"
@@ -396,7 +396,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
                 variant="h3" 
                 fontWeight="bold" 
                 color={colors.greenAccent[500]}>
-                zł{revenueGenerated.toFixed(2)}
+                zł {revenueGenerated.toFixed(2)}
                 </Typography>
               </Typography>
             </Box>
@@ -469,14 +469,14 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
                       </Typography>
                     </Box>
                     <Box color={colors.grey[100]}>
-                      Gross: ${Number(row.gross || row.GrossEarnings).toFixed(2)}
+                      Gross: zł{Number(row.gross || row.GrossEarnings).toFixed(2)}
                     </Box>
                     <Box
                       backgroundColor={colors.greenAccent[500]}
                       p="5px 10px"
                       borderRadius="4px"
                     >
-                      Net: ${(Number(row.gross || row.GrossEarnings) * 0.8).toFixed(2)}
+                      Net: zł {(Number(row.gross || row.GrossEarnings) * 0.8).toFixed(2)}
                     </Box>
                   </Box>
                 ))}
@@ -533,7 +533,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
                   </Typography>
                 </Box>
                 <Box color={colors.grey[100]}>
-                  Gross: ${Number(row.gross || row.GrossEarnings).toFixed(2)}
+                  Gross: zł {Number(row.gross || row.GrossEarnings).toFixed(2)}
                 </Box>
                 <Box
                   backgroundColor={colors.greenAccent[500]}
