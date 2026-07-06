@@ -311,6 +311,7 @@ const LoginPage = () => {
       <Button
     sx={{ mt: 2 }}
     variant="text"
+    color="#fff"
     onClick={() => navigate("/register")}
 >
     Create an account
