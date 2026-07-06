@@ -241,15 +241,15 @@ const FinanceDashboard = () => {
       <Box mt="20px" display="flex" gap="20px">
         <Box p="20px" bgcolor={colors.primary[400]} borderRadius="8px">
           <Typography variant="h6">Total Gross</Typography>
-          <Typography variant="h5">${totalGross.toFixed(2)}</Typography>
+          <Typography variant="h5">zł{totalGross.toFixed(2)}</Typography>
         </Box>
         <Box p="20px" bgcolor={colors.greenAccent[600]} borderRadius="8px">
           <Typography variant="h6">Total Commission</Typography>
-          <Typography variant="h5">${totalCommission.toFixed(2)}</Typography>
+          <Typography variant="h5">zł{totalCommission.toFixed(2)}</Typography>
         </Box>
         <Box p="20px" bgcolor={colors.blueAccent[600]} borderRadius="8px">
           <Typography variant="h6">Total Net</Typography>
-          <Typography variant="h5">${totalNet.toFixed(2)}</Typography>
+          <Typography variant="h5">zł{totalNet.toFixed(2)}</Typography>
         </Box>
       </Box>
 
