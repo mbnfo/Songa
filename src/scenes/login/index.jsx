@@ -279,7 +279,8 @@ const LoginPage = () => {
                       {isRegister ? "Register" : "Login"}
               </Button>
 
-    { REGISTER BUTTON 
+    { 
+             //REGISTER BUTTON 
       <Button sx={{ mt: 2 }} onClick={() => setIsRegister(!isRegister)}>
         {isRegister ? "Already have an account? Login" : "Create an account"}
       </Button>
