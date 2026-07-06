@@ -295,7 +295,7 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
         >
            {/*  //GROSS EARNINGS  */}
           <StatBox
-            title={`$${totalGross.toFixed(2)}`}
+            title={`PLN${totalGross.toFixed(2)}`}
             subtitle="Total Gross Earnings (Before deductions)"
             progress="0.75"
             increase="+14%"
