@@ -16,6 +16,8 @@ import GlobalErrorBoundary from "./components/GlobalErrorBoundary";
 import ManageUsers from "./scenes/ManageUsers";
 import SupportDashboard from "./scenes/SupportDashboard";
 import SupportPage from "./scenes/SupportPage";
+import RegisterPage from "./scenes/RegisterPage";
+
 
 
 
