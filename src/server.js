@@ -15,11 +15,43 @@ const PORT = process.env.PORT || 3001;
 const path = require("path");
 const logAction = require("./utils/logAction");
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
+//const upload = multer({ dest: "uploads/" });
 const fs = require("fs");
 const Papa = require("papaparse");
 const router = express.Router();
 const { Parser } = require("json2csv"); //  for CSV export
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+
+    if (file.fieldname === "file") {
+      cb(null, "uploads/csv");
+    }
+
+    else if (file.fieldname === "idDocument") {
+      cb(null, "uploads/IDs");
+    }
+
+    else if (file.fieldname === "driversLicense") {
+      cb(null, "uploads/Licences");
+    }
+
+    else {
+      cb(null, "uploads");
+    }
+  },
+
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      Date.now() +
+      "-" +
+      Math.round(Math.random() * 1000000) +
+      path.extname(file.originalname)
+    );
+  }
+});
+
+const upload = multer({ storage });
 
 // ✅ Middleware first - CORS must be before routes
 const allowedOrigins = [
@@ -27,8 +59,7 @@ const allowedOrigins = [
   'http://localhost:3001', // local backend
   'https://songa.onrender.com', // deployed frontend
   'https://biasedly-abjective-brenden.ngrok-free.dev', // ngrok tunnel
-  'https://songa.com.pl',
-  'https://www.songa.com.pl', // Songa domain home
+  'https://songa.com.pl', // Songa domain home
   'https://devoutly-ember-radiator.ngrok-free.dev',//New test URL
   'https://songa-q661.onrender.com'//Render URL
 ];
@@ -192,8 +223,27 @@ if (process.env.JWT_SECRET) {
 // -----------------------------
 // User Registration Route
 // -----------------------------
-app.post("/register", async (req, res) => {
-  const { username, password, role, driverId, firstName, lastName, cellNumber, email, id_passport, address, vehicle_id} = req.body;
+//app.post("/register", async (req, res) => {
+
+  app.post(
+  "/register",
+  upload.fields([
+    { name: "idDocument", maxCount: 1 },
+    { name: "driversLicense", maxCount: 1 },
+  ]),
+  async (req, res) => {
+  const { 
+
+    
+    username, password, role, driverId, firstName, lastName, cellNumber, email, id_passport, address, vehicle_id} = req.body;
+
+    
+        const idDocument =
+      req.files?.idDocument?.[0]?.filename || null;
+
+    const driversLicense =
+      req.files?.driversLicense?.[0]?.filename || null;
+
   if (!username || !password || !role || !firstName || !lastName || !cellNumber || !email ||!id_passport|| !address) {
     return res.status(400).json({ error: "Missing required fields" });
   }
@@ -203,8 +253,8 @@ app.post("/register", async (req, res) => {
 
      // Insert into users
     const [result] = await db.query(
-      "INSERT INTO users (username, password_hash, role, driver_id, first_name, last_name, cell_number, email,id_passport,address, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [username, password_hash, role, role === "driver" ? driverId : null, firstName, lastName, cellNumber, email,id_passport,address,  "Active"]
+      "INSERT INTO users (username, password_hash, role, driver_id, first_name, last_name, cell_number, email,id_passport,address, status,  id_document, drivers_license, ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [username, password_hash, role, role === "driver" ? driverId : null, firstName, lastName, cellNumber, email,id_passport,address, "Active", idDocument, driversLicense, ]
     );
           //Log user creation
         await db.query(
@@ -229,7 +279,34 @@ app.post("/register", async (req, res) => {
   }
 });
 
+    //New script for registration with file uploads
+    const storage = multer.diskStorage({
+      destination: function (req, file, cb) {
 
+        if (file.fieldname === "idDocument") {
+          cb(null, "uploads/IDs");
+        }
+
+        else if (file.fieldname === "driversLicense") {
+          cb(null, "uploads/Licences");
+        }
+
+      },
+
+      filename: function (req, file, cb) {
+
+        cb(
+          null,
+          Date.now() +
+            "-" +
+            Math.round(Math.random() * 1000000) +
+            path.extname(file.originalname)
+        );
+
+      },
+    });
+
+   // const upload = multer({ storage });
 
 // -----------------------------
 // Login Route
