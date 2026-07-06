@@ -43,6 +43,13 @@ const checkoutSchema = yup.object().shape({
   vehicle_id: yup.string(),
   address: yup.string().required("Address is required"),
   role: yup.string().required("Role is required"),
+  idDocument: yup
+    .mixed()
+    .required("Please upload your ID/Passport"),
+
+driversLicense: yup
+    .mixed()
+    .required("Please upload your Driver's Licence"),
 });
 
 const initialValues = {
@@ -56,7 +63,12 @@ const initialValues = {
   vehicle_id: "",
   address: "",
   role: "user",
+
+    idDocument: null,
+  driversLicense: null,
 };
+
+
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -64,24 +76,56 @@ const RegisterPage = () => {
 
   const handleFormSubmit = async (values, { resetForm }) => {
     try {
-      const response = await axios.post(`${API_URL}/register`, values);
+      //const response = await axios.post(`${API_URL}/register`, values);
 
-      console.log(response.data);
+      const formData = new FormData();
 
-      alert("Registration successful!");
+            formData.append("firstName", values.firstName);
+            formData.append("lastName", values.lastName);
+            formData.append("username", values.username);
+            formData.append("password", values.password);
+            formData.append("email", values.email);
+            formData.append("cellNumber", values.cellNumber);
+            formData.append("id_passport", values.id_passport);
+            formData.append("vehicle_id", values.vehicle_id);
+            formData.append("address", values.address);
+            formData.append("role", values.role);
 
-      resetForm();
+             if (values.idDocument) {
+                    formData.append("idDocument", values.idDocument);
+                }
 
-      navigate("/");
-    } catch (error) {
-      console.error(error);
+            if (values.driversLicense) {
+                    formData.append("driversLicense", values.driversLicense);
+                }
 
-      alert(
-        error.response?.data?.message ||
-          "Registration failed. Please try again."
-      );
-    }
-  };
+            const response = await axios.post(
+                    `${API_URL}/register`,
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    }
+                );
+
+                console.log(response.data);
+      
+
+                alert("Registration successful!");
+
+                resetForm();
+
+                navigate("/");
+                } catch (error) {
+                console.error(error);
+
+                alert(
+                    error.response?.data?.message ||
+                    "Registration failed. Please try again."
+                );
+                }
+            };
 
   return (
     <Box
@@ -108,6 +152,7 @@ const RegisterPage = () => {
             handleBlur,
             handleChange,
             handleSubmit,
+            setFieldValue,
           }) => (
             <form onSubmit={handleSubmit}>
               <Box
@@ -235,6 +280,91 @@ const RegisterPage = () => {
                   helperText={touched.address && errors.address}
                   sx={{ gridColumn: "span 4" }}
                 />
+                  
+
+                  {/*ID/Passport Document upload*/}
+                <Typography sx={{ mt: 3, mb: 1, fontWeight: "bold", gridColumn: "span 4", }}>
+                        Upload ID / Passport
+                        </Typography>
+
+                        <Button
+                        variant="outlined"
+                        component="label"
+                        fullWidth
+                         sx={{
+                                    gridColumn: "span 4",
+                                    justifyContent: "flex-start",
+                                }}
+                            >
+                            Choose File
+                            <input
+                                hidden
+                                type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onChange={(event) =>
+                            setFieldValue("idDocument", event.currentTarget.files[0])
+                            }
+                        />
+                        </Button>
+
+                        {values.idDocument && (
+                        <Typography
+                            variant="body2"
+                            color="success.main"
+                            sx={{ mt: 1 }}
+                        >
+                            ✅ {values.idDocument.name}
+                        </Typography>
+                        )}
+                        {touched.idDocument && errors.idDocument && (
+                            <Typography color="error" variant="body2">
+                                {errors.idDocument}
+                            </Typography>
+                            )}
+
+
+
+                 {/*License Document upload*/}
+                 <Typography sx={{ mt: 3, mb: 1, fontWeight: "bold", gridColumn: "span 4", }}>
+                            Upload Driver's Licence
+                            </Typography>
+
+                            <Button
+                            variant="outlined"
+                            component="label"
+                            fullWidth
+                             sx={{
+                                    gridColumn: "span 4",
+                                    justifyContent: "flex-start",
+                                }}
+                            >
+                            Choose File
+                            <input
+                                hidden
+                                type="file"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                onChange={(event) =>
+                                setFieldValue("driversLicense", event.currentTarget.files[0])
+                                }
+                            />
+                            </Button>
+
+                            {values.driversLicense && (
+                            <Typography
+                                variant="body2"
+                                color="success.main"
+                                sx={{ mt: 1 }}
+                            >
+                                ✅ {values.driversLicense.name}
+                            </Typography>
+                            )}
+                            {touched.driversLicense && errors.driversLicense && (
+                            <Typography color="error" variant="body2">
+                                {errors.driversLicense}
+                            </Typography>
+                            )}
+
+
 
                 <TextField
                   select
@@ -246,9 +376,9 @@ const RegisterPage = () => {
                   onChange={handleChange}
                   sx={{ gridColumn: "span 4" }}
                 >
-                  <MenuItem value="user">User</MenuItem>
+                  
                   <MenuItem value="driver">Driver</MenuItem>
-                  <MenuItem value="admin">Admin</MenuItem>
+                  
                 </TextField>
               </Box>
 
@@ -268,13 +398,12 @@ const RegisterPage = () => {
                   Register
                 </Button>
 
-                  <Button
+                <Button
                     variant="text"
                     onClick={() => navigate("/")}
                 >
                     Already have an account? Login
                 </Button>
-                
               </Box>
             </form>
           )}
