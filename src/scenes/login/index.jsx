@@ -15,19 +15,23 @@ import logo from "../../assets/New_Songa_Logo.png";
 
 
 const LoginPage = () => {
-  // ✅ Form state
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  //  Form state
+   /*const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");wzs`
   const [cellNumber, setCellNumber] = useState("");
   const [email, setEmail] = useState("");  
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  
   const [role, setRole] = useState("driver");
   const [driverId, setDriverId] = useState("");
   const [isRegister, setIsRegister] = useState(false);
+*/
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   // Alert state
-  const [showSessionExpired, setShowSessionExpired, showLoggedOut, setShowLoggedOut] = useState(false);
+ // const [showSessionExpired, setShowSessionExpired, showLoggedOut, setShowLoggedOut] = useState(false);
+  const [showSessionExpired, setShowSessionExpired] = useState(false);
+  const [showLoggedOut, setShowLoggedOut] = useState(false);
   
 
   const navigate = useNavigate();
@@ -108,9 +112,11 @@ const LoginPage = () => {
   }
 };
 
+/*
          
     {
    // Register handler
+
   const handleRegister = async () => {
       const API_URL = process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev";
 
@@ -133,7 +139,7 @@ const LoginPage = () => {
     }
   };
  }
-
+*/
          
   return (
     <Box display="flex" 
@@ -266,7 +272,8 @@ const LoginPage = () => {
 
        
         
-                     {/*ACTUAL LOGIN BUTTON */}
+                     {/*ACTUAL LOGIN BUTTON 
+                     
                 <Button
                       variant="contained"
                       color= "primary"
@@ -278,12 +285,36 @@ const LoginPage = () => {
                     >
                       {isRegister ? "Register" : "Login"}
               </Button>
+              */}
+                  
+                    <Button
+              variant="contained"
+              color="primary"
+              onClick={handleLogin}
+              sx={{
+                  border: "2px solid #fff",
+                  borderRadius: "8px",
+              }}
+          >
+              Login
+          </Button>
+
 
     { 
-             //REGISTER BUTTON 
+    //REGISTER BUTTON 
+    /*
       <Button sx={{ mt: 2 }} onClick={() => setIsRegister(!isRegister)}>
         {isRegister ? "Already have an account? Login" : "Create an account"}
       </Button>
+    */
+   
+      <Button
+    sx={{ mt: 2 }}
+    variant="text"
+    onClick={() => navigate("/register")}
+>
+    Create an account
+</Button>
     }
     </Box>
   );
