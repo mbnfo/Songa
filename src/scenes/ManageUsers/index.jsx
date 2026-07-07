@@ -25,7 +25,9 @@ const ActionsMenu = ({ row, onStatusChange, onDelete }) => {
   const handleClose = () => setAnchorEl(null);
   
 
-
+// Build URLs for documents (served via Express static /uploads)
+  const idDocUrl = row.id_document ? `${API_URL}/${row.id_document}` : null;
+  const licenseUrl = row.drivers_license ? `${API_URL}/${row.drivers_license}` : null;
 
 
 
@@ -67,6 +69,30 @@ const ActionsMenu = ({ row, onStatusChange, onDelete }) => {
         >
           Delete
         </MenuItem>
+
+         {/* New document actions */}
+        {idDocUrl && (
+          <>
+            <MenuItem component="a" href={idDocUrl} target="_blank" rel="noopener noreferrer">
+              View ID Document
+            </MenuItem>
+            <MenuItem component="a" href={idDocUrl} download>
+              Download ID Document
+            </MenuItem>
+          </>
+        )}
+        {licenseUrl && (
+          <>
+            <MenuItem component="a" href={licenseUrl} target="_blank" rel="noopener noreferrer">
+              View Driver’s License
+            </MenuItem>
+            <MenuItem component="a" href={licenseUrl} download>
+              Download Driver’s License
+            </MenuItem>
+          </>
+        )}
+
+
       </Menu>
     </Box>
   );
