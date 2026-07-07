@@ -253,8 +253,8 @@ if (process.env.JWT_SECRET) {
 
      // Insert into users
     const [result] = await db.query(
-      "INSERT INTO users (username, password_hash, role, driver_id, first_name, last_name, cell_number, email,id_passport,address, status,  id_document, drivers_license, ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [username, password_hash, role, role === "driver" ? driverId : null, firstName, lastName, cellNumber, email,id_passport,address, "Active", idDocument, driversLicense, ]
+      "INSERT INTO users (username, password_hash, role, driver_id, first_name, last_name, cell_number, email,id_passport,address, status,  id_document, drivers_license) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [username, password_hash, role, role === "driver" ? driverId : null, firstName, lastName, cellNumber, email,id_passport,address, "Active", idDocument, driversLicense ]
     );
           //Log user creation
         await db.query(
