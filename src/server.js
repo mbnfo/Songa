@@ -279,34 +279,7 @@ if (process.env.JWT_SECRET) {
   }
 });
 
-    //New script for registration with file uploads
-    const storage = multer.diskStorage({
-      destination: function (req, file, cb) {
-
-        if (file.fieldname === "idDocument") {
-          cb(null, "uploads/IDs");
-        }
-
-        else if (file.fieldname === "driversLicense") {
-          cb(null, "uploads/Licences");
-        }
-
-      },
-
-      filename: function (req, file, cb) {
-
-        cb(
-          null,
-          Date.now() +
-            "-" +
-            Math.round(Math.random() * 1000000) +
-            path.extname(file.originalname)
-        );
-
-      },
-    });
-
-   // const upload = multer({ storage });
+   
 
 // -----------------------------
 // Login Route
