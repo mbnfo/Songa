@@ -283,13 +283,15 @@ const RegisterPage = () => {
                   
 
                   {/*ID/Passport Document upload*/}
-                <Typography sx={{ mt: 3, mb: 1, fontWeight: "bold", gridColumn: "span 4", }}>
+                <Typography sx={{ mt: 3, mb: 1, fontWeight: "bold", gridColumn: "span 4", color:"#fff" }}>
                         Upload ID / Passport
                         </Typography>
 
                         <Button
                         variant="outlined"
                         component="label"
+                        color="#fff"
+                            bordercolor="#fff"
                         fullWidth
                          sx={{
                                     gridColumn: "span 4",
@@ -325,13 +327,15 @@ const RegisterPage = () => {
 
 
                  {/*License Document upload*/}
-                 <Typography sx={{ mt: 3, mb: 1, fontWeight: "bold", gridColumn: "span 4", }}>
+                 <Typography sx={{ mt: 3, mb: 1, fontWeight: "bold", gridColumn: "span 4", color:"#fff" }}>
                             Upload Driver's Licence
                             </Typography>
 
                             <Button
                             variant="outlined"
                             component="label"
+                            color="#fff"
+                            bordercolor="#fff"
                             fullWidth
                              sx={{
                                     gridColumn: "span 4",
@@ -385,6 +389,7 @@ const RegisterPage = () => {
               <Box display="flex" justifyContent="space-between" mt={4}>
                 <Button
                   variant="outlined"
+                  color="#fff"
                   onClick={() => navigate("/")}
                 >
                   Back to Login
@@ -400,6 +405,7 @@ const RegisterPage = () => {
 
                 <Button
                     variant="text"
+                    color="#fff"
                     onClick={() => navigate("/")}
                 >
                     Already have an account? Login
