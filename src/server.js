@@ -19,7 +19,7 @@ const logAction = require("./utils/logAction");
 const fs = require("fs");
 const Papa = require("papaparse");
 const router = express.Router();
-const { Parser } = require("json2csv"); //  for CSV export
+const  Parser  = require("json2csv"); //  for CSV export
 
 // Ensure upload directories exist
 ["uploads", "uploads/IDs", "uploads/Licences", "uploads/csv"].forEach(dir => {
@@ -248,11 +248,14 @@ if (process.env.JWT_SECRET) {
     username, password, role, driverId, firstName, lastName, cellNumber, email, id_passport, address, vehicle_id} = req.body;
 
     
-        const idDocument =
-      req.files?.idDocument?.[0]?.filename || null;
+       const idDocument = req.files?.idDocument?.[0]
+                            ? path.join("uploads/IDs", req.files.idDocument[0].filename)
+                            : null;
 
-    const driversLicense =
-      req.files?.driversLicense?.[0]?.filename || null;
+       const driversLicense = req.files?.driversLicense?.[0]
+                              ? path.join("uploads/Licences", req.files.driversLicense[0].filename)
+                              : null;
+
 
   if (!username || !password || !role || !firstName || !lastName || !cellNumber || !email ||!id_passport|| !address) {
     return res.status(400).json({ error: "Missing required fields" });
