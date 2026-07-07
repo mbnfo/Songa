@@ -274,7 +274,16 @@ if (process.env.JWT_SECRET) {
 
     res.json({ message: "User registered successfully!" });
   } catch (err) {
-    console.error("Registration error:", err);
+    console.error("Registration error:");
+console.error(err);
+
+if (err.sqlMessage) {
+    console.error("SQL Error:", err.sqlMessage);
+}
+
+if (err.code) {
+    console.error("Error Code:", err.code);
+}
     res.status(500).json({ error: "❌Failed to register user." });
   }
 });
