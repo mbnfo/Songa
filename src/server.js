@@ -14,12 +14,21 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const path = require("path");
 const logAction = require("./utils/logAction");
-const multer = require("multer");
+
 //const upload = multer({ dest: "uploads/" });
 const fs = require("fs");
 const Papa = require("papaparse");
 const router = express.Router();
 const { Parser } = require("json2csv"); //  for CSV export
+
+// Ensure upload directories exist
+["uploads", "uploads/IDs", "uploads/Licences", "uploads/csv"].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`Created missing directory: ${dir}`);
+  }
+});
+const multer = require("multer");
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
 
@@ -61,8 +70,8 @@ const allowedOrigins = [
   'https://biasedly-abjective-brenden.ngrok-free.dev', // ngrok tunnel
   'https://devoutly-ember-radiator.ngrok-free.dev',//New test URL
   'https://songa-q661.onrender.com',//Render URL
-  'https://songa.com.pl', // Songa domain home
-  'https://www.songa.com.pl',  // Main Songa domain home
+  'https://songa.com.pl', // Main Songa domain home
+  'https://www.songa.com.pl',  // Secondary Songa domain home
 ];
 
 
