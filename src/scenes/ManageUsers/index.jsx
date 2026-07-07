@@ -238,6 +238,60 @@ useEffect(() => {
         />
       ),
     },
+
+     // New document columns
+  {
+    field: "id_document",
+    headerName: "ID Document",
+    flex: 1,
+    renderCell: (params) =>
+      params.value ? (
+        <Box>
+          <a href={`${API_URL}/${params.value}`} target="_blank" rel="noopener noreferrer">
+            View
+          </a>{" "}
+          |{" "}
+          <a href={`${API_URL}/${params.value}`} download>
+            Download
+          </a>
+        </Box>
+      ) : (
+        "—"
+      ),
+  },
+  {
+    field: "drivers_license",
+    headerName: "Driver’s License",
+    flex: 1,
+    renderCell: (params) =>
+      params.value ? (
+        <Box>
+          <a href={`${API_URL}/${params.value}`} target="_blank" rel="noopener noreferrer">
+            View
+          </a>{" "}
+          |{" "}
+          <a href={`${API_URL}/${params.value}`} download>
+            Download
+          </a>
+        </Box>
+      ) : (
+        "—"
+      ),
+  },
+
+  {
+    field: "actions",
+    headerName: "Actions",
+    width: 120,
+    renderCell: (params) => (
+      <ActionsMenu
+        row={params.row}
+        onStatusChange={handleStatusChange}
+        onDelete={handleDelete}
+      />
+    ),
+  },
+
   ];
 
    // Apply status filter and search filter
