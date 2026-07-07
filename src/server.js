@@ -1219,7 +1219,7 @@ app.get("/users", authenticateToken, (req, res) => {
   }
 
   //  Fetch all users
-  db.query("SELECT id, username, role, first_name, last_name, cell_number, email, address, id_passport, status FROM users")
+  db.query("SELECT id, username, role, first_name, last_name, cell_number, email, address, id_passport, status, id_document, drivers_license FROM users")
     .then(([rows]) => res.json(rows))
     .catch(err => res.status(500).json({ error: "Failed to fetch users" }));
 });
