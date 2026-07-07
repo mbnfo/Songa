@@ -535,6 +535,8 @@ function authorizeRole(requiredRoles) {
   };
 }
 
+
+
 // -----------------------------
 // Finance Module Routes
 // -----------------------------
@@ -1222,6 +1224,8 @@ app.get("/users", authenticateToken, (req, res) => {
     .catch(err => res.status(500).json({ error: "Failed to fetch users" }));
 });
 
+// Serve uploaded files statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
 // Serve React build 
