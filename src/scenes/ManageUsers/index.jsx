@@ -26,8 +26,8 @@ const ActionsMenu = ({ row, onStatusChange, onDelete }) => {
   
 
 // Build URLs for documents (served via Express static /uploads)
-  const idDocUrl = row.id_document ? `${API_URL}/${row.id_document}` : null;
-  const licenseUrl = row.drivers_license ? `${API_URL}/${row.drivers_license}` : null;
+  const idDocUrl = row.id_document ? `${API_URL}/static/${row.id_document}` : null;
+  const licenseUrl = row.drivers_license ? `${API_URL}/static/${row.drivers_license}` : null;
 
 
 
