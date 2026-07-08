@@ -1215,8 +1215,10 @@ app.delete("/owner/users/:id", authenticateToken, authorizeRole("owner"), async 
 });
        
 
+ // Serve uploaded files statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Get all users
+// Get all users - API routes
 app.get("/users", authenticateToken, (req, res) => {
   //  Only allow owner or admin roles
   if (req.user.role !== "owner" && req.user.role !== "admin") {
@@ -1229,14 +1231,8 @@ app.get("/users", authenticateToken, (req, res) => {
     .catch(err => res.status(500).json({ error: "Failed to fetch users" }));
 });
 
-// Serve uploaded files statically
-app.use("/static/uploads", express.static(path.join(__dirname, "uploads")));
-
-
 // Serve React build 
 app.use(express.static(path.join(__dirname, "../build")));
-
-
 
 // Mount router for finance and audit logs   
  app.use("/", router);
@@ -1245,11 +1241,14 @@ app.use(express.static(path.join(__dirname, "../build")));
 // Catch-all handler: send back index.html for any non-API routes (for React Router)
 app.use((req, res, next) => {
   if (req.method === 'GET' && !req.path.startsWith('/api') &&
-  !req.path.startsWith('/support') && 
-  !req.path.startsWith('/admin') &&
-   !req.path.startsWith('/finance') && 
-   !req.path.startsWith('/audit-logs') && 
-   !req.path.startsWith('/driver-statement')) 
+      !req.path.startsWith("/api") &&
+        !req.path.startsWith("/support") &&
+        !req.path.startsWith("/admin") &&
+        !req.path.startsWith("/finance") &&
+        !req.path.startsWith("/audit-logs") &&
+        !req.path.startsWith("/driver-statement") &&
+        !req.path.startsWith("/uploads")
+      ) 
    {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
   } else {
