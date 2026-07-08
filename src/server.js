@@ -1230,7 +1230,7 @@ app.get("/users", authenticateToken, (req, res) => {
 });
 
 // Serve uploaded files statically
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/static/uploads", express.static(path.join(__dirname, "uploads")));
 
 
 // Serve React build 
