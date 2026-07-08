@@ -76,7 +76,6 @@ const RegisterPage = () => {
 
   const handleFormSubmit = async (values, { resetForm }) => {
     try {
-      //const response = await axios.post(`${API_URL}/register`, values);
 
       const formData = new FormData();
 
@@ -91,31 +90,22 @@ const RegisterPage = () => {
             formData.append("address", values.address);
             formData.append("role", values.role);
 
-             if (values.idDocument) {
-                    formData.append("idDocument", values.idDocument);
-                }
+            // append files (must match Multer fieldnames!)
+            if (values.idDocument instanceof File) {
+              formData.append("idDocument", values.idDocument);
+            }
+            if (values.driversLicense instanceof File) {
+              formData.append("driversLicense", values.driversLicense);
+            }
 
-            if (values.driversLicense) {
-                    formData.append("driversLicense", values.driversLicense);
-                }
-
-            const response = await axios.post(
-                    `${API_URL}/register`,
-                    formData,
-                    {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                    }
-                );
+            const response = await axios.post(`${API_URL}/register`, formData, {
+              headers: { "Content-Type": "multipart/form-data" },
+            });
 
                 console.log(response.data);
-      
-
                 alert("Registration successful!");
 
                 resetForm();
-
                 navigate("/");
                 } catch (error) {
                 console.error(error);
