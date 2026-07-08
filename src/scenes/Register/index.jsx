@@ -77,6 +77,10 @@ const RegisterPage = () => {
   const handleFormSubmit = async (values, { resetForm }) => {
     try {
 
+            // 🔎 Debug: check what Formik captured
+          console.log("ID Document file:", values.idDocument);
+          console.log("Driver License file:", values.driversLicense);
+
       const formData = new FormData();
 
             formData.append("firstName", values.firstName);
