@@ -233,7 +233,6 @@ if (process.env.JWT_SECRET) {
 // -----------------------------
 // User Registration Route
 // -----------------------------
-//app.post("/register", async (req, res) => {
 
   app.post(
   "/register",
@@ -242,6 +241,9 @@ if (process.env.JWT_SECRET) {
     { name: "driversLicense", maxCount: 1 },
   ]),
   async (req, res) => {
+     // 🔎 Debug: check what Multer received
+    console.log("Uploaded ID Document:", req.files?.idDocument);
+    console.log("Uploaded Driver License:", req.files?.driversLicense);
   const { 
 
     
