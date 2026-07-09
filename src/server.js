@@ -19,7 +19,7 @@ const logAction = require("./utils/logAction");
 const fs = require("fs");
 const Papa = require("papaparse");
 const router = express.Router();
-const  Parser  = require("json2csv"); //  for CSV export
+const { Parser } = require("json2csv"); //  for CSV export
 
 // Ensure upload directories exist
 ["uploads", "uploads/IDs", "uploads/Licences", "uploads/csv"].forEach(dir => {
@@ -233,6 +233,7 @@ if (process.env.JWT_SECRET) {
 // -----------------------------
 // User Registration Route
 // -----------------------------
+//app.post("/register", async (req, res) => {
 
   app.post(
   "/register",
@@ -241,23 +242,17 @@ if (process.env.JWT_SECRET) {
     { name: "driversLicense", maxCount: 1 },
   ]),
   async (req, res) => {
-     // 🔎 Debug: check what Multer received
-    console.log("Uploaded ID Document:", req.files?.idDocument);
-    console.log("Uploaded Driver License:", req.files?.driversLicense);
   const { 
 
     
     username, password, role, driverId, firstName, lastName, cellNumber, email, id_passport, address, vehicle_id} = req.body;
 
     
-       const idDocument = req.files?.idDocument?.[0]
-                            ? path.join("uploads/IDs", req.files.idDocument[0].filename)
-                            : null;
+        const idDocument =
+      req.files?.idDocument?.[0]?.filename || null;
 
-       const driversLicense = req.files?.driversLicense?.[0]
-                              ? path.join("uploads/Licences", req.files.driversLicense[0].filename)
-                              : null;
-
+    const driversLicense =
+      req.files?.driversLicense?.[0]?.filename || null;
 
   if (!username || !password || !role || !firstName || !lastName || !cellNumber || !email ||!id_passport|| !address) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -1215,10 +1210,8 @@ app.delete("/owner/users/:id", authenticateToken, authorizeRole("owner"), async 
 });
        
 
- // Serve uploaded files statically
-app.use("/static/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Get all users - API routes
+// Get all users
 app.get("/users", authenticateToken, (req, res) => {
   //  Only allow owner or admin roles
   if (req.user.role !== "owner" && req.user.role !== "admin") {
@@ -1231,8 +1224,14 @@ app.get("/users", authenticateToken, (req, res) => {
     .catch(err => res.status(500).json({ error: "Failed to fetch users" }));
 });
 
+// Serve uploaded files statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+
 // Serve React build 
 app.use(express.static(path.join(__dirname, "../build")));
+
+
 
 // Mount router for finance and audit logs   
  app.use("/", router);
@@ -1241,14 +1240,11 @@ app.use(express.static(path.join(__dirname, "../build")));
 // Catch-all handler: send back index.html for any non-API routes (for React Router)
 app.use((req, res, next) => {
   if (req.method === 'GET' && !req.path.startsWith('/api') &&
-      !req.path.startsWith("/api") &&
-        !req.path.startsWith("/support") &&
-        !req.path.startsWith("/admin") &&
-        !req.path.startsWith("/finance") &&
-        !req.path.startsWith("/audit-logs") &&
-        !req.path.startsWith("/driver-statement") &&
-       // !req.path.startsWith("/uploads")
-      ) 
+  !req.path.startsWith('/support') && 
+  !req.path.startsWith('/admin') &&
+   !req.path.startsWith('/finance') && 
+   !req.path.startsWith('/audit-logs') && 
+   !req.path.startsWith('/driver-statement')) 
    {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
   } else {
