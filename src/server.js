@@ -1247,7 +1247,7 @@ app.use((req, res, next) => {
         !req.path.startsWith("/finance") &&
         !req.path.startsWith("/audit-logs") &&
         !req.path.startsWith("/driver-statement") &&
-        !req.path.startsWith("/uploads")
+       // !req.path.startsWith("/uploads")
       ) 
    {
     res.sendFile(path.join(__dirname, '../build', 'index.html'));
