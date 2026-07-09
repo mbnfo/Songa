@@ -19,7 +19,7 @@ const logAction = require("./utils/logAction");
 const fs = require("fs");
 const Papa = require("papaparse");
 const router = express.Router();
-const { Parser } = require("json2csv"); //  for CSV export
+const  Parser  = require("json2csv"); //  for CSV export
 
 // Ensure upload directories exist
 ["uploads", "uploads/IDs", "uploads/Licences", "uploads/csv"].forEach(dir => {
@@ -33,19 +33,21 @@ const storage = multer.diskStorage({
   destination: function (req, file, cb) {
 
     if (file.fieldname === "file") {
-      cb(null, "uploads/csv");
+     // cb(null, "uploads/csv");
+     cb(null, path.join(__dirname, "../uploads/csv"));
     }
 
     else if (file.fieldname === "idDocument") {
-      cb(null, "uploads/IDs");
+      cb(null, path.join(__dirname, "../uploads/IDs"));
     }
 
     else if (file.fieldname === "driversLicense") {
-      cb(null, "uploads/Licences");
+      cb(null, path.join(__dirname, "../uploads/Licences"));
     }
 
     else {
-      cb(null, "uploads");
+     // cb(null, "uploads");
+     cb(null, path.join(__dirname, "../uploads"));
     }
   },
 
@@ -237,66 +239,69 @@ if (process.env.JWT_SECRET) {
 
   app.post(
   "/register",
+
+  //ID and License file uploads
   upload.fields([
     { name: "idDocument", maxCount: 1 },
     { name: "driversLicense", maxCount: 1 },
   ]),
   async (req, res) => {
-  const { 
+                 const { username, password, role, driverId, firstName, lastName, cellNumber, email, id_passport, address, vehicle_id} = req.body;
 
     
-    username, password, role, driverId, firstName, lastName, cellNumber, email, id_passport, address, vehicle_id} = req.body;
+                // Extract files from Multer
+                const idDocument = req.files?.idDocument?.[0]
+                  ? path.join("uploads/IDs", req.files.idDocument[0].filename)
+                  : null;
 
-    
-        const idDocument =
-      req.files?.idDocument?.[0]?.filename || null;
+                const driversLicense = req.files?.driversLicense?.[0]
+                  ? path.join("uploads/Licences", req.files.driversLicense[0].filename)
+                  : null;
 
-    const driversLicense =
-      req.files?.driversLicense?.[0]?.filename || null;
 
-  if (!username || !password || !role || !firstName || !lastName || !cellNumber || !email ||!id_passport|| !address) {
-    return res.status(400).json({ error: "Missing required fields" });
-  }
-  try {
-    // Hash the password before saving
-    const password_hash = await bcrypt.hash(password, 10);
-
-     // Insert into users
-    const [result] = await db.query(
-      "INSERT INTO users (username, password_hash, role, driver_id, first_name, last_name, cell_number, email,id_passport,address, status,  id_document, drivers_license) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-      [username, password_hash, role, role === "driver" ? driverId : null, firstName, lastName, cellNumber, email,id_passport,address, "Active", idDocument, driversLicense ]
-    );
-          //Log user creation
-        await db.query(
-      "INSERT INTO audit_logs (user, role, action, details, timestamp) VALUES (?, ?, ?, ?, NOW())",
-      [username, role, "Register", `New ${role} user ${username} registered`]
-    );
-
-    const userId = result.insertId;
-
-    // If driver, also insert into drivers table
-    if (role === "driver") {
-      await db.query(
-        "INSERT INTO drivers (user_id, vehicle_id) VALUES (?, ?)",
-        [userId, vehicle_id || driverId]
-      );
+    if (!username || !password || !role || !firstName || !lastName || !cellNumber || !email ||!id_passport|| !address) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
+    try {
+                  // Hash the password before saving
+                  const password_hash = await bcrypt.hash(password, 10);
 
-    res.json({ message: "User registered successfully!" });
-  } catch (err) {
-    console.error("Registration error:");
-console.error(err);
+                  // Insert into users
+                  const [result] = await db.query(
+                    "INSERT INTO users (username, password_hash, role, driver_id, first_name, last_name, cell_number, email,id_passport,address, status,  id_document, drivers_license) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    [username, password_hash, role, role === "driver" ? driverId : null, firstName, lastName, cellNumber, email,id_passport,address, "Active", idDocument, driversLicense ]
+                  );
+                        //Log user creation
+                      await db.query(
+                    "INSERT INTO audit_logs (user, role, action, details, timestamp) VALUES (?, ?, ?, ?, NOW())",
+                    [username, role, "Register", `New ${role} user ${username} registered`]
+                  );
 
-if (err.sqlMessage) {
-    console.error("SQL Error:", err.sqlMessage);
-}
+                  const userId = result.insertId;
 
-if (err.code) {
-    console.error("Error Code:", err.code);
-}
-    res.status(500).json({ error: "❌Failed to register user." });
-  }
-});
+          // If driver, also insert into drivers table
+          if (role === "driver") {
+            await db.query(
+              "INSERT INTO drivers (user_id, vehicle_id) VALUES (?, ?)",
+              [userId, vehicle_id || driverId]
+            );
+          }
+
+          res.json({ message: "User registered successfully!" });
+        } catch (err) {
+          console.error("Registration error:");
+      console.error(err);
+
+      if (err.sqlMessage) {
+          console.error("SQL Error:", err.sqlMessage);
+      }
+
+      if (err.code) {
+          console.error("Error Code:", err.code);
+      }
+          res.status(500).json({ error: "❌Failed to register user." });
+        }
+      });
 
    
 
@@ -304,204 +309,204 @@ if (err.code) {
 // Login Route
 // -----------------------------
 app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-  try {
-     // Find user by username
-    const [rows] = await db.query("SELECT * FROM users WHERE username = ?", [username]);
-    const user = rows[0];
-    if (!user) return res.status(401).json({ error: "❌Invalid username" });
+        const { username, password } = req.body;
+        try {
+          // Find user by username
+          const [rows] = await db.query("SELECT * FROM users WHERE username = ?", [username]);
+          const user = rows[0];
+          if (!user) return res.status(401).json({ error: "❌Invalid username" });
 
-    // Compare password with stored hash
-    const valid = await bcrypt.compare(password, user.password_hash);
-    if (!valid) return res.status(401).json({ error: "❌Invalid password" });
-    //Token defensive
-    if (!user.role) {
-        return res.status(500).json({ error: "User role missing in database" });
-      }
+          // Compare password with stored hash
+          const valid = await bcrypt.compare(password, user.password_hash);
+          if (!valid) return res.status(401).json({ error: "❌Invalid password" });
+          //Token defensive
+          if (!user.role) {
+              return res.status(500).json({ error: "User role missing in database" });
+            }
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { id: user.id, role: user.role, driverId: user.driver_id },
-      process.env.JWT_SECRET || "mysecret",
-      { expiresIn: "1h" }
-    );
+          // Generate JWT token
+          const token = jwt.sign(
+            { id: user.id, role: user.role, driverId: user.driver_id },
+            process.env.JWT_SECRET || "mysecret",
+            { expiresIn: "1h" }
+          );
 
-    // Log the login event into audit_logs
-    await db.query(
-      "INSERT INTO audit_logs (user, role, action, details, timestamp) VALUES (?, ?, ?, ?, NOW())",
-      [user.username, user.role, "Login", `User ${user.username} logged in`]
-    );
+          // Log the login event into audit_logs
+          await db.query(
+            "INSERT INTO audit_logs (user, role, action, details, timestamp) VALUES (?, ?, ?, ?, NOW())",
+            [user.username, user.role, "Login", `User ${user.username} logged in`]
+          );
 
 
-    res.json({ token });
-  } catch (err) {
-    console.error("❌Login error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+          res.json({ token });
+        } catch (err) {
+          console.error("❌Login error:", err);
+          res.status(500).json({ error: "Server error" });
+        }
+      });
 
-// -----------------------------
-// Protected Dashboard Data Route
-// -----------------------------
-app.get("/dashboard-data", async (req, res) => {
-  try {
-    // Pull earnings joined with drivers for richer info
-    const [rows] = await db.query(`
-      SELECT 
-              e.id,
-              e.driver_id,
-              CONCAT(d.first_name, ' ', d.last_name) AS driver_name,
-              e.week,
-              e.gross,
-              e.commission,
-              e.net,
-              e.payout_status
-            FROM earnings e
-            LEFT JOIN drivers d ON e.driver_id = d.id
-            ORDER BY e.week ASC
-    `);
-    
-    console.log(" Dashboard rows:", rows);
-    // Always return JSON
-    res.json(rows);
-  } catch (err) {
-    console.error("Dashboard data fetch error:", err);
-    res.status(500).json({ error: "Failed to fetch dashboard data" });
-  }
-});
-// -----------------------------
-// Driver Statement PDF Route
-// -----------------------------
-const PDFDocument = require("pdfkit"); // PDF generation library
-const crypto = require("crypto");      // For generating unique statement IDs
-// const path = require("path");
+      // -----------------------------
+      // Protected Dashboard Data Route
+      // -----------------------------
+      app.get("/dashboard-data", async (req, res) => {
+        try {
+          // Pull earnings joined with drivers for richer info
+          const [rows] = await db.query(`
+            SELECT 
+                    e.id,
+                    e.driver_id,
+                    CONCAT(d.first_name, ' ', d.last_name) AS driver_name,
+                    e.week,
+                    e.gross,
+                    e.commission,
+                    e.net,
+                    e.payout_status
+                  FROM earnings e
+                  LEFT JOIN drivers d ON e.driver_id = d.id
+                  ORDER BY e.week ASC
+          `);
+          
+          console.log(" Dashboard rows:", rows);
+          // Always return JSON
+          res.json(rows);
+        } catch (err) {
+          console.error("Dashboard data fetch error:", err);
+          res.status(500).json({ error: "Failed to fetch dashboard data" });
+        }
+      });
+      // -----------------------------
+      // Driver Statement PDF Route
+      // -----------------------------
+      const PDFDocument = require("pdfkit"); // PDF generation library
+      const crypto = require("crypto");      // For generating unique statement IDs
+      // const path = require("path");
 
-app.get("/driver-statement/:driverId", authenticateToken, async (req, res) => {
-  const { driverId } = req.params;
+      app.get("/driver-statement/:driverId", authenticateToken, async (req, res) => {
+        const { driverId } = req.params;
 
-  try {
-    //  Fetch driver info (first_name, last_name, vehicle, city) from drivers table
-    const [driverRows] = await db.query(
-      "SELECT first_name, last_name, vehicle_id, city FROM drivers WHERE id = ?",
-      [driverId]
-    );
-    const driver = driverRows[0];
+        try {
+          //  Fetch driver info (first_name, last_name, vehicle, city) from drivers table
+          const [driverRows] = await db.query(
+            "SELECT first_name, last_name, vehicle_id, city FROM drivers WHERE id = ?",
+            [driverId]
+          );
+          const driver = driverRows[0];
 
-    // 2️⃣ Fetch weekly earnings
-    const [rows] = await db.query(
-      "SELECT week, gross, commission, net, payout_status FROM earnings WHERE driver_id = ? ORDER BY week ASC",
-      [driverId]
-    );
+          // 2️⃣ Fetch weekly earnings
+          const [rows] = await db.query(
+            "SELECT week, gross, commission, net, payout_status FROM earnings WHERE driver_id = ? ORDER BY week ASC",
+            [driverId]
+          );
 
-    if (!rows.length) {
-      return res.status(404).json({ error: "No earnings found for this driver" });
-    }
+          if (!rows.length) {
+            return res.status(404).json({ error: "No earnings found for this driver" });
+          }
 
-    // 3️⃣ Generate Statement ID
-    const statementId = `SONGA-${driverId}-${crypto.randomBytes(4).toString("hex")}`;
+          // 3️⃣ Generate Statement ID
+          const statementId = `SONGA-${driverId}-${crypto.randomBytes(4).toString("hex")}`;
 
-    // 4️⃣ Date range
-    const startWeek = rows[0].week;
-    const endWeek = rows[rows.length - 1].week;
+          // 4️⃣ Date range
+          const startWeek = rows[0].week;
+          const endWeek = rows[rows.length - 1].week;
 
-    // 5️⃣ Set headers
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename=statement_${driverId}.pdf`);
+          // 5️⃣ Set headers
+          res.setHeader("Content-Type", "application/pdf");
+          res.setHeader("Content-Disposition", `attachment; filename=statement_${driverId}.pdf`);
 
-    // 6️⃣ Create PDF
-    const doc = new PDFDocument({ margin: 50 });
-    doc.pipe(res);
+          // 6️⃣ Create PDF
+          const doc = new PDFDocument({ margin: 50 });
+          doc.pipe(res);
 
-    // Company logo
-    const logoPath = path.join(__dirname, "assets", "New_Songa_Logo.png");
-    try {
-      doc.image(logoPath, 50, 40, { width: 80 });
-    } catch (err) {
-      console.warn("Logo not found, skipping image.");
-    }
+          // Company logo
+          const logoPath = path.join(__dirname, "assets", "New_Songa_Logo.png");
+          try {
+            doc.image(logoPath, 50, 40, { width: 80 });
+          } catch (err) {
+            console.warn("Logo not found, skipping image.");
+          }
 
-    // Company header
-    doc.fontSize(20).text("Songa Fleet Management", 150, 50);
-    doc.moveDown();
-    doc.fontSize(14).text("Weekly Driver Earnings Statement", { align: "center" });
-    doc.moveDown();
+          // Company header
+          doc.fontSize(20).text("Songa Fleet Management", 150, 50);
+          doc.moveDown();
+          doc.fontSize(14).text("Weekly Driver Earnings Statement", { align: "center" });
+          doc.moveDown();
 
-    // Statement metadata
-    doc.fontSize(12).text(`Statement ID: ${statementId}`);
-    doc.text(`Period: ${startWeek} to ${endWeek}`);
-    doc.moveDown();
+          // Statement metadata
+          doc.fontSize(12).text(`Statement ID: ${statementId}`);
+          doc.text(`Period: ${startWeek} to ${endWeek}`);
+          doc.moveDown();
 
-    //  Driver info section
-    doc.fontSize(12).text(`Driver Name: ${driver?.first_name} ${driver?.last_name || "N/A"}`);
-    doc.text(`Driver ID: ${driverId}`);
-    doc.text(`Vehicle ID: ${driver?.vehicle_id || "N/A"}`);
-    doc.text(`City: ${driver?.city || "N/A"}`);
-    doc.moveDown();
+          //  Driver info section
+          doc.fontSize(12).text(`Driver Name: ${driver?.first_name} ${driver?.last_name || "N/A"}`);
+          doc.text(`Driver ID: ${driverId}`);
+          doc.text(`Vehicle ID: ${driver?.vehicle_id || "N/A"}`);
+          doc.text(`City: ${driver?.city || "N/A"}`);
+          doc.moveDown();
 
-    // Table header
-    doc.fontSize(12).text("Weekly Earnings Summary", { underline: true });
-    doc.moveDown();
+          // Table header
+          doc.fontSize(12).text("Weekly Earnings Summary", { underline: true });
+          doc.moveDown();
 
-    // Table columns
-    const tableTop = doc.y;
-    const itemHeight = 20;
-    const colWeek = 50, colGross = 150, colCommission = 250, colNet = 350, colStatus = 450;
+          // Table columns
+          const tableTop = doc.y;
+          const itemHeight = 20;
+          const colWeek = 50, colGross = 150, colCommission = 250, colNet = 350, colStatus = 450;
 
-    // Header row
-    doc.rect(colWeek - 5, tableTop - 5, 450, itemHeight).stroke();
-    doc.fontSize(10).text("Week", colWeek, tableTop);
-    doc.text("Gross", colGross, tableTop);
-    doc.text("Commission", colCommission, tableTop);
-    doc.text("Net", colNet, tableTop);
-    doc.text("Status", colStatus, tableTop);
+          // Header row
+          doc.rect(colWeek - 5, tableTop - 5, 450, itemHeight).stroke();
+          doc.fontSize(10).text("Week", colWeek, tableTop);
+          doc.text("Gross", colGross, tableTop);
+          doc.text("Commission", colCommission, tableTop);
+          doc.text("Net", colNet, tableTop);
+          doc.text("Status", colStatus, tableTop);
 
-    let y = tableTop + itemHeight;
+          let y = tableTop + itemHeight;
 
-    // Rows
-    rows.forEach((row) => {
-      doc.rect(colWeek - 5, y - 5, 450, itemHeight).stroke();
-      doc.text(row.week, colWeek, y);
-      // 7️⃣ Align numbers neatly
-      doc.text(Number(row.gross).toFixed(2), colGross, y, { width: 80, align: "right" });
-      doc.text(Number(row.commission).toFixed(2), colCommission, y, { width: 80, align: "right" });
-      doc.text(Number(row.net).toFixed(2), colNet, y, { width: 80, align: "right" });
-      doc.text(row.payout_status, colStatus, y);
-      y += itemHeight;
-    });
+          // Rows
+          rows.forEach((row) => {
+            doc.rect(colWeek - 5, y - 5, 450, itemHeight).stroke();
+            doc.text(row.week, colWeek, y);
+            // 7️⃣ Align numbers neatly
+            doc.text(Number(row.gross).toFixed(2), colGross, y, { width: 80, align: "right" });
+            doc.text(Number(row.commission).toFixed(2), colCommission, y, { width: 80, align: "right" });
+            doc.text(Number(row.net).toFixed(2), colNet, y, { width: 80, align: "right" });
+            doc.text(row.payout_status, colStatus, y);
+            y += itemHeight;
+          });
 
-    doc.moveDown();
+          doc.moveDown();
 
-    // 8️⃣ Totals section
-    const totalGross = rows.reduce((sum, r) => sum + Number(r.gross || 0), 0);
-    const totalCommission = rows.reduce((sum, r) => sum + Number(r.commission || 0), 0);
-    const totalNet = rows.reduce((sum, r) => sum + Number(r.net || 0), 0);
+          // 8️⃣ Totals section
+          const totalGross = rows.reduce((sum, r) => sum + Number(r.gross || 0), 0);
+          const totalCommission = rows.reduce((sum, r) => sum + Number(r.commission || 0), 0);
+          const totalNet = rows.reduce((sum, r) => sum + Number(r.net || 0), 0);
 
-    doc.fontSize(12).text(`Total Gross: $${totalGross.toFixed(2)}`);
-    doc.text(`Total Commission: $${totalCommission.toFixed(2)}`);
-    doc.text(`Total Net Payout: $${totalNet.toFixed(2)}`, { align: "right" });
-    doc.moveDown();
+          doc.fontSize(12).text(`Total Gross: $${totalGross.toFixed(2)}`);
+          doc.text(`Total Commission: $${totalCommission.toFixed(2)}`);
+          doc.text(`Total Net Payout: $${totalNet.toFixed(2)}`, { align: "right" });
+          doc.moveDown();
 
-    // Disclaimer
-    doc.fontSize(10).text(
-      "Disclaimer: This statement is generated by Songa Fleet Management. Actual payouts are subject to company policy.",
-      { align: "center" }
-    );
+          // Disclaimer
+          doc.fontSize(10).text(
+            "Disclaimer: This statement is generated by Songa Fleet Management. Actual payouts are subject to company policy.",
+            { align: "center" }
+          );
 
-    // 9️⃣ Audit log
-    await logAction(
-      req.user?.username || "Driver",
-      req.user?.role || "driver",
-      "Downloaded PDF Statement",
-      `Driver ${driverId} downloaded statement ${statementId}`
-    );
+          // 9️⃣ Audit log
+          await logAction(
+            req.user?.username || "Driver",
+            req.user?.role || "driver",
+            "Downloaded PDF Statement",
+            `Driver ${driverId} downloaded statement ${statementId}`
+          );
 
-    // Finalize
-    doc.end();
-  } catch (err) {
-    console.error("PDF generation error:", err);
-    res.status(500).json({ error: "Failed to generate statement" });
-  }
-});
+          // Finalize
+          doc.end();
+        } catch (err) {
+          console.error("PDF generation error:", err);
+          res.status(500).json({ error: "Failed to generate statement" });
+        }
+      });
 
 
 // -----------------------------
@@ -1224,8 +1229,13 @@ app.get("/users", authenticateToken, (req, res) => {
     .catch(err => res.status(500).json({ error: "Failed to fetch users" }));
 });
 
-// Serve uploaded files statically
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Serve uploaded ID and License files statically
+
+//app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Serve uploaded files from the uploads directory outside the server folder, allowing access via /uploads route
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 
 
 // Serve React build 
