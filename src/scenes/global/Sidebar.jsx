@@ -3,6 +3,8 @@ import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { tokens } from "../../theme";
+import axios from "axios";
+
 
 // MUI Icons
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
@@ -13,40 +15,80 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
-const Item = ({ title, to, icon, selected }) => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  //const userRole = localStorage.getItem("role");
+ const API_URL =
+  process.env.REACT_APP_API_URL || "https://biasedly-abjective-brenden.ngrok-free.dev";
+       
+     // Reusable navigation item component
+      const Item = ({ title, to, icon, selected }) => {
+        const theme = useTheme();
+        const colors = tokens(theme.palette.mode);
 
-  return (
-    <MenuItem
-      active={selected === to}
-      icon={icon}
-      component={<Link to={to} />}
-    >
-      <Typography color={colors.grey[100]}>{title}</Typography>
-    </MenuItem>
-  );
-};
+        return (
+          <MenuItem
+            active={selected === to}
+            icon={icon}
+            component={<Link to={to} />}
+          >
+            <Typography color={colors.grey[100]}>{title}</Typography>
+          </MenuItem>
+        );
+      };
 
-const AppSidebar = () => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
 
-  //  Get username from localStorage (saved at login)
-  const username = localStorage.getItem("username");
-  const userRole = localStorage.getItem("role"); 
-  const firstName = localStorage.getItem("first_name"); 
+          const AppSidebar = () => {
+            const theme = useTheme();
+            const colors = tokens(theme.palette.mode);
+            const [isCollapsed, setIsCollapsed] = useState(false);
+            const navigate = useNavigate();
+            const location = useLocation();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("username"); // clear username on logout
-    navigate("/", { replace: true });
-  };
+            //  Get username from localStorage (saved at login)
+            const username = localStorage.getItem("username");
+            const userRole = localStorage.getItem("role"); 
+            const firstName = localStorage.getItem("first_name"); 
+
+            // Profile picture state 
+            const [profilePic, setProfilePic] = useState(
+              localStorage.getItem("profilePic") || null
+            );
+
+             // Upload handler
+             const handleProfileUpload = async (event) => {
+              const file = event.target.files[0];
+              if (!file) return;
+
+              const formData = new FormData();
+              formData.append("profilePic", file);
+
+              try {
+                const token = localStorage.getItem("token");
+                const response = await axios.post(
+                  `${API_URL}/upload-profile-pic`,
+                  formData,
+                  {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+
+                // Save path in localStorage and state
+                    localStorage.setItem("profilePic", response.data.profilePic);
+                    setProfilePic(response.data.profilePic);
+                  } catch (err) {
+                    alert("Upload failed");
+                  }
+                };
+
+
+                // Logout handler
+                const handleLogout = () => {
+                  localStorage.removeItem("token");
+                  localStorage.removeItem("role");
+                  localStorage.removeItem("username"); // clear username on logout
+                  navigate("/", { replace: true });
+                };
 
   return (
     <Sidebar
@@ -92,38 +134,56 @@ const AppSidebar = () => {
               alt="profile-user"
               width="100px"
               height="100px"
-              src={`../../assets/user.png`}
+             // src={`../../assets/user.png`}
+             src={
+                 profilePic
+                  ? `${API_URL}/${profilePic}` // dynamic image from backend
+                  : "../../assets/user.png" // fallback image
+              }
               style={{ cursor: "pointer", borderRadius: "50%" }}
+              onClick={() => document.getElementById("profilePicInput").click()}
+
             />
-            <Typography variant="h2" color="#888888" fontWeight="bold" sx={{ mt: "10px" }}>
-              {username} {/* dynamic username */}
-            </Typography>
+
+            {/* Hidden file input */}
+            <input
+              id="profilePicInput"
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleProfileUpload}
+            />
 
 
-            <Typography variant="h5" color={colors.greenAccent[500]}>
-              {userRole}
-            </Typography>
-          </Box>
-        )}
+                <Typography variant="h2" color="#888888" fontWeight="bold" sx={{ mt: "10px" }}>
+                  {username} {/* dynamic username */}
+                </Typography>
 
-        {/* Navigation */}
-          <Item
-            title="Dashboard"
-            to={`/${userRole}`} //  dynamic role-based dashboard
-            icon={<HomeOutlinedIcon />}
-            selected={location.pathname}
-          />
 
-          {/*  Show Manage Users only for owners */}
-            {userRole === "owner" && (
+                <Typography variant="h5" color={colors.greenAccent[500]}>
+                  {userRole}
+                </Typography>
+              </Box>
+            )}
+
+            {/* Navigation */}
               <Item
-                title="Manage Users"
-                to="/owner/manage-users"
-                icon={<PeopleOutlinedIcon />}
+                title="Dashboard"
+                to={`/${userRole}`} //  dynamic role-based dashboard
+                icon={<HomeOutlinedIcon />}
                 selected={location.pathname}
               />
-            )}
-    
+
+              {/*  Show Manage Users only for owners */}
+                {userRole === "owner" && (
+                  <Item
+                    title="Manage Users"
+                    to="/owner/manage-users"
+                    icon={<PeopleOutlinedIcon />}
+                    selected={location.pathname}
+                  />
+                )}
+        
 
         {/* Show Support Dashboard only if role === 'support' */}
         {/* {userRole === "support" && (
