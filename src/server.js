@@ -1216,7 +1216,7 @@ app.delete("/owner/users/:id", authenticateToken, authorizeRole("owner"), async 
        
 
  // Serve uploaded files statically
-app.use("/static/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // Get all users - API routes
 app.get("/users", authenticateToken, (req, res) => {
