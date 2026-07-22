@@ -248,7 +248,8 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
           
 
           <Box display="flex" gap="10px" 
-          sx={{backgroundColor: colors.blueAccent[700],
+          sx={{
+            //backgroundColor: colors.blueAccent[700],
             mr:2,
             color: colors.grey[100],
 
