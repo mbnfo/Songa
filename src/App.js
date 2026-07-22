@@ -17,6 +17,7 @@ import ManageUsers from "./scenes/ManageUsers";
 import SupportDashboard from "./scenes/SupportDashboard";
 import SupportPage from "./scenes/SupportPage";
 import RegisterPage from "./scenes/Register";
+import Home from "./scenes/HomePage";
 
 
 
@@ -153,8 +154,13 @@ function App() {
         <CssBaseline />
          <GlobalErrorBoundary>
           <Routes>
+
+            {/* Public home page */}
+              <Route path="/" element={<Home />} />
+
+
               {/* Public login page */}
-              <Route path="/" element={<LoginPage />} />
+              <Route path="/login" element={<LoginPage />} />
 
               {/* Public Register page */}
               <Route path="/register" element={<RegisterPage />} />
@@ -216,6 +222,10 @@ function App() {
                   <SupportPageLayout />
                 }
               />
+
+               {/* Catch‑all route  */}
+                 <Route path="*" element={<Home />} />
+
             </Routes>
             
             {/* Toast notifications */}
