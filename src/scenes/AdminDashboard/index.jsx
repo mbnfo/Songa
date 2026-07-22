@@ -201,14 +201,14 @@ const pieData = Object.entries(driverTotals).map(([driverId, totalNet]) => ({
   return ( 
           <Box
           //  m="20px"
-          sx={{
+         /* sx={{
                    backgroundColor: (theme) =>
                     theme.palette.mode === 'light'
                       ? theme.palette.background.default
                       : theme.palette.background.default,
                     border: 'none',
                     boxShadow: 'none',
-              }}
+              }}*/
           >
 
       {/* HEADER */}
