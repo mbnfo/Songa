@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/lib/AuthContext";
+//import { useAuth } from "@/lib/AuthContext";
 import { Menu, X, Truck, ArrowRight } from "lucide-react";
 import { cn } from "../../lib/utils";
 
@@ -15,7 +15,7 @@ const links = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const { currentUser } = useAuth();
+ // const { currentUser } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -52,11 +52,13 @@ export default function Navbar() {
 
         {/* CTAs */}
         <div className="hidden lg:flex items-center gap-3">
-          {currentUser ? (
+          {
+         /* currentUser ? (
             <Link to="/dashboard" className="flex items-center gap-1.5 bg-primary hover:bg-primary/90 text-white text-sm font-semibold px-5 py-2.5 rounded-full transition-all hover:shadow-float">
               Go to Dashboard <ArrowRight className="w-4 h-4" />
             </Link>
-          ) : (
+          ) : 
+          (*/
             <>
               <Link to="/login" className="text-sm font-semibold text-foreground hover:text-primary transition-colors px-4 py-2.5">
                 Login
@@ -65,7 +67,8 @@ export default function Navbar() {
                 Get Started
               </Link>
             </>
-          )}
+        //  )
+          }
         </div>
 
         {/* Mobile toggle */}
@@ -85,19 +88,22 @@ export default function Navbar() {
               </a>
             ))}
             <div className="pt-3 flex gap-2 border-t border-border mt-3">
-              {currentUser ? (
+            </div>  {
+            /*currentUser ? (
                 <Link to="/dashboard" onClick={() => setOpen(false)} className="flex-1 text-center bg-primary text-white text-sm font-semibold px-5 py-2.5 rounded-full">
                   Dashboard
                 </Link>
               ) : (
+                */
                 <>
                   <Link to="/login" onClick={() => setOpen(false)} className="flex-1 text-center border border-border text-sm font-semibold px-5 py-2.5 rounded-full">Login</Link>
                   <Link to="/register" onClick={() => setOpen(false)} className="flex-1 text-center bg-primary text-white text-sm font-semibold px-5 py-2.5 rounded-full">Get Started</Link>
                 </>
-              )}
+             // )
+              }
             </div>
           </div>
-        </div>
+       // </div>
       )}
     </header>
   );
