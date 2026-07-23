@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Truck, LinkedinIcon, FacebookIcon, InstagramIcon, Mail, MapPin, Phone, Send } from "lucide-react";
+import { Truck, Mail, MapPin, Phone, Send } from "lucide-react";
+import { FaFacebook, FaLinkedin, FaInstagram, FaTwitter } from "react-icons/fa";
 
 const columns = [
   { title: "Company", links: ["About", "Careers", "Contact"] },
@@ -8,10 +9,10 @@ const columns = [
 ];
 
 const socialLinks = [
-                                   // { Icon: TwitterIcon, url: "https://twitter.com/yourhandle" },
-                                    { Icon: LinkedinIcon, url: "https://linkedin.com/company/yourcompany" },
-                                    { Icon: FacebookIcon, url: "https://facebook.com/yourpage" },
-                                    { Icon: InstagramIcon, url: "https://instagram.com/yourhandle" },
+                                    { Icon: FaTwitter, url: "https://twitter.com/yourhandle" },
+                                    { Icon: FaLinkedin, url: "https://linkedin.com/company/yourcompany" },
+                                    { Icon: FaFacebook, url: "https://facebook.com/yourpage" },
+                                    { Icon: FaInstagram, url: "https://instagram.com/yourhandle" },
                                   ];
 
 export default function Footer() {
