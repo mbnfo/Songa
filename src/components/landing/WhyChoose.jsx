@@ -20,7 +20,7 @@ export default function WhyChoose() {
             <h2 className="font-heading font-extrabold text-3xl lg:text-4xl text-foreground mt-2 tracking-tight">
               Everything you need to succeed on the road
             </h2>
-            <p className="text-muted-foreground mt-4 text-lg">
+            <p className="text-muted-foreground mt-4 text-lg">00000
               Six reasons professional drivers choose Songa to manage their fleet and earnings.
             </p>
           </div>

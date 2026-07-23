@@ -1,4 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 html,
 body,
@@ -44,4 +49,106 @@ body,
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+/*TAILWIND CSS*/
+
+
+
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 220 39% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 39% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 39% 11%;
+    --primary: 198 60% 29%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 198 62% 45%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 89 50% 45%;
+    --accent-foreground: 0 0% 100%;
+    --muted: 200 30% 96%;
+    --muted-foreground: 200 20% 30%;
+    --accent-soft: 89 60% 95%;
+    --border: 200 25% 90%;
+    --input: 200 25% 90%;
+    --ring: 198 60% 29%;
+    --radius: 1rem;
+    --font-heading: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --sidebar-background: 220 39% 11%;
+    --sidebar-foreground: 210 20% 80%;
+    --sidebar-primary: 198 60% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 200 30% 18%;
+    --sidebar-accent-foreground: 198 20% 90%;
+    --sidebar-border: 200 25% 22%;
+    --sidebar-ring: 198 60% 35%;
+  }
+
+  .dark {
+    --background: 200 40% 9%;
+    --foreground: 200 20% 92%;
+    --card: 200 35% 13%;
+    --card-foreground: 200 20% 92%;
+    --popover: 200 35% 13%;
+    --popover-foreground: 200 20% 92%;
+    --primary: 198 60% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 198 60% 55%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 89 55% 50%;
+    --accent-foreground: 220 39% 11%;
+    --muted: 200 25% 16%;
+    --muted-foreground: 198 15% 65%;
+    --border: 200 25% 22%;
+    --input: 200 25% 22%;
+    --ring: 198 60% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+  ::selection {
+    background: hsl(var(--primary) / 0.15);
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(120deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, hsl(var(--border) / 0.6) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.6) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .shadow-premium {
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -8px rgba(16, 24, 40, 0.12), 0 24px 48px -24px rgba(13, 71, 161, 0.18);
+  }
+  .shadow-float {
+    box-shadow: 0 20px 50px -20px rgba(13, 71, 161, 0.35);
+  }
 }
