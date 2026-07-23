@@ -9,6 +9,7 @@ export const tokens = (mode) => ({
         grey: {
           100: "#e0e0e0",
           200: "#c2c2c2",
+          250: "#f8fafc",
           300: "#a3a3a3",
           400: "#858585",
           500: "#666666",
@@ -142,8 +143,8 @@ export const themeSettings = (mode) => {
                   light: colors.grey[900],
             },
             background: {
-              //default: colors.grey[200], //CHANGED THIS FOR BACKGROUND COLOR
-              color: #f8fafc
+              default: colors.grey[250], //CHANGED THIS FOR BACKGROUND COLOR
+     
             },
 
             text: {
