@@ -1,11 +1,18 @@
 import { Link } from "react-router-dom";
-import { Truck, Twitter, Linkedin, Facebook, Instagram, Mail, MapPin, Phone, Send } from "lucide-react";
+import { Truck, LinkedinIcon, FacebookIcon, InstagramIcon, Mail, MapPin, Phone, Send, TwitterIcon } from "lucide-react";
 
 const columns = [
   { title: "Company", links: ["About", "Careers", "Contact"] },
   { title: "Drivers", links: ["Register", "Driver Portal", "Support"] },
   { title: "Legal", links: ["Privacy Policy", "Terms of Service"] },
 ];
+
+const socialLinks = [
+                                    { Icon: TwitterIcon, url: "https://twitter.com/yourhandle" },
+                                    { Icon: LinkedinIcon, url: "https://linkedin.com/company/yourcompany" },
+                                    { Icon: FacebookIcon, url: "https://facebook.com/yourpage" },
+                                    { Icon: InstagramIcon, url: "https://instagram.com/yourhandle" },
+                                  ];
 
 export default function Footer() {
   return (
@@ -27,11 +34,29 @@ export default function Footer() {
               The intelligent platform for ride-hailing and delivery drivers — automating earnings, settlements and fleet operations at scale.
             </p>
             <div className="flex gap-3 mt-5">
-              {[Twitter, Linkedin, Facebook, Instagram].map((Icon, i) => (
+              
+
+                                  {socialLinks.map(({ Icon, url }, i) => (
+                                    <a
+                                      key={i}
+                                      href={url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary hover:border-primary transition-colors"
+                                    >
+                                      <Icon className="w-4 h-4 text-white" />
+                                    </a>
+                                  ))}
+
+              {/* 
+              /*[Twitter, Linkedin, Facebook, Instagram].map((Icon, i) => (
                 <a key={i} href="#" className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-primary hover:border-primary transition-colors">
                   <Icon className="w-4 h-4 text-white" />
                 </a>
-              ))}
+              ))
+
+               */}
+
             </div>
           </div>
           <div className="lg:justify-self-end">
