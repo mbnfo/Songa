@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Truck, LinkedinIcon, FacebookIcon, InstagramIcon, Mail, MapPin, Phone, Send, TwitterIcon } from "lucide-react";
+import { Truck, LinkedinIcon, FacebookIcon, InstagramIcon, Mail, MapPin, Phone, Send } from "lucide-react";
 
 const columns = [
   { title: "Company", links: ["About", "Careers", "Contact"] },
@@ -8,7 +8,7 @@ const columns = [
 ];
 
 const socialLinks = [
-                                    { Icon: TwitterIcon, url: "https://twitter.com/yourhandle" },
+                                   // { Icon: TwitterIcon, url: "https://twitter.com/yourhandle" },
                                     { Icon: LinkedinIcon, url: "https://linkedin.com/company/yourcompany" },
                                     { Icon: FacebookIcon, url: "https://facebook.com/yourpage" },
                                     { Icon: InstagramIcon, url: "https://instagram.com/yourhandle" },
